@@ -1,15 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import useSWR from 'swr'
-
 
 import { NextUIProvider, Spacer } from "@nextui-org/react";
 import Navbar from "@/components/navbar";
 import PageSection from "@/components/section";
-
-import { handleFormRequest } from '../server/holistic-approach/query-handlers';
-
 
 const featuresList = [
   {
@@ -43,17 +38,12 @@ const featuresList = [
       "Delivers in-depth insights, allowing users to explore every stage of the value chain, assess economic effects, and understand the broader impact on societies.",
   },
 ];
-// @ts-ignore
-const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json())
 
 export default function Home() {
-  const { data, error } = useSWR('../server/holistic-approach/query-handlers', fetcher)
-
-  console.log({ data, error } )
 
   return (
     <NextUIProvider>
-      <main className="light text-foreground bg-background">
+      <>
         <Navbar />
         <div className="w-screen h-screen">
           <PageSection
@@ -111,7 +101,7 @@ export default function Home() {
             <Spacer y={8} />
           </PageSection>
         </div>
-      </main>
+      </>
     </NextUIProvider>
   );
 }

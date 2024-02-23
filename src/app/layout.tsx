@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
-import { Inter } from 'next/font/google';
-import './globals.css';
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'SEA toolkit',
-  description: 'A special toolkit for calculating row commodities.',
+  title: "SEA toolkit",
+  description: "A special toolkit for calculating row commodities.",
 };
 
 export default function RootLayout({
@@ -16,8 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body className={inter.className}>{children} </body>
+    <html lang="en">
+      <body className={inter.className}>
+        <main className="light text-foreground bg-background">{children}</main>
+      </body>
     </html>
   );
 }
