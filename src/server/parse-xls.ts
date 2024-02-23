@@ -1,3 +1,4 @@
+
 /*
 as we may need to parse more files in the future it's good to have a parser
 this needs to:
@@ -5,6 +6,7 @@ this needs to:
 // load the xls library
 // load the file from the arguments
 // 
+
 import XLSX from 'xlsx';
 import readline from 'readline';
 import fs from 'fs';
@@ -13,7 +15,7 @@ import { execSync } from 'child_process';
 XLSX.set_fs(fs);
 
 const testFallback = () => {
-  console.log('\033[33m⚠️ You need to pass a valid file as an argument, using ./data/benchmark.xlsx for demo purposes.\033[0m\n');
+  // console.log('\033[33m⚠️ You need to pass a valid file as an argument, using ./data/benchmark.xlsx for demo purposes.\033[0m\n');
   return './data/benchmark.xlsx';
 }
 
