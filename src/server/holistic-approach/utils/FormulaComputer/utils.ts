@@ -17,7 +17,9 @@ const utils = {
     transformFns.reduce((context, fn) => fn(context, utils), intialData),
 };
 
-const serialiser = ([k, v]: [string, { toString: Function }]) => `${k}:${v}`;
-export default {
+export const serialiser = ([k, v]: [string, { toString: Function }]) => `${k}:${v}`;
+
+const ceva = {
   toString: () => `const utils = {${Object.entries(utils).map(serialiser)}}`,
 };
+export default ceva

@@ -33,7 +33,7 @@ const userInput = (() => {
     selectedFile: process.argv[2] || testFallback(),
     outputFolder: './parsed-xls'
   }
-  console.log(JSON.stringify(taskSetup, null, 2).replace('{\n', '\033[4m\033[1mTask Setup\033[0m\n\n').replace('\n}', '\n').replace(',\n', '\n').replaceAll('  "', '\033[1m').replaceAll('": "', '\033[0m\t"'));
+  // console.log(JSON.stringify(taskSetup, null, 2).replace('{\n', '\033[4m\033[1mTask Setup\033[0m\n\n').replace('\n}', '\n').replace(',\n', '\n').replaceAll('  "', '\033[1m').replaceAll('": "', '\033[0m\t"'));
 
   console.log(`Reading ${taskSetup.selectedFile}...`);
   // get the sheets, prompt which sheets to parse
