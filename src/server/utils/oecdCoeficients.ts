@@ -1,15 +1,16 @@
-import { OECDRawInputOutput, OECDEmployment } from './dataStorage';
-import Matrix, { mmult } from './mathjsMatrix';
-import { closed as leontief } from './leontief';
-import { OECD_UNUSED_SECTOR_TO, OECD_UNUSED_SECTOR_FROM } from '../constants';
-import { REGIONS, SETTINGS } from './auxiliary';
+import { OECDRawInputOutput, OECDEmployment } from "./dataStorage";
+import Matrix, { mmult } from "./mathjsMatrix";
+import { closed as leontief } from "./leontief";
+import { OECD_UNUSED_SECTOR_TO, OECD_UNUSED_SECTOR_FROM, FORM_DATA } from "../constants";
+import { REGIONS, SETTINGS } from "./auxiliary";
 import {
   OECDRawTitles,
   OECDRawVariables,
+  OECDEmploymentTitles,
   Row,
   Table,
   OECDVariableSheet,
-} from './types';
+} from "./types";
 
 /**
  * This is the initial filter, it filters by the selected region
@@ -37,13 +38,52 @@ const filterByRegion = (selectedRegion: string) => (row: Row) => {
   return true;
 };
 
-const getOECDInputs = (OECDRawData: Table) => {
+// Returns a Matrix with the INDustries as the columns and VAR as rows
+// With the value aggregated by region
+export const getOECDEmployment = (selectedRegion: string) => {
+  const employment = structuredClone(OECDEmployment) as Table;
+  const cols = employment.shift() as Row;
+
+  return employment
+    .filter((eachRow) => {
+      const region = eachRow[OECDEmploymentTitles.Region];
+
+      return selectedRegion === REGIONS.GLOBAL
+        ? region !== "Other"
+        : region === selectedRegion;
+    })
+    .reduce(
+      (sum, eachRow) => {
+        const VAR = eachRow[OECDEmploymentTitles.VAR] as string;
+        const IND = eachRow[OECDEmploymentTitles.IND] as string;
+        const POW = parseFloat(
+          `${eachRow[OECDEmploymentTitles.PowerCodeCode]}`
+        );
+        const VAL = parseFloat(`${eachRow[OECDEmploymentTitles.Value]}`);
+
+        sum.setValueByName(
+          VAR,
+          IND,
+          (previous) => Number(previous) + Math.pow(10, POW) * VAL
+        );
+
+        return sum;
+      },
+      new Matrix({
+        cols,
+        rows: [] as Row,
+        matrix: [[]] as Table,
+      } as Matrix)
+    ) as Matrix;
+};
+
+const getOECDInputs = (OECDRawData: Table, OECDEmployment: Matrix) => {
   // ✅ Approved by Carol
   const oecdInputs: OECDVariableSheet = {};
   OECDRawData.forEach((row) => {
     let VAR = `${row[OECDRawTitles.VAR]}` as OECDRawVariables;
     const ROW = `${row[OECDRawTitles.ROW]}`;
-    if (VAR === OECDRawVariables.DOMESTIC && ROW === 'VALU') {
+    if (VAR === OECDRawVariables.DOMESTIC && ROW === "VALU") {
       VAR = OECDRawVariables.VALUE_ADDED; // Some Row have VAR==DOMESTIC, but their name is VALU, so they're actually VAL
     }
     const COL = `${row[OECDRawTitles.COL]}`;
@@ -69,12 +109,32 @@ const getOECDInputs = (OECDRawData: Table) => {
   const variables = Object.keys(oecdInputs) as OECDRawVariables[];
   variables.forEach((VAR) => {
     const input = oecdInputs[VAR] as Matrix; // Developers say: It's always defined Typescript :joy:
-    const colReference = structuredClone(input.cols || []).sort((a,b) => a > b ? 1 : -1);
-    const rowReference = structuredClone(input.rows || []).sort((a,b) => a > b ? 1 : -1);
+    const colReference = structuredClone(input.cols || []).sort((a, b) =>
+      a > b ? 1 : -1
+    );
+    const rowReference = structuredClone(input.rows || []).sort((a, b) =>
+      a > b ? 1 : -1
+    );
     sortedOecdInputs[VAR] = new Matrix({
       cols: colReference,
       rows: rowReference,
-      matrix: rowReference.map(row => colReference.map(col => input.getValueByName(row, col)))
+      matrix: rowReference.map((row) =>
+        colReference.map((col) => {
+          if (VAR === OECDRawVariables.VALUE_ADDED && row === "LABR") {
+            if (col === "HFCE") return 0; // This is NaN for both datasets
+            const labrValue = parseFloat(
+              `${input.getValueByName(row, col) || 0}`
+            );
+            const employmentValue = parseFloat(
+              `${OECDEmployment.getValueByName("LABR", col) || 0}`
+            );
+
+            return Math.min(labrValue, employmentValue);
+          }
+
+          return input.getValueByName(row, col);
+        })
+      ),
     } as Matrix);
   });
 
@@ -82,7 +142,13 @@ const getOECDInputs = (OECDRawData: Table) => {
   return { oecdInputs: sortedOecdInputs };
 };
 
-const getOECDDirectRequirements = ({ oecdInputs, selectedRegion }: { oecdInputs: OECDVariableSheet, selectedRegion: string }) => {
+const getOECDDirectRequirements = ({
+  oecdInputs,
+  selectedRegion,
+}: {
+  oecdInputs: OECDVariableSheet;
+  selectedRegion: string;
+}) => {
   const oecdDirectRequirements: OECDVariableSheet = {};
   /**
    * This is a matrix with just the industry rows and columns, to be able to calculate the types
@@ -100,18 +166,18 @@ const getOECDDirectRequirements = ({ oecdInputs, selectedRegion }: { oecdInputs:
 
     oecdInputs[VAR]?.cols.forEach((col) => {
       const totalValue = oecdInputs[OECDRawVariables.TOTAL]?.getValueByName(
-        'VALU',
+        "VALU",
         col
       );
       let totalOutput: number = 0;
-      if (col === 'HFCE') {
+      if (col === "HFCE") {
         /**
-         * TODO: This comes OECD Income using the "last year" (hardcoded to 2019 in the sheet)
+         * TODO: SEA-35 This comes OECD Income using the "last year" (hardcoded to 2019 in the sheet)
          */
         totalOutput = 32889721200329.3;
       } else {
         totalOutput = Number(
-          oecdInputs[OECDRawVariables.TOTAL]?.getValueByName('OUTPUT', col)
+          oecdInputs[OECDRawVariables.TOTAL]?.getValueByName("OUTPUT", col)
         );
       }
 
@@ -133,7 +199,7 @@ const getOECDDirectRequirements = ({ oecdInputs, selectedRegion }: { oecdInputs:
         .forEach((row) => {
           const previous = oecdInputs[VAR]?.getValueByName(row, col);
           let value: number;
-          if (VAR === OECDRawVariables.VALUE_ADDED && row === 'VALU') {
+          if (VAR === OECDRawVariables.VALUE_ADDED && row === "VALU") {
             value =
               Math.min(Number(previous), Number(totalValue)) / totalOutput; // Querky totalValue
           } else {
@@ -148,61 +214,128 @@ const getOECDDirectRequirements = ({ oecdInputs, selectedRegion }: { oecdInputs:
 
           // Direct requirements - coeficients table
           if (VAR === OECDRawVariables.TOTAL) {
-            oecdDirectRequirements[OECDRawVariables.VALUE_ADDED]?.setValueByName('Direct Effects (imports) | Output', col, (previous) => Number(previous) + value);
+            oecdDirectRequirements[
+              OECDRawVariables.VALUE_ADDED
+            ]?.setValueByName(
+              "Direct Effects (imports) | Output",
+              col,
+              (previous) => Number(previous) + value
+            );
           }
         });
 
       // Direct requirements - coeficients table
       if (VAR === OECDRawVariables.VALUE_ADDED) {
         const TXS_INT_FNL = oecdInputs[OECDRawVariables.TOTAL]?.getValueByName(
-          'TXS_INT_FNL',
+          "TXS_INT_FNL",
           col
         );
         const TXS_IMP_FNL = oecdInputs[OECDRawVariables.TOTAL]?.getValueByName(
-          'TXS_IMP_FNL',
+          "TXS_IMP_FNL",
           col
         );
         const TTL_INT_FNL = oecdInputs[OECDRawVariables.TOTAL]?.getValueByName(
-          'TTL_INT_FNL',
+          "TTL_INT_FNL",
           col
         );
-        const totalIntermediateExpenditureAtPurchasePrices = Number(TTL_INT_FNL) / Number(totalOutput);
-        const domesticIntermediates = oecdDirectRequirements[OECDRawVariables.DOMESTIC]
+        const totalIntermediateExpenditureAtPurchasePrices =
+          Number(TTL_INT_FNL) / Number(totalOutput);
+        const domesticIntermediates = oecdDirectRequirements[
+          OECDRawVariables.DOMESTIC
+        ]
           ?.getColAsArrayByName(col)
           .reduce((sum, each) => Number(sum) + Number(each), 0);
         oecdDirectRequirements[VAR]?.setValueByName(
-          'TXS_INT_FNL',
+          "TXS_INT_FNL",
           col,
           (Number(TXS_INT_FNL) + Number(TXS_IMP_FNL)) / Number(totalOutput)
         );
-        oecdDirectRequirements[VAR]?.setValueByName('TTL_INT_FNL', col, totalIntermediateExpenditureAtPurchasePrices);
         oecdDirectRequirements[VAR]?.setValueByName(
-          'Domestic intermediates',
+          "TTL_INT_FNL",
+          col,
+          totalIntermediateExpenditureAtPurchasePrices
+        );
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Domestic intermediates",
           col,
           domesticIntermediates || 0
         );
         oecdDirectRequirements[VAR]?.setValueByName(
-          'Imported intermediates',
+          "Imported intermediates",
           col,
-          totalIntermediateExpenditureAtPurchasePrices - Number(domesticIntermediates)
+          totalIntermediateExpenditureAtPurchasePrices -
+            Number(domesticIntermediates)
         );
-        oecdDirectRequirements[VAR]?.setValueByName('Employees', col, 0); // TODO: To really calculate them
+        oecdDirectRequirements[VAR]?.setValueByName("Employees", col, 0); // TODO: SEA-41 To really calculate them
 
-        const operationgSurplusGross = oecdDirectRequirements[VAR]?.getValueByName('GOPS', col); // Row 98 @ Direct Requirements
-        const estimatedCorporateTax = Number(operationgSurplusGross) * SETTINGS[selectedRegion]['Corporate Rate 2020']; // TODO: To review with Johann why 2020
-        oecdDirectRequirements[VAR]?.setValueByName('Estimated corporate tax', col, estimatedCorporateTax);
-        oecdDirectRequirements[VAR]?.setValueByName('Operating surplus, net', col, Number(operationgSurplusGross) - estimatedCorporateTax);
-        oecdDirectRequirements[VAR]?.setValueByName('Estimated dividend tax', col, 0.0296654806780018); // TODO: ASK AGUSTIN - HARDCODED NUMBERS
+        const operationgSurplusGross = oecdDirectRequirements[
+          VAR
+        ]?.getValueByName("GOPS", col); // Row 98 @ Direct Requirements
+        /**
+         * TODO: Update the corporate rate
+         * Checked with Johann and we should be able to update this info,
+         * in general it shouldn't change often
+         */
+        const estimatedCorporateTax =
+          Number(operationgSurplusGross) *
+          SETTINGS[selectedRegion]["Corporate Rate 2020"];
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Estimated corporate tax",
+          col,
+          estimatedCorporateTax
+        );
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Operating surplus, net",
+          col,
+          Number(operationgSurplusGross) - estimatedCorporateTax
+        );
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Estimated dividend tax",
+          col,
+          0.0296654806780018
+        ); // TODO: SEA-44 ASK AGUSTIN - HARDCODED NUMBERS
 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (imports) | Income', col, 0); // TODO: 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (imports) | Employment', col, 0); // TODO: 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (imports) | Taxes', col, 0); // TODO: 
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (imports) | Income",
+          col,
+          0
+        ); // TODO: SEA-44
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (imports) | Employment",
+          col,
+          0
+        ); // TODO: SEA-44
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (imports) | Taxes",
+          col,
+          0
+        ); // TODO: SEA-44
 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (domestic) | Output', col, 0); // TODO: 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (domestic) | Value Added', col, 0); // TODO: 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (domestic) | Income', col, 0); // TODO: 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (domestic) | Employment', col, 0); // TODO: 
-        oecdDirectRequirements[VAR]?.setValueByName('Direct Effects (domestic) | Taxes', col, 0); // TODO: 
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (domestic) | Output",
+          col,
+          0
+        ); // TODO: SEA-44
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (domestic) | Value Added",
+          col,
+          0
+        ); // TODO: SEA-44
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (domestic) | Income",
+          col,
+          0
+        ); // TODO: SEA-44
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (domestic) | Employment",
+          col,
+          0
+        ); // TODO: SEA-44
+        oecdDirectRequirements[VAR]?.setValueByName(
+          "Direct Effects (domestic) | Taxes",
+          col,
+          0
+        ); // TODO: SEA-44
       }
     });
   });
@@ -211,31 +344,25 @@ const getOECDDirectRequirements = ({ oecdInputs, selectedRegion }: { oecdInputs:
     TTL: new Matrix(oecdTypePrimitive.TTL),
     VAL: new Matrix({
       cols: oecdDirectRequirements.VAL?.cols || [],
-      rows: ['LABR'],
-      matrix: [oecdDirectRequirements.VAL?.getRow('LABR') || []]
+      rows: ["LABR"],
+      matrix: [oecdDirectRequirements.VAL?.getRow("LABR") || []],
     } as Matrix),
   };
-  directEffectsHelper.TTL.removeCol('HFCE');
-  directEffectsHelper.VAL.removeCol('HFCE');
+  directEffectsHelper.TTL.removeCol("HFCE");
+  directEffectsHelper.VAL.removeCol("HFCE");
 
   oecdDirectRequirements[OECDRawVariables.VALUE_ADDED]?.setRow(
-    'Direct Effects (imports) | Value Added',
-    mmult(
-      directEffectsHelper.VAL,
-      directEffectsHelper.TTL,
-    ).matrix[0]
+    "Direct Effects (imports) | Value Added",
+    mmult(directEffectsHelper.VAL, directEffectsHelper.TTL).matrix[0]
   );
 
   const hghghgh = {
     directEffectsHelper,
-    res: mmult(
-      directEffectsHelper.VAL,
-      directEffectsHelper.TTL,
-    ),
+    res: mmult(directEffectsHelper.VAL, directEffectsHelper.TTL),
     result: oecdDirectRequirements[OECDRawVariables.VALUE_ADDED]?.getRow(
-      'Direct Effects (imports) | Value Added',)
-  }
-
+      "Direct Effects (imports) | Value Added"
+    ),
+  };
 
   return { oecdDirectRequirements, oecdTypePrimitive, hghghgh };
 };
@@ -249,8 +376,8 @@ const getOECDTypes = (
     DOMIMP: new Matrix(oecdTypePrimitive.DOMIMP),
   };
 
-  oecdTypeI.TTL.removeCol('HFCE');
-  oecdTypeI.DOMIMP.removeCol('HFCE');
+  oecdTypeI.TTL.removeCol("HFCE");
+  oecdTypeI.DOMIMP.removeCol("HFCE");
 
   const oecdTypeII = {
     TTL: new Matrix(oecdTypePrimitive.TTL),
@@ -258,55 +385,64 @@ const getOECDTypes = (
   };
 
   const laborVal = oecdTypeII.TTL?.cols.map((colName) => {
-    const labrValue =
-      (oecdDirectRequirements.VAL?.getValueByName('LABR', colName) as number) || 0;
-    // TODO: Add the minimum check from the Employement table
-    // OECDEmployment
-    // =IF(IO_Region="Global",SUMIFS('OECD Employment'!$R:$R,'OECD Employment'!$E:$E,"<>Other",'OECD Employment'!$H:$H,D$164,'OECD Employment'!$A:$A,$B166),SUMIFS('OECD Employment'!$R:$R,'OECD Employment'!$E:$E,IO_Region,'OECD Employment'!$H:$H,D$164,'OECD Employment'!$A:$A,$B166))
-    // 'OECD Employment'!$R:$R => Value
-    // 'OECD Employment'!$E:$E => Region
-    // 'OECD Employment'!$H:$H => IND
-    // 'OECD Employment'!$A:$A => VAR ?
-    return Math.min(labrValue);
+    const retrn =
+      (oecdDirectRequirements.VAL?.getValueByName("LABR", colName) as number) ||
+      0;
+
+    return retrn;
   });
-  oecdTypeII.TTL.setRow('Labour Cost', laborVal);
-  oecdTypeII.DOMIMP.setRow('Labour Cost', laborVal);
+  oecdTypeII.TTL.setRow("Labour Cost", laborVal);
+  oecdTypeII.DOMIMP.setRow("Labour Cost", laborVal);
 
   return {
     oecdTypeI: {
       TOTAL: new Matrix({
         cols: oecdTypeI[OECDRawVariables.TOTAL]?.cols,
         rows: oecdTypeI[OECDRawVariables.TOTAL]?.rows,
-        matrix: leontief(oecdTypeI[OECDRawVariables.TOTAL]?.matrix as number[][]),
+        matrix: leontief(
+          oecdTypeI[OECDRawVariables.TOTAL]?.matrix as number[][]
+        ),
       } as Matrix),
       DOMESTIC: new Matrix({
         cols: oecdTypeI[OECDRawVariables.DOMESTIC]?.cols,
         rows: oecdTypeI[OECDRawVariables.DOMESTIC]?.rows,
-        matrix: leontief(oecdTypeI[OECDRawVariables.DOMESTIC]?.matrix as number[][]),
+        matrix: leontief(
+          oecdTypeI[OECDRawVariables.DOMESTIC]?.matrix as number[][]
+        ),
       } as Matrix),
     },
     oecdTypeII: {
       TOTAL: new Matrix({
-        cols: oecdTypeII.TTL?.cols,
-        rows: oecdTypeII.TTL?.rows,
-        matrix: leontief(oecdTypeII.TTL?.matrix as number[][]),
+        cols: oecdTypeII[OECDRawVariables.TOTAL]?.cols,
+        rows: oecdTypeII[OECDRawVariables.TOTAL]?.rows,
+        matrix: leontief(
+          oecdTypeII[OECDRawVariables.TOTAL]?.matrix as number[][]
+        ),
       } as Matrix),
       DOMESTIC: new Matrix({
-        cols: oecdTypeII.TTL?.cols,
-        rows: oecdTypeII.TTL?.rows,
-        matrix: leontief(oecdTypeII.DOMIMP?.matrix as number[][]),
+        cols: oecdTypeII[OECDRawVariables.DOMESTIC]?.cols,
+        rows: oecdTypeII[OECDRawVariables.DOMESTIC]?.rows,
+        matrix: leontief(
+          oecdTypeII[OECDRawVariables.DOMESTIC]?.matrix as number[][]
+        ),
       } as Matrix),
     },
   };
 };
 
-export const oecdCoeficients = ({ selectedRegion = REGIONS.GLOBAL } = {}) => {
+export const oecdCoeficients = ({ selectedRegion = FORM_DATA.selectedRegion } = {}) => {
   const OECDRawData: Table = OECDRawInputOutput.slice(1) // Remove the sheet titles
     .filter(filterByRegion(selectedRegion));
 
-  const { oecdInputs } = getOECDInputs(OECDRawData);
-  const { oecdDirectRequirements, oecdTypePrimitive } = getOECDDirectRequirements({ oecdInputs, selectedRegion });
-  const { oecdTypeI, oecdTypeII } = getOECDTypes(oecdTypePrimitive, oecdDirectRequirements);
+  const OECDEmployment = getOECDEmployment(selectedRegion);
+  const { oecdInputs } = getOECDInputs(OECDRawData, OECDEmployment);
+  const { oecdDirectRequirements, oecdTypePrimitive } =
+    getOECDDirectRequirements({ oecdInputs, selectedRegion });
+  const { oecdTypeI, oecdTypeII } = getOECDTypes(
+    oecdTypePrimitive,
+    oecdDirectRequirements
+  );
+  const sanitizeRow = (row: Row | undefined) => row?.map((each) => each || 0);
 
   return {
     oecdInputs,
@@ -319,5 +455,16 @@ export const oecdCoeficients = ({ selectedRegion = REGIONS.GLOBAL } = {}) => {
      * direct requirements is correct, something changes in between
      */
     typeII: oecdTypeII, // ❌
+    footprint: {
+      corporationTaxes: sanitizeRow(
+        oecdDirectRequirements["VAL"]?.getRow("Estimated corporate tax")
+      ),
+      taxesOnProducts: sanitizeRow(
+        oecdDirectRequirements["VAL"]?.getRow("TXS_INT_FNL")
+      ),
+      otherProductionTaxes: sanitizeRow(
+        oecdDirectRequirements["VAL"]?.getRow("OTXS")
+      ),
+    },
   };
 };

@@ -15,6 +15,14 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      colors: {
+        primary: '#53709D',
+        secondary: '#012d49',
+        tertiary: '#F1FAFF',
+        white: '#ffffff',
+        whiteSolid: '#f5f8fa',
+        compassBlue: '#33475b'
+      }
     },
   },
   darkMode: "class",
@@ -27,10 +35,7 @@ const config: Config = {
     themes: {
       light: {
         layout: {}, // light theme layout tokens
-        colors: {
-          primary: '#53709D',
-          secondary: '#012d49', 
-        }, // light theme colors
+        colors: {}, // light theme colors
       },
       dark: {
         layout: {}, // dark theme layout tokens

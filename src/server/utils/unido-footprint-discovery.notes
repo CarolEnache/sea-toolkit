@@ -1,0 +1,55 @@
+X = 1000000 * (JO32+JO33) / (JN32+JN33)
+Y = 1 + (X / (1000000 - X))
+
+JO32 = SUMIFS(GC32:GW32,GC$7:GW$7,">="&Period_From_Unido,GC$7:GW$7,"<="&Period_To_Unido) / (Period_To_Unido - Period_From_Unido + 1)
+JO33 = SUMIFS(GC33:GW33,GC$7:GW$7,">="&Period_From_Unido,GC$7:GW$7,"<="&Period_To_Unido) / (Period_To_Unido - Period_From_Unido + 1)
+
+JN32 = SUMIFS(FG32:GA32,FG$7:GA$7,">="&Period_From_Unido,FG$7:GA$7,"<="&Period_To_Unido) / (Period_To_Unido - Period_From_Unido + 1)
+JN33 = SUMIFS(FG33:GA33,FG$7:GA$7,">="&Period_From_Unido,FG$7:GA$7,"<="&Period_To_Unido) / (Period_To_Unido - Period_From_Unido + 1)
+
+GC32 = IF(
+  BA32=0,
+  IFERROR(
+    LOOKUP(2,1/AZ32:$BA32,AZ32:$BA32),INDEX($BA32:$BU32,MATCH(TRUE,INDEX(($BA32:$BU32<>0),0),0))
+  ),
+  BA32
+)
+
+BA32 = IFERROR(
+  IF(
+    Industry_Source="UNIDO",
+    GETPIVOTDATA(
+      ""&BA$7&"",
+      UNIDO!$A$4, "Table Description",
+      BA$4, "ISIC",
+      TEXT($E32,"0"), IF(IO_Region="Global","ISIC","Region"),
+      IF(IO_Region="Global",TEXT($E32,"0"), UNIDO_Region)
+    ),
+    IF(
+      Industry_Source="UNIDO 2",
+      GETPIVOTDATA( // = .filter(...)['2010']
+        ""&BA$7&"", // Field = 2010
+        INDIRECT("'UNIDO 2 - "&BA$4&"'!$A$1",TRUE), // Table = Unido2-ValueAdded
+        "ISIC", TEXT($E32,"0"), // Field & Value = "2029" ISIC Code
+        # IF(IO_Region="Global","ISIC","Region"), IF(IO_Region="Global",TEXT($E32,"0"), UNIDO_Region)
+      ),
+      IF(
+        IO_Region="EEA",
+        GETPIVOTDATA("Value",INDIRECT("'("&BA$3&")'!$A$3",TRUE),"NACE_R2",$C32)/(LastYear-2010+1),
+        GETPIVOTDATA("Value",INDIRECT("'("&BA$3&")'!$A$3",TRUE),"GEO",IO_Region,"NACE_R2",$C32)
+      )
+    )
+  )
+  ,0
+)*$F32
+
+
+=IFERROR(IF(Industry_Source="UNIDO",GETPIVOTDATA(""&BA$7&"",UNIDO!$A$4,"Table Description",BA$4,"ISIC",TEXT($E32,"0"),IF(IO_Region="Global","ISIC","Region"),IF(IO_Region="Global",TEXT($E32,"0"),UNIDO_Region)),IF(Industry_Source="UNIDO 2",GETPIVOTDATA(""&BA$7&"",INDIRECT("'UNIDO 2 - "&BA$4&"'!$A$1",TRUE),"ISIC",TEXT($E32,"0"),IF(IO_Region="Global","ISIC","Region"),IF(IO_Region="Global",TEXT($E32,"0"),UNIDO_Region)),IF(IO_Region="EEA",GETPIVOTDATA("Value",INDIRECT("'("&BA$3&")'!$A$3",TRUE),"NACE_R2",$C32)/(LastYear-2010+1),GETPIVOTDATA("Value",INDIRECT("'("&BA$3&")'!$A$3",TRUE),"GEO",IO_Region,"NACE_R2",$C32)))),0)*$F32
+
+FG32 = IF(AE32=0,IFERROR(LOOKUP(2,1/AD32:$AE32,AD32:$AE32),INDEX($AE32:$AY32,MATCH(TRUE,INDEX(($AE32:$AY32<>0),0),0))),AE32)
+
+AE32 = IFERROR(IF(Industry_Source="UNIDO",GETPIVOTDATA(""&AE$7&"",UNIDO!$A$4,"Table Description",AE$4,"ISIC",TEXT($E32,"0"),IF(IO_Region="Global","ISIC","Region"),IF(IO_Region="Global",TEXT($E32,"0"),UNIDO_Region)),IF(Industry_Source="UNIDO 2",GETPIVOTDATA(""&AE$7&"",INDIRECT("'UNIDO 2 - "&AE$4&"'!$A$1",TRUE),"ISIC",TEXT($E32,"0"),IF(IO_Region="Global","ISIC","Region"),IF(IO_Region="Global",TEXT($E32,"0"),UNIDO_Region)),IF(IO_Region="EEA",GETPIVOTDATA("Value",INDIRECT("'("&AE$3&")'!$A$3",TRUE),"NACE_R2",$C32)/(LastYear-2010+1),GETPIVOTDATA("Value",INDIRECT("'("&AE$3&")'!$A$3",TRUE),"GEO",IO_Region,"NACE_R2",$C32)))),0)*$F32
+
+
+
+=IF(BA32=0,IFERROR(LOOKUP(2,1/AZ32:$BA32,AZ32:$BA32),INDEX($BA32:$BU32,MATCH(TRUE,INDEX(($BA32:$BU32<>0),0),0))),BA32)
