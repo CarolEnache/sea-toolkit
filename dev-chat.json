@@ -1,0 +1,7 @@
+[
+	{"id":"f64a15acb511","user":"gatsby","time":"2024-03-12T08:33:12.830Z","message":"This is not instant messaging, after making changes you have to commit them. It's more like a long term comms channel."},
+	{"id":"ed3296854c30","user":"gatsby","time":"2024-03-12T08:11:57.652Z","message":"Review doubts and send questions to Agustin","todo":false},
+	{"id":"e94bb565621c","user":"gatsby","time":"2024-03-12T08:07:56.748Z","message":"There's no pinned messages, but TODOs are separate in their own list"},
+	{"id":"ca5da26e82f3","user":"gatsby","time":"2024-03-12T08:06:54.085Z","message":"Silly TODO","todo":true},
+	{"id":"bd4e41e22a27","user":"gatsby","time":"2024-03-12T08:06:40.687Z","message":"Hello Carol, I thought it would be a good idea to have a little TODO list and comms side-by-side with the code, so I put this together. I hope you like it"}
+]
