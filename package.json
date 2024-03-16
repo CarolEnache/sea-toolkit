@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:chat": "./dev-chat",
+    "dev:chat": "open ./DevChat.app && ./DevChat.app/server",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
