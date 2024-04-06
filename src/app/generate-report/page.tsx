@@ -1,47 +1,68 @@
-"use client"
+"use client";
 
 import { useFormState, useFormStatus } from "react-dom";
+import { selectComodityList } from "./actions";
+import { ComoditiesListType } from "./types";
 
-import { testAction } from "./actions";
+const initialComodityListState: ComoditiesListType = {
+  commodityList: [],
+  message: null,
+};
 
-import { RadioGroup } from "@/components/radio-group";
-// import { RadioGroup } from "../../../components/radio-group";
+function SubmitButton({ children }: { children: React.ReactElement | string }) {
+  const { pending } = useFormStatus();
 
-// listOfRadiosToBeReplaced should be replaced by a BE response
-const listOfRadiosToBeReplaced = [
-  {
-    description: "Generate report on a metal",
-    value: "metals",
-    child: "Metals",
-  },
-  {
-    description: "Generate report on a source of enery",
-    value: "energy",
-    child: "Energy",
-  },
-  {
-    description: "Generate report agriculturals",
-    value: "agriculturals",
-    child: "Agriculturals",
-  },
-];
-
-const initialState: string[] = [];
+  return (
+    <button type="submit" aria-disabled={pending}>
+      {children}
+    </button>
+  );
+}
 
 export default function GenerateReport() {
-  const [state, formAction] = useFormState(testAction, initialState);
-  console.log({state})
+  const [comodityListState, selectComodityGroupAction] = useFormState(
+    selectComodityList,
+    initialComodityListState
+  );
 
   return (
     <>
-      <form>
-        <RadioGroup
-          label="Please select the type of comodity:"
-          radioList={listOfRadiosToBeReplaced}
+      <form action={selectComodityGroupAction} className="flex flex-col">
+        <input type="radio" id="html" name="commodity_group" value="metals" /> {" "}
+        <label htmlFor="html">Metals</label> {" "}
+        <input
+          type="radio"
+          disabled
+          id="css"
+          name="commodity_group"
+          value="energy"
         />
+          <label htmlFor="css">Energy</label> {" "}
+        <input
+          type="radio"
+          id="javascript"
+          name="commodity_group"
+          value="agricultures"
+          disabled
+        />
+          <label htmlFor="javascript">Agricultures</label>
+        <SubmitButton>Select Commodity Group</SubmitButton>
+        <p aria-live="polite" className="sr-only" role="status">
+          {comodityListState?.message} ?
+        </p>
       </form>
-      <form action={formAction}>
-        <input type="submit" />
+      <form action={selectComodityGroupAction}>
+        {comodityListState.commodityList?.map((comodity) => (
+          <>
+            <input
+              type="radio"
+              id={comodity}
+              name="commodity_list"
+              value={comodity}
+            />
+              <label htmlFor={comodity}>{comodity}</label>
+          </>
+        ))}
       </form>
     </>
   );

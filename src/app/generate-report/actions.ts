@@ -2,64 +2,59 @@
 
 import { FirstUseMode, UUID } from "@/server/holistic-approach/io.types";
 import { generateReport } from "@/server/holistic-approach/report-output";
-import { getProductsFrom, getRegionsFrom } from "@/server/holistic-approach/selectors";
+import {
+  getProductsFrom,
+  getRegionsFrom,
+} from "@/server/holistic-approach/selectors";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { ComoditiesListType } from "./types";
+import { time } from "console";
+import { Carlito } from "next/font/google";
 
 export const testAction = async () => {
-  // const regions = await getRegionsFrom("");
-  // const products = await getProductsFrom("");
-  // const report = await generateReport({
-  //   source: {
-  //     market: [
-  //       {
-  //         id: "COBALT | Wiebe-2019",
-  //       },
-  //     ],
-  //     model: {
-  //       id: "COBALT | Enache-Costas-2023",
-  //     },
-  //     manufacturing: {
-  //       id: "COBALT INSTITUTE 2019",
-  //       startYear: 2022,
-  //       endYear: 2030,
-  //     },
-  //     industryMatrix: [
-  //       {
-  //         id: "OECD | Wiebe 2015",
-  //       },
-  //     ],
-  //     industryMetric: [
-  //       {
-  //         id: "UNIDO | Wiebe 2015",
-  //         startYear: 2010,
-  //         endYear: 2022 - 1,
-  //       },
-  //     ],
-  //   },
-  //   config: {
-  //     region: "Europe", // options provided by handleIndustryMatrixSourceSelection
-  //     priceForecast: "TwentyPerCent",
-  //     products: "All Products", // options provided by handleManufacturingSourceSelection
-  //     firstUseMode: FirstUseMode.Average,
-  //     include: {
-  //       commodityValueAdded: true,
-  //       firstUseValueAdded: true,
-  //       endSectors: true,
-  //       incomeEffects: true,
-  //     },
-  //     report: {
-  //       org: "Cobalt Institute",
-  //       copy: "Socio-Economic Analyser",
-  //       authors: ["Johann Wiebe", "Carol Enache", "Cesar Costas"],
-  //     },
-  //   },
-  //   generated: {
-  //     report: {
-  //       compiler: "Socio-Economic Analysis Toolkit",
-  //       id: crypto.randomUUID() as UUID,
-  //     },
-  //   },
-  // });
-
-  // console.log({ regions, products, report });
   return JSON.parse(JSON.stringify([]));
 };
+
+const DUMMY_COMODITIES_LIST = {
+  commodityList: ["Cobalt", "Nickel", "Copper", "Aluminium"],
+  message: null,
+};
+
+const getDummyComotidiesFrom = (): Promise<ComoditiesListType> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(DUMMY_COMODITIES_LIST);
+    });
+  });
+};
+
+export async function selectComodityList(
+  prevState: ComoditiesListType,
+  formData: FormData
+): Promise<ComoditiesListType> {
+  const schema = z.object({
+    todo: z.string().min(1),
+  });
+  const parse = schema.safeParse({
+    todo: formData.get("commodity_group"),
+  });
+
+  if (!parse.success) {
+    return { commodityList: null, message: "Failed to create todo" };
+  }
+
+  const data = parse.data;
+  console.log({ data });
+
+  try {
+    const comodities = await getDummyComotidiesFrom();
+
+    revalidatePath("/");
+    return comodities;
+  } catch (e) {}
+  return {
+    commodityList: null,
+    message: "Failed to select the commodity group",
+  };
+}

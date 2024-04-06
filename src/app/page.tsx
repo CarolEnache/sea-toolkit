@@ -8,7 +8,7 @@ import PageSection from "@/components/section";
 
 const featuresList = [
   {
-    header: "Real-Time Report Generation",
+    header: "Instant Report Generation",
     svg: "/data-driven.svg",
     description:
       "Empowers users to create detailed socio-economic reports instantly, offering insights into value addition, labor income, tax contributions, and employment impacts.",
@@ -53,7 +53,7 @@ export default function Home() {
             description={[
               {
                 paragraph:
-                  "Our platform revolutionizes socio-economic analysis by enabling users to dynamically generate accurate reports on the fly. It stands as a pioneering tool that allows for real-time, data-driven insights into the economic impacts of various sectors. With a focus on precision and speed, our tool processes vast datasets to deliver detailed, customizable reports tailored to specific commodities, industries, or economic activities.",
+                  "Our platform revolutionizes socio-economic analysis by enabling users to dynamically generate accurate reports on the fly. It stands as a pioneering tool that allows for instant, data-driven insights into the economic impacts of various sectors. With a focus on precision and speed, our tool processes vast datasets to deliver detailed, customizable reports tailored to specific commodities, industries, or economic activities.",
               },
               {
                 paragraph:
