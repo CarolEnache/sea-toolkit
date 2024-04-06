@@ -8,7 +8,7 @@ import {
 } from "@/server/holistic-approach/selectors";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { ComoditiesListType } from "./types";
+import { ComoditiesListType, RegionsListType } from "./types";
 import { time } from "console";
 import { Carlito } from "next/font/google";
 
@@ -55,6 +55,35 @@ export async function selectComodityList(
   } catch (e) {}
   return {
     commodityList: null,
+    message: "Failed to select the commodity group",
+  };
+}
+export async function selectRegionList(
+  prevState: RegionsListType,
+  formData: FormData
+): Promise<RegionsListType> {
+  const schema = z.object({
+    comodity: z.string().min(1),
+  });
+  const parse = schema.safeParse({
+    comodity: formData.get("commodity_list"),
+  });
+
+  if (!parse.success) {
+    return { regionList: null, message: "Failed to create comodity" };
+  }
+
+  const data = parse.data;
+  console.log({ data });
+
+  try {
+    const regions = await getRegionsFrom(data.comodity);
+
+    revalidatePath("/");
+    return { regionList: regions, message: null };
+  } catch (e) {}
+  return {
+    regionList: null,
     message: "Failed to select the commodity group",
   };
 }

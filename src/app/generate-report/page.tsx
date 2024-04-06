@@ -1,11 +1,15 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { selectComodityList } from "./actions";
-import { ComoditiesListType } from "./types";
+import { selectComodityList, selectRegionList } from "./actions";
+import { ComoditiesListType, RegionsListType } from "./types";
 
 const initialComodityListState: ComoditiesListType = {
   commodityList: [],
+  message: null,
+};
+const initialRegionListState: RegionsListType = {
+  regionList: [],
   message: null,
 };
 
@@ -24,7 +28,12 @@ export default function GenerateReport() {
     selectComodityList,
     initialComodityListState
   );
+  const [regionListState, selectRegionAction] = useFormState(
+    selectRegionList,
+    initialComodityListState
+  );
 
+  console.log({ regionListState });
   return (
     <>
       <form action={selectComodityGroupAction} className="flex flex-col">
@@ -51,7 +60,7 @@ export default function GenerateReport() {
           {comodityListState?.message} ?
         </p>
       </form>
-      <form action={selectComodityGroupAction}>
+      <form action={selectRegionAction}>
         {comodityListState.commodityList?.map((comodity) => (
           <>
             <input
@@ -63,6 +72,7 @@ export default function GenerateReport() {
               <label htmlFor={comodity}>{comodity}</label>
           </>
         ))}
+        <SubmitButton>Select Commodity</SubmitButton>
       </form>
     </>
   );
