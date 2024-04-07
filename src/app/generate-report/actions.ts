@@ -18,6 +18,13 @@ export const testAction = async () => {
 
 const DUMMY_COMODITIES_LIST = {
   commodityList: ["Cobalt", "Nickel", "Copper", "Aluminium"],
+  valueChainStage: [
+    "Mining",
+    "Smelting/Refining",
+    "First use",
+    "End use",
+    "Recycling",
+  ],
   message: null,
 };
 
@@ -91,9 +98,9 @@ export async function selectRegionAction(
   prevState: ProductsListType,
   formData: FormData
 ): Promise<ProductsListType> {
-  console.log(formData.getAll("regions"))
+  console.log(formData.getAll("regions"));
   const schema = z.object({
-    selectedRegions:  z.array(z.string()),
+    selectedRegions: z.array(z.string()),
   });
   const parse = schema.safeParse({
     selectedRegions: formData.getAll("regions"),
@@ -107,7 +114,7 @@ export async function selectRegionAction(
   console.log({ data });
 
   try {
-    const products = await getProductsFrom('');
+    const products = await getProductsFrom("");
 
     revalidatePath("/");
     return { productsList: products, message: null };
