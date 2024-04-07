@@ -1,8 +1,8 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { selectComodityList, selectRegionList } from "./actions";
-import { ComoditiesListType, RegionsListType } from "./types";
+import { selectComodityGroupAction, selectComodityAction,selectRegionAction } from "./actions";
+import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
 
 const initialComodityListState: ComoditiesListType = {
   commodityList: [],
@@ -10,6 +10,10 @@ const initialComodityListState: ComoditiesListType = {
 };
 const initialRegionListState: RegionsListType = {
   regionList: [],
+  message: null,
+};
+const initialProductsListState: ProductsListType = {
+  productsList: [],
   message: null,
 };
 
@@ -24,19 +28,23 @@ function SubmitButton({ children }: { children: React.ReactElement | string }) {
 }
 
 export default function GenerateReport() {
-  const [comodityListState, selectComodityGroupAction] = useFormState(
-    selectComodityList,
+  const [comodityListState, selectComodityGroup] = useFormState(
+    selectComodityGroupAction,
     initialComodityListState
   );
-  const [regionListState, selectRegionAction] = useFormState(
-    selectRegionList,
-    initialComodityListState
+  const [regionListState, selectComodity] = useFormState(
+    selectComodityAction,
+    initialRegionListState
+  );
+  const [productsListState, selectRegion] = useFormState(
+    selectRegionAction,
+    initialProductsListState
   );
 
-  console.log({ regionListState });
+  console.log({ productsListState });
   return (
     <>
-      <form action={selectComodityGroupAction} className="flex flex-col">
+      <form action={selectComodityGroup} className="flex flex-col">
         <input type="radio" id="html" name="commodity_group" value="metals" /> {" "}
         <label htmlFor="html">Metals</label> {" "}
         <input
@@ -60,7 +68,7 @@ export default function GenerateReport() {
           {comodityListState?.message} ?
         </p>
       </form>
-      <form action={selectRegionAction}>
+      <form action={selectComodity} className="flex flex-col">
         {comodityListState.commodityList?.map((comodity) => (
           <>
             <input
@@ -73,6 +81,24 @@ export default function GenerateReport() {
           </>
         ))}
         <SubmitButton>Select Commodity</SubmitButton>
+      </form>
+      <form action={selectRegion} className="flex flex-col">
+        {regionListState.regionList?.map((region) => (
+          <>
+            <input type="checkbox" value={region} id={region} name="regions"/>
+            <label htmlFor={region}>{region}</label>
+          </>
+        ))}
+        <SubmitButton>Select regions</SubmitButton>
+      </form>
+      <form action={selectRegion} className="flex flex-col">
+        {productsListState.productsList?.map((product) => (
+          <>
+            <input type="checkbox" value={product} id={product} name="products"/>
+            <label htmlFor={product}>{product}</label>
+          </>
+        ))}
+        <SubmitButton>Select products</SubmitButton>
       </form>
     </>
   );
