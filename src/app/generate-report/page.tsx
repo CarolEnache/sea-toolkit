@@ -40,7 +40,9 @@ function SubmitButton({ children }: { children: React.ReactElement | string }) {
 
 export default function GenerateReport() {
   const [selectedComodity, setSelectedComodity] = useState("");
+  const [selectedValueChainStage, setValueChainStageSelection] = useState([""]);
   const [regionListState, setRegionsList] = useState<RegionsListType>();
+
   const [comodityListState, selectComodityGroup] = useFormState(
     selectComodityGroupAction,
     initialComodityListState
@@ -48,7 +50,8 @@ export default function GenerateReport() {
 
   console.log({
     COMODITY_GROUP: 'Metals',
-    selectedComodity
+    selectedComodity,
+    selectedValueChainStage
   })
 
   const [productsListState, selectRegion] = useFormState(
@@ -67,35 +70,41 @@ export default function GenerateReport() {
     setRegionsList(regionList);
   };
 
-  // console.log({ comodityListState });
+  const handleValueChainStageSelection = async (event: OnSubmitEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const comodity = formData.getAll("value_chain_stage");
+    setValueChainStageSelection(comodity as string[]);
+  };
+
   return (
     <>
       <form action={selectComodityGroup} className="flex flex-col">
-        <input type="radio" id="html" name="commodity_group" value="metals" /> {" "}
-        <label htmlFor="html">Metals</label> {" "}
+        <input type="radio" id="metals" name="commodity_group" value="metals" /> {" "}
+        <label htmlFor="metals">Metals</label> {" "}
         <input
           type="radio"
           disabled
-          id="css"
+          id="energy"
           name="commodity_group"
           value="energy"
         />
-          <label htmlFor="css">Energy</label> {" "}
+          <label htmlFor="energy">Energy</label> {" "}
         <input
           type="radio"
-          id="javascript"
+          id="agricultures"
           name="commodity_group"
           value="agricultures"
           disabled
         />
-          <label htmlFor="javascript">Agricultures</label>
+          <label htmlFor="agricultures">Agricultures</label>
         <SubmitButton>Select Commodity Group</SubmitButton>
         <p aria-live="polite" className="sr-only" role="status">
           {comodityListState?.message} ?
         </p>
       </form>
+
       <form onSubmit={handleComoditySelection} className="flex flex-col">
-        {/* <form action={selectComodity} className="flex flex-col"> */}
         {comodityListState.commodityList?.map((comodity) => (
           <>
             <input
@@ -103,14 +112,14 @@ export default function GenerateReport() {
               id={comodity}
               name="commodity_list"
               value={comodity}
-              onChange={() => console.log("set commodity_list", comodity)}
             />
               <label htmlFor={comodity}>{comodity}</label>
           </>
         ))}
         <SubmitButton>Select Commodity</SubmitButton>
       </form>
-      {/* <form action={selectComodity} className="flex flex-col">
+      <form onSubmit={handleValueChainStageSelection} className="flex flex-col">
+      {/* <form action={selectComodity} onSubmit={handleComoditySelection} className="flex flex-col"> */}
         {comodityListState.valueChainStage?.map((stage) => (
           <>
             <input
@@ -118,13 +127,12 @@ export default function GenerateReport() {
               id={stage}
               name="value_chain_stage"
               value={stage}
-              onChange={() => console.log("set value_chain_stage", stage)}
             />
               <label htmlFor={stage}>{stage}</label>
           </>
         ))}
         <SubmitButton>Select Value Chain Stage</SubmitButton>
-      </form> */}
+      </form>
       <form action={selectRegion} className="flex flex-col">
         {regionListState?.regionList?.map((region) => (
           <>

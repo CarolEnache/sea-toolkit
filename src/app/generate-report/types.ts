@@ -12,7 +12,7 @@ export type ProductsListType = {
   message: string | null;
 };
 
-export type SubmitEvent = {
+export type OnSubmitEvent = {
   preventDefault: () => void;
   target: HTMLFormElement | undefined;
 };
