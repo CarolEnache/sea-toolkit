@@ -39,9 +39,11 @@ function SubmitButton({ children }: { children: React.ReactElement | string }) {
 }
 
 export default function GenerateReport() {
-  const [selectedComodity, setSelectedComodity] = useState("");
-  const [selectedValueChainStage, setValueChainStageSelection] = useState([""]);
+  const [selectedComodity, setSelectedComodity] = useState<any>("");
+  const [selectedValueChainStage, setValueChainStageSelection] = useState<any>([""]);
   const [regionListState, setRegionsList] = useState<RegionsListType>();
+  const [selectedRegions, setSelectedRegions] = useState<any>([]);
+  const [productsListState, setProductsListState] = useState([])
 
   const [comodityListState, selectComodityGroup] = useFormState(
     selectComodityGroupAction,
@@ -49,15 +51,16 @@ export default function GenerateReport() {
   );
 
   console.log({
-    COMODITY_GROUP: 'Metals',
+    COMODITY_GROUP: "Metals",
     selectedComodity,
-    selectedValueChainStage
-  })
+    selectedValueChainStage,
+    selectedRegions
+  });
 
-  const [productsListState, selectRegion] = useFormState(
-    selectRegionAction,
-    initialProductsListState
-  );
+  // const [productsListState, selectRegion] = useFormState(
+  //   selectRegionAction,
+  //   initialProductsListState
+  // );
   const handleComoditySelection = async (event: OnSubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -77,11 +80,45 @@ export default function GenerateReport() {
     setValueChainStageSelection(comodity as string[]);
   };
 
+  const handleRegionSelection = async (event: OnSubmitEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const selectedRegions = formData.getAll("regions");
+    // const productsList = await selectRegionAction(selectedRegions)
+    // setProductsListState(productsList)
+    setSelectedRegions(selectedRegions);
+  };
+
+
+  const handleFirstUseModeSelection = async (event: OnSubmitEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const selectedFirtsUse = formData.get("first-use");
+
+    console.log(selectedFirtsUse);
+  };
+
+  const handleContributionSelection = async (event: OnSubmitEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const selectedContributionType = formData.getAll("contribution");
+
+    console.log(selectedContributionType);
+  };
+
+  const handleEffectSelection = async (event: OnSubmitEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const selectedEffect = formData.getAll("effect");
+
+    console.log(selectedEffect);
+  };
+
   return (
     <>
       <form action={selectComodityGroup} className="flex flex-col">
-        <input type="radio" id="metals" name="commodity_group" value="metals" /> {" "}
-        <label htmlFor="metals">Metals</label> {" "}
+        <input type="radio" id="metals" name="commodity_group" value="metals" />
+          <label htmlFor="metals">Metals</label> {" "}
         <input
           type="radio"
           disabled
@@ -99,9 +136,9 @@ export default function GenerateReport() {
         />
           <label htmlFor="agricultures">Agricultures</label>
         <SubmitButton>Select Commodity Group</SubmitButton>
-        <p aria-live="polite" className="sr-only" role="status">
+        {/* <p aria-live="polite" className="sr-only" role="status">
           {comodityListState?.message} ?
-        </p>
+        </p> */}
       </form>
 
       <form onSubmit={handleComoditySelection} className="flex flex-col">
@@ -119,7 +156,7 @@ export default function GenerateReport() {
         <SubmitButton>Select Commodity</SubmitButton>
       </form>
       <form onSubmit={handleValueChainStageSelection} className="flex flex-col">
-      {/* <form action={selectComodity} onSubmit={handleComoditySelection} className="flex flex-col"> */}
+        {/* <form action={selectComodity} onSubmit={handleComoditySelection} className="flex flex-col"> */}
         {comodityListState.valueChainStage?.map((stage) => (
           <>
             <input
@@ -133,7 +170,8 @@ export default function GenerateReport() {
         ))}
         <SubmitButton>Select Value Chain Stage</SubmitButton>
       </form>
-      <form action={selectRegion} className="flex flex-col">
+      <form className="flex flex-col" onSubmit={handleRegionSelection}>
+      {/* <form action={selectRegion} className="flex flex-col"> */}
         {regionListState?.regionList?.map((region) => (
           <>
             <input
@@ -141,7 +179,6 @@ export default function GenerateReport() {
               value={region}
               id={region}
               name="regions"
-              onChange={() => console.log("set regions", region)}
             />
             <label htmlFor={region}>{region}</label>
           </>
@@ -151,19 +188,83 @@ export default function GenerateReport() {
       </form>
       <form className="flex flex-col">
         {/* <form action={selectRegion} className="flex flex-col" onSubmit={handleSubmit}> */}
-        {productsListState.productsList?.map((product) => (
+        {productsListState?.map((product) => (
           <>
             <input
               type="checkbox"
               value={product}
               id={product}
               name="products"
-              onChange={() => console.log("set products", product)}
             />
             <label htmlFor={product}>{product}</label>
           </>
         ))}
         <SubmitButton>Select products</SubmitButton>
+      </form>
+      <form className="flex flex-col" onSubmit={handleFirstUseModeSelection}>
+        <input
+          type="radio"
+          name="first-use"
+          id="sectorial-analysis"
+          value="sectorial-analysis"
+        />
+        <label htmlFor="sectorial-analysis">ISIC sectorial analysis</label>
+        <input
+          type="radio"
+          name="first-use"
+          id="representative-companies"
+          value="representative-companies"
+        />
+        <label htmlFor="representative-companies">
+          Representative Companies
+        </label>
+        <input type="radio" name="first-use" id="average" value="average" />
+        <label htmlFor="average">Average</label>
+        this omne
+        <SubmitButton>Select Fisrt Use Mode</SubmitButton>
+      </form>
+      <form className="flex flex-col" onSubmit={handleContributionSelection}>
+        <input type="checkbox" name="contribution" id="input" value="input" />
+        <label htmlFor="input">Input</label>
+        <input
+          type="checkbox"
+          name="contribution"
+          id="value-added"
+          value="value-added"
+        />
+        <label htmlFor="value-added">Value Added</label>
+        <SubmitButton>Select contribution</SubmitButton>
+      </form>
+      <form className="flex flex-col" onSubmit={handleEffectSelection}>
+        <input
+          type="checkbox"
+          name="effect"
+          id="direct-effect"
+          value="direct-effect"
+        />
+        <label htmlFor="direct-effect">Direct effect</label>
+        <input
+          type="checkbox"
+          name="effect"
+          id="first-round"
+          value="first-round"
+        />
+        <label htmlFor="first-round">First Round</label>
+        <input
+          type="checkbox"
+          name="effect"
+          id="industrial-support"
+          value="industrial-support"
+        />
+        <label htmlFor="industrial-support">Industrial Support</label>
+        <input
+          type="checkbox"
+          name="effect"
+          id="income-effect"
+          value="income-effect"
+        />
+        <label htmlFor="income-effect">Income effect</label>
+        <SubmitButton>Select the Effect</SubmitButton>
       </form>
     </>
   );

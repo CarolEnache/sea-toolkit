@@ -9,8 +9,6 @@ import {
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
-import { time } from "console";
-import { Carlito } from "next/font/google";
 
 export const testAction = async () => {
   return JSON.parse(JSON.stringify([]));
@@ -48,11 +46,11 @@ export async function selectComodityGroupAction(
   });
 
   if (!parse.success) {
-    return { commodityList: null, message: "Failed to create comodity" };
+    return { commodityList: null, message: "Failed to create comodity", valueChainStage: null };
   }
 
   const data = parse.data;
-  console.log({ data });
+  // console.log({ data });
 
   try {
     const comodities = await getDummyComotidiesFrom();
@@ -62,6 +60,7 @@ export async function selectComodityGroupAction(
   } catch (e) {}
   return {
     commodityList: null,
+    valueChainStage: null,
     message: "Failed to select the commodity group",
   };
 }
@@ -81,7 +80,7 @@ export async function selectComodityAction(
   }
 
   const data = parse.data;
-  console.log({ data });
+  // console.log({ data });
 
   try {
     const regions = await getRegionsFrom(data.selectedComodity);
@@ -98,7 +97,7 @@ export async function selectRegionAction(
   prevState: ProductsListType,
   formData: FormData
 ): Promise<ProductsListType> {
-  console.log(formData.getAll("regions"));
+  // console.log(formData.getAll("regions"));
   const schema = z.object({
     selectedRegions: z.array(z.string()),
   });
@@ -111,7 +110,7 @@ export async function selectRegionAction(
   }
 
   const data = parse.data;
-  console.log({ data });
+  // console.log({ data });
 
   try {
     const products = await getProductsFrom("");
