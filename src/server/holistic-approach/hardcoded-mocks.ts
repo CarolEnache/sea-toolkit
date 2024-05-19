@@ -34,9 +34,9 @@ export const formData: FormData = {
     ],
   },
   config: {
-    region: "Europe", // options provided by handleIndustryMatrixSourceSelection
+    region: "Europe", // options provided by selectors.ts getRegionsFrom
     priceForecast: "TwentyPerCent",
-    products: "All Products", // options provided by handleManufacturingSourceSelection
+    products: "All Products", // options provided by selectors.ts getProductsFrom
     firstUseMode: FirstUseMode.Average,
     include: {
       commodityValueAdded: true,
