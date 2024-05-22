@@ -84,9 +84,13 @@ export default function GenerateReport() {
     event.preventDefault();
     const formData = new FormData(event.target);
     const selectedRegions = formData.getAll("regions");
+    if (selectedRegions.includes('global')) {
+      setSelectedRegions(regionListState?.regionList?.map(({ Region: region }) => region).concat('global'));  
+    } else {
+      setSelectedRegions(selectedRegions);
+    }
     // const productsList = await selectRegionAction(selectedRegions)
     // setProductsListState(productsList)
-    setSelectedRegions(selectedRegions);
   };
 
 
@@ -172,7 +176,16 @@ export default function GenerateReport() {
       </form>
       <form className="flex flex-col" onSubmit={handleRegionSelection}>
       {/* <form action={selectRegion} className="flex flex-col"> */}
-        {regionListState?.regionList?.map((region) => (
+          <>
+            <input
+              type="checkbox"
+              value="global"
+              id="region:global"
+              name="regions"
+            />
+            <label htmlFor="region:global">Global</label>
+          </>
+        {regionListState?.regionList?.map(({ Region: region }) => (
           <>
             <input
               type="checkbox"

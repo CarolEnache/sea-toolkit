@@ -22,12 +22,12 @@ export const formData: FormData = {
     },
     industryMatrix: [
       {
-        id: "OECD | Wiebe 2015",
+        id: "src:OECD_auth:Wiebe_from:2008_to:2015",
       },
     ],
     industryMetric: [
       {
-        id: "UNIDO | Wiebe 2015",
+        id: "src:UNIDO_auth:Wiebe_from:2008_to:2015",
         startYear: 2010,
         endYear: LAST_YEAR - 1,
       },
@@ -71,14 +71,13 @@ const REGIONS = {
   CD: "DRC",
 };
 export const regions = [
-  REGIONS.GLOBAL,
-  REGIONS.CZ,
-  REGIONS.AFRICA,
-  REGIONS.EUROPE,
-  REGIONS.NORTH_AMERICA,
-  REGIONS.ASIA,
-  REGIONS.OCEANIA,
-  REGIONS.OTHER_AMERICA,
+  { Region: REGIONS.CZ },
+  { Region: REGIONS.AFRICA },
+  { Region: REGIONS.EUROPE },
+  { Region: REGIONS.NORTH_AMERICA },
+  { Region: REGIONS.ASIA },
+  { Region: REGIONS.OCEANIA },
+  { Region: REGIONS.OTHER_AMERICA },
 ];
 
 export const products = ['Cobalt product', 'Carboxylates', 'Metal', 'Oxides', 'Salts', 'Scrap'];

@@ -1,7 +1,5 @@
-import { read, ParquetFiles } from "../data/parquet/read";
+import { getUnido } from "../data/parquet/read";
 
 export const unidoService = {
-  getUnido() {
-    return read(ParquetFiles.UNIDO);
-  },
+  getUnido,
 };

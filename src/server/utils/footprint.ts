@@ -1,16 +1,16 @@
+import { Unido } from "../approach/data-to-report/data/parquet/read";
+import { unidoService } from "../approach/data-to-report/services/unido-service";
 import { COBALT_HARDCODED_MODEL, FORM_DATA } from "../constants";
 import { REGIONS } from "./auxiliary";
 import { msr } from "./msr";
 import { oecdCoeficients } from "./oecdCoeficients";
-import { RestructuredCurrentType } from "./types";
-import { unido } from "./unido";
 
 export const getOECDData = () => {
   const { footprint } = oecdCoeficients();
   return footprint;
 };
 
-const gapFillingKey = (current: RestructuredCurrentType) =>
+const gapFillingKey = (current: Unido) =>
   `${current["Table Description"]}-${current.Region}-${current.ISIC}`;
 
 /*
@@ -20,7 +20,7 @@ original: [8866, 9116, 9526, 9598, 10102, 10506, 9832, 0, 0, 0, 0, 0, 0, 264, 26
 filled: [8866, 9116, 9526, 9598, 10102, 10506, 9832, 9832, 9832, 9832, 9832, 9832, 9832, 264, 267, 261]
 We can see that a trend between 9832 and 264 would be a better predictor than keeping the same value.
 */
-const gapFilling = (unidoArray: RestructuredCurrentType[]) => {
+const gapFilling = (unidoArray: Unido[]) => {
   let lastKnownValue: Record<string, number> = {};
 
   return unidoArray.map((current) => {
@@ -41,12 +41,12 @@ const gapFilling = (unidoArray: RestructuredCurrentType[]) => {
 type getUnidoDataFn = (params?: { selectedRegion?: string, selectedEconomyUnidoStart?: number,
   selectedEconomyUnidoEnd?: number }) => void;
 
-export const getUnidoData: getUnidoDataFn = ({
+export const getUnidoData: getUnidoDataFn = async ({
   selectedRegion = FORM_DATA.selectedRegion,
   selectedEconomyUnidoStart = FORM_DATA.selectedEconomyUnidoStart,
   selectedEconomyUnidoEnd = FORM_DATA.selectedEconomyUnidoEnd,
 } = {}) => {
-  const unidoData = unido();
+  const unidoData = await unidoService.getUnido();
   const numberOfYears = selectedEconomyUnidoEnd - selectedEconomyUnidoStart + 1;
 
   return COBALT_HARDCODED_MODEL.flatMap((curr) => {
@@ -70,7 +70,7 @@ export const getUnidoData: getUnidoDataFn = ({
           acc[key].Value += (data.Value || 0) * curr.weight / numberOfYears;
         } else {
           acc[key] = structuredClone(data);
-          delete acc[key].Year;
+          // delete acc[key].Year;
           acc[key].Value = (acc[key].Value || 0) * curr.weight / numberOfYears;
           if (selectedRegion === REGIONS.GLOBAL) {
             acc[key].Region = selectedRegion;
@@ -78,7 +78,7 @@ export const getUnidoData: getUnidoDataFn = ({
         }
 
         return acc;
-      }, {} as Record<string, RestructuredCurrentType>);
+      }, {} as Record<string, Unido>);
 
     // x['Value Added'] = x['Value Added'].map(b => {b.Value =b.Value / x['Output'].find(wher is equal b).Value); return b; })
 

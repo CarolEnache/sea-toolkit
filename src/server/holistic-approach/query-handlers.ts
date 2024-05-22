@@ -7,7 +7,7 @@ import { formData } from "./hardcoded-mocks";
 import { getProductsFrom, getRegionsFrom } from "./selectors";
 import { oecdCoeficients } from "../utils/oecdCoeficients";
 import { msr } from "../utils/msr";
-import { unido } from "../utils/unido";
+import { unidoService } from "../approach/data-to-report/services/unido-service";
 
 // #region getters
 export const getMarketSources = (
@@ -53,12 +53,12 @@ export const uploadIndustryMatrixSource = async (
 ) => {
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
-  const regions = getRegionsFrom('this (not implemented) expects an id, but for this use case should expect OECD data');
+  const regions = await getRegionsFrom('src:OECD_auth:Wiebe_from:2008_to:2015');
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
   for (const selectedRegion of regions) {
-    console.log('Calculating', selectedRegion);
-    const result = oecdCoeficients({ selectedRegion });
-    await fs.writeFile(path.join(import.meta.url, `../cache/oecd:${selectedRegion.toLowerCase().replaceAll(/[^a-z]+/gi, '-')}.json`).replace('file:', ''), JSON.stringify(result), 'utf8');
+    console.log('Calculating', selectedRegion.Region);
+    const result = oecdCoeficients({ selectedRegion: selectedRegion.Region });
+    await fs.writeFile(path.join(import.meta.url, `../cache/oecd:${selectedRegion.Region.toLowerCase().replaceAll(/[^a-z]+/gi, '-')}.json`).replace('file:', ''), JSON.stringify(result), 'utf8');
   }
 };
 export const uploadManufacturingSource = async (
@@ -67,12 +67,12 @@ export const uploadManufacturingSource = async (
 ) => {
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
-  const regions = getRegionsFrom('this (not implemented) expects an id, but for this use case should expect OECD data');
+  const regions = await getRegionsFrom('src:OECD_auth:Wiebe_from:2008_to:2015');
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
   for (const selectedRegion of regions) {
     console.log('Calculating', selectedRegion);
-    const result = msr({ selectedRegion });
-    await fs.writeFile(path.join(import.meta.url, `../cache/msr:${selectedRegion.toLowerCase().replaceAll(/[^a-z]+/gi, '-')}.json`).replace('file:', ''), JSON.stringify(result), 'utf8');
+    const result = msr({ selectedRegion: selectedRegion.Region });
+    await fs.writeFile(path.join(import.meta.url, `../cache/msr:${selectedRegion.Region.toLowerCase().replaceAll(/[^a-z]+/gi, '-')}.json`).replace('file:', ''), JSON.stringify(result), 'utf8');
   }
 };
 export const uploadIndustryMetricSource = async (
@@ -82,7 +82,7 @@ export const uploadIndustryMetricSource = async (
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
-    const result = unido();
+    const result = await unidoService.getUnido();
     await fs.writeFile(path.join(import.meta.url, `../cache/unido.json`).replace('file:', ''), JSON.stringify(result), 'utf8');
 };
 // #endregion
