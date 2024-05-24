@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:chat": "open ./DevChat.app && ./DevChat.app/server",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,6 +12,7 @@
     "@nextui-org/react": "^2.2.9",
     "@nextui-org/system": "^2.0.15",
     "@nextui-org/theme": "^2.1.17",
+    "duckdb": "^0.10.2",
     "framer-motion": "^11.0.5",
     "mathjs": "^12.3.2",
     "next": "14.1.0",
