@@ -1,4 +1,4 @@
-import { type Region } from "@/server/services";
+import { type Product, type Region } from "@/server/services";
 
 export type ComoditiesListType = {
   commodityList: string[] | null;
@@ -10,11 +10,6 @@ export type RegionsListType = {
   message: string | null;
 };
 export type ProductsListType = {
-  productsList: string[] | null;
+  productsList: Product[] | null;
   message: string | null;
-};
-
-export type OnSubmitEvent = {
-  preventDefault: () => void;
-  target: HTMLFormElement | undefined;
 };

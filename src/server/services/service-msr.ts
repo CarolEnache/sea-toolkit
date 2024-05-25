@@ -5,10 +5,19 @@ import { default as CoFirstUseDistribution } from "../approach/data-to-report/da
 import { default as MSRRawData } from "../approach/data-to-report/data/json/MSR/COBALT/Co_MSR_Raw_Data.new.json";
 import type { MSRID } from "../holistic-approach/io.types";
 
+export type Product = { Product: string };
+
 export const msrService = {
-  async getProducts(id: MSRID) {
+  async getProducts(id: MSRID): Promise<Product[]> {
     // Hardcoded mock
-    return ['Cobalt product', 'Carboxylates', 'Metal', 'Oxides', 'Salts', 'Scrap'];
+    return [
+      { Product: 'Cobalt product' },
+      { Product: 'Carboxylates' },
+      { Product: 'Metal' },
+      { Product: 'Oxides' },
+      { Product: 'Salts' },
+      { Product: 'Scrap' },
+    ];
   },
   async getEndUse() {
     return CoEndUse;

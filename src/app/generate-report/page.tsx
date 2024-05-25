@@ -8,11 +8,10 @@ import {
 } from "./actions";
 import {
   ComoditiesListType,
-  OnSubmitEvent,
   ProductsListType,
   RegionsListType,
 } from "./types";
-import { useState } from "react";
+import { FormEventHandler, useState } from "react";
 
 const initialComodityListState: ComoditiesListType = {
   commodityList: [],
@@ -61,9 +60,9 @@ export default function GenerateReport() {
   //   selectRegionAction,
   //   initialProductsListState
   // );
-  const handleComoditySelection = async (event: OnSubmitEvent) => {
+  const handleComoditySelection: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
     const comodity = formData.get("commodity_list");
     setSelectedComodity(comodity as string);
     const regionList = await selectComodityAction(
@@ -73,16 +72,16 @@ export default function GenerateReport() {
     setRegionsList(regionList);
   };
 
-  const handleValueChainStageSelection = async (event: OnSubmitEvent) => {
+  const handleValueChainStageSelection: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
     const comodity = formData.getAll("value_chain_stage");
     setValueChainStageSelection(comodity as string[]);
   };
 
-  const handleRegionSelection = async (event: OnSubmitEvent) => {
+  const handleRegionSelection: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
     const selectedRegions = formData.getAll("regions");
     if (selectedRegions.includes('global')) {
       setSelectedRegions(regionListState?.regionList?.map(({ Region: region }) => region).concat('global'));  
@@ -94,25 +93,25 @@ export default function GenerateReport() {
   };
 
 
-  const handleFirstUseModeSelection = async (event: OnSubmitEvent) => {
+  const handleFirstUseModeSelection: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
     const selectedFirtsUse = formData.get("first-use");
 
     console.log(selectedFirtsUse);
   };
 
-  const handleContributionSelection = async (event: OnSubmitEvent) => {
+  const handleContributionSelection: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
     const selectedContributionType = formData.getAll("contribution");
 
     console.log(selectedContributionType);
   };
 
-  const handleEffectSelection = async (event: OnSubmitEvent) => {
+  const handleEffectSelection: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
     const selectedEffect = formData.getAll("effect");
 
     console.log(selectedEffect);
@@ -201,7 +200,7 @@ export default function GenerateReport() {
       </form>
       <form className="flex flex-col">
         {/* <form action={selectRegion} className="flex flex-col" onSubmit={handleSubmit}> */}
-        {productsListState?.map((product) => (
+        {productsListState?.map(({ Product: product }) => (
           <>
             <input
               type="checkbox"
