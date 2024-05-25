@@ -1,14 +1,22 @@
-import getLoaderData, { preload } from "./loader";
+import './debug.css';
+
+export const Navigation = () => (
+  <>
+    <h2>Other debug pages</h2>
+    <ul className='navigation'>
+      <li><a href="/debug/footprintService">Footprint</a></li>
+      <li><a href="/debug/msrService">MSR</a></li>
+      <li><a href="/debug/oecdService">OECD</a></li>
+      <li><a href="/debug/unidoService">UNIDO</a></li>
+    </ul>
+  </>
+);
 
 export default async function DebugPage() {
-  preload();
-  const unido = await getLoaderData();
-
   return (
     <div>
       <h1>Debug Page</h1>
-      {/* <pre>{unido}</pre> */}
-      <pre>{JSON.stringify(unido, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2)}</pre>
+      <Navigation />
     </div>
   )
 }

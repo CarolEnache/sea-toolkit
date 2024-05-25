@@ -10,9 +10,9 @@ import type { FactorsByStageReport, FactorsByStageReportBuilder, RegionalReport,
 import type { ReportData } from './report-data';
 import { EconomicParameters, ForecastingGroup, EconomicFactors, ManufacturingStage, YearRangeString } from "./report.types";
 import { generateRegionalData } from './report-data';
-import { getRegionsFrom } from "./selectors";
 import { FormulaComputer } from "./utils/FormulaComputer";
 import { PromiseMap } from "./utils/PromiseMap";
+import { type Region, oecdService } from "../services";
 
 export const generateFactorsByStage = async (
   formData: FormData,
@@ -78,13 +78,13 @@ export const generateFactorsByStage = async (
 };
 
 export const generateReport = async (formData: FormData): Promise<Report> => {
-  const regions = getRegionsFrom(formData.source.industryMatrix[0].id);
+  const regions = await oecdService.getRegions(formData.source.industryMatrix[0].id);
 
-  const getRegionalData = async (region: string) => {
-    const regionalData = await generateRegionalData({ region });
+  const getRegionalData = async (region: Region) => {
+    const regionalData = await generateRegionalData(region);
 
     const result = await PromiseMap<RegionalReport, EconomicParameters, string | FactorsByStageReport>({
-      [EconomicParameters.region]: region,
+      [EconomicParameters.region]: region.Region,
       [EconomicParameters.employment]: generateFactorsByStage(formData, regionalData, EconomicParameters.employment),
       [EconomicParameters.labourIncome]: generateFactorsByStage(formData, regionalData, EconomicParameters.labourIncome),
       [EconomicParameters.taxContribution]: generateFactorsByStage(formData, regionalData, EconomicParameters.taxContribution),

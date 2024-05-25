@@ -4,10 +4,9 @@ import path from 'node:path';
 
 import { generateReport } from "./report-output";
 import { formData } from "./hardcoded-mocks";
-import { getProductsFrom, getRegionsFrom } from "./selectors";
 import { oecdCoeficients } from "../utils/oecdCoeficients";
 import { msr } from "../utils/msr";
-import { unidoService } from "../approach/data-to-report/services/unido-service";
+import { msrService, oecdService, unidoService } from "../services";
 
 // #region getters
 export const getMarketSources = (
@@ -53,7 +52,7 @@ export const uploadIndustryMatrixSource = async (
 ) => {
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
-  const regions = await getRegionsFrom('src:OECD_auth:Wiebe_from:2008_to:2015');
+  const regions = await oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015');
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
   for (const selectedRegion of regions) {
     console.log('Calculating', selectedRegion.Region);
@@ -67,7 +66,7 @@ export const uploadManufacturingSource = async (
 ) => {
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
-  const regions = await getRegionsFrom('src:OECD_auth:Wiebe_from:2008_to:2015');
+  const regions = await oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015');
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
   for (const selectedRegion of regions) {
     console.log('Calculating', selectedRegion);
@@ -93,14 +92,14 @@ export const handleIndustryMatrixSourceSelection = (
   response: NextApiResponse
 ) => {
   const industryMatrixSources = request.body;
-  response.status(200).json(getRegionsFrom(industryMatrixSources));
+  response.status(200).json(oecdService.getRegions(industryMatrixSources));
 };
 export const handleManufacturingSourceSelection = (
   request: NextApiRequest,
   response: NextApiResponse
 ) => {
   const manufacturingSources = request.body;
-  response.status(200).json(getProductsFrom(manufacturingSources));
+  response.status(200).json(msrService.getProducts(manufacturingSources));
 };
 export const handleFormRequest = async (
   request: NextApiRequest,

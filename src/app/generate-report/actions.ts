@@ -1,11 +1,8 @@
 "use server";
 
+import { msrService, oecdService } from "@/server/services";
 import { FirstUseMode, UUID } from "@/server/holistic-approach/io.types";
 import { generateReport } from "@/server/holistic-approach/report-output";
-import {
-  getProductsFrom,
-  getRegionsFrom,
-} from "@/server/holistic-approach/selectors";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
@@ -85,7 +82,7 @@ export async function selectComodityAction(
   try {
     // It's not the commodity, OECD depends only on the year and its calculation on the region
     // const regions = await getRegionsFrom(data.selectedComodity);
-    const regions = await getRegionsFrom('src:OECD_auth:Wiebe_from:2008_to:2015');
+    const regions = await oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015');
 
     revalidatePath("/");
     return { regionList: regions, message: null };
@@ -115,7 +112,7 @@ export async function selectRegionAction(
   // console.log({ data });
 
   try {
-    const products = await getProductsFrom("");
+    const products = await msrService.getProducts("");
 
     revalidatePath("/");
     return { productsList: products, message: null };

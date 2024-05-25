@@ -10,10 +10,11 @@
 
 import { EconomicFactors, EconomicParameters, ForecastingGroup, ManufacturingStage, YearRangeString } from "./report.types";
 import mockData from './report-data-mock.json'
+import { type Region } from "../services";
 
 const indexData = (data: DataPoint) => {
-  const { region, forecastGroup, economicFactor, manufacturingStage, period, economicParameter } = data;
-  return [ region, forecastGroup, economicFactor, manufacturingStage, period, economicParameter ].join(' | ');
+  const { Region, forecastGroup, economicFactor, manufacturingStage, period, economicParameter } = data;
+  return [ Region, forecastGroup, economicFactor, manufacturingStage, period, economicParameter ].join(' | ');
 }
 const indexedData = (mockData as DataPoint[]).reduce((acc, data) => {
   const key = indexData(data);
@@ -23,9 +24,7 @@ const indexedData = (mockData as DataPoint[]).reduce((acc, data) => {
   return acc;
 }, {} as Record<string, DataPoint>)
 
-interface GenerateRegionalDataOptions {
-  region: string
-}
+type GenerateRegionalDataOptions = Region;
 
 interface ReportDataOptions {
   forecastGroup: ForecastingGroup;

@@ -1,5 +1,4 @@
-import { Unido } from "../approach/data-to-report/data/parquet/read";
-import { unidoService } from "../approach/data-to-report/services/unido-service";
+import { type Unido, unidoService } from "@/server/services";
 import { COBALT_HARDCODED_MODEL, FORM_DATA } from "../constants";
 import { REGIONS } from "./auxiliary";
 import { msr } from "./msr";

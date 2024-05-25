@@ -1,4 +1,4 @@
-import { Region } from "@/server/approach/data-to-report/data/parquet/read";
+import { type Region } from "@/server/services";
 
 export type ComoditiesListType = {
   commodityList: string[] | null;

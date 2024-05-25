@@ -1,4 +1,4 @@
-import { runDbQuery } from "../data/parquet/db";
+import { runDbQuery } from "../approach/data-to-report/data/parquet/db";
 
 export type Unido = {
   "Table Description": string,
