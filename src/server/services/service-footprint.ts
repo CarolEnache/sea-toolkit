@@ -14,8 +14,8 @@ export const footprintService = {
   getIndustries: async () => {
     const [oecdIndustries, unidoIndustries, naceIndustries, analystIndustries] = await Promise.all([
       oecdService.getIndustries('src-OECD_auth-Wiebe_from-2008_to-2015'),
-      unidoService.getIndustries(),
-      naceService.getIndustries(),
+      unidoService.getIndustries('src-UNIDO_auth-Wiebe_from-2008_to-2015'),
+      naceService.getIndustries('src-NACE-2_auth-EuropaEU_year-2024'),
       footprintService.getAnalystIndustries(),
     ]);
     const CodeMatcher = {

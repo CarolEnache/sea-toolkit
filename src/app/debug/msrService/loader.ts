@@ -2,11 +2,11 @@
 import { msrService } from '@/server/services';
 
 export const preload = () => {
-  void msrService.getProducts('src-MSR_auth-Wiebe_...');
+  void msrService.getProducts('src-MSR');
 }
 
 export default async function getLoaderData() {
   return {
-    msr: await msrService.getProducts('src-MSR_auth-Wiebe_...'),
+    msr: await msrService.getProducts('src-MSR'),
   };
 }

@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 const db = new Database(':memory:');
 
 // List of sql files
-type SqlFiles = 'get-regions' | 'get-unido' |
+type SqlFiles = 'get-regions' | 'get-products' | 'get-unido' |
   'get-oecd-industries' | 'get-unido-industries' | 'get-nace-industries' |
   'get-analyst-industries' | 'update-analyst-industries' | 'delete-analyst-industries';
 

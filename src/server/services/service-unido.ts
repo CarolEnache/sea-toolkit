@@ -8,6 +8,8 @@ export type Unido = {
   "ISIC": string,
   "Value": number,
 }
+// The ID that points to certain Unido dataset
+export type UNIDOID = "src-UNIDO_auth-Wiebe_from-2008_to-2015";
 
 type UnidoIndustry = {
   "ISIC": string,
@@ -15,13 +17,13 @@ type UnidoIndustry = {
 }
 
 export const unidoService = {
-  getUnido: () => runDbQuery<Unido[]>(
+  getUnido: (id: UNIDOID) => runDbQuery<Unido[]>(
     'get-unido',
-    'src-UNIDO_auth-Wiebe_from-2008_to-2015'
+    id
   ),
-  getIndustries: () => runDbQuery<UnidoIndustry[]>(
+  getIndustries: (id: UNIDOID) => runDbQuery<UnidoIndustry[]>(
     'get-unido-industries',
-    'src-UNIDO_auth-Wiebe_from-2008_to-2015'
+    id
   ).then(values => values.map<Industry>(unidoIndustry => ({
     isic: unidoIndustry['ISIC'],
     isicDescription: unidoIndustry['ISIC Description'],
