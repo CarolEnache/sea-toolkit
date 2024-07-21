@@ -22,12 +22,12 @@ export const formData: FormData = {
     },
     industryMatrix: [
       {
-        id: "src:OECD_auth:Wiebe_from:2008_to:2015",
+        id: "src-OECD_auth-Wiebe_from-2008_to-2015",
       },
     ],
     industryMetric: [
       {
-        id: "src:UNIDO_auth:Wiebe_from:2008_to:2015",
+        id: "src-UNIDO_auth-Wiebe_from-2008_to-2015",
         startYear: 2010,
         endYear: LAST_YEAR - 1,
       },

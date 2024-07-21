@@ -1,0 +1,1 @@
+SELECT DISTINCT "NACE code", "NACE description" FROM PARQUET_TABLE

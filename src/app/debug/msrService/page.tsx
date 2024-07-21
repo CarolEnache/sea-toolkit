@@ -10,7 +10,7 @@ export default async function DebugPage() {
   return (
     <div>
       <h1>MSR</h1>
-      <pre className='code'>{`oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015')`}</pre>
+      <pre className='code'>{`msrService.getProducts('src-MSR_auth-Wiebe_...')`}</pre>
       <pre>{JSON.stringify(msr, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2)}</pre>
       <Navigation />
     </div>

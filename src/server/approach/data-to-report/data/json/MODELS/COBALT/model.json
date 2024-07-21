@@ -1,0 +1,21 @@
+[
+  { "step": "CREATED", "isic": "7", "oecd": "D07T08" },
+  { "step": "FIRST_USE", "isic": "201", "oecd": "D20T21" },
+  { "step": "FIRST_USE", "isic": "202", "oecd": "D20T21" },
+  { "step": "FIRST_USE", "isic": "251", "oecd": "D25" },
+  { "step": "FIRST_USE", "isic": "1080", "oecd": "D10T12" },
+  { "step": "FIRST_USE", "isic": "2013", "oecd": "D20T21" },
+  { "step": "FIRST_USE", "isic": "2021", "oecd": "D20T21" },
+  { "step": "FIRST_USE", "isic": "2029", "oecd": "D20T21" },
+  { "step": "FIRST_USE", "isic": "2100", "oecd": "D20T21" },
+  { "step": "FIRST_USE", "isic": "2420", "oecd": "D24" },
+  { "step": "FIRST_USE", "isic": "2432", "oecd": "D24" },
+  { "step": "FIRST_USE", "isic": "2512", "oecd": "D25" },
+  { "step": "FIRST_USE", "isic": "2513", "oecd": "D25" },
+  { "step": "FIRST_USE", "isic": "2610", "oecd": "D26" },
+  { "step": "FIRST_USE", "isic": "2710", "oecd": "D27" },
+  { "step": "FIRST_USE", "isic": "2720", "oecd": "D27" },
+  { "step": "FIRST_USE", "isic": "2812", "oecd": "D35T39" },
+  { "step": "FINAL_USE", "isic": "2011", "oecd": "D20T21" },
+  { "step": "RECYCLE", "isic": "3710", "oecd": "D35T39" }
+]

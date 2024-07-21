@@ -82,7 +82,7 @@ export async function selectComodityAction(
   try {
     // It's not the commodity, OECD depends only on the year and its calculation on the region
     // const regions = await getRegionsFrom(data.selectedComodity);
-    const regions = await oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015');
+    const regions = await oecdService.getRegions('src-OECD_auth-Wiebe_from-2008_to-2015');
 
     revalidatePath("/");
     return { regionList: regions, message: null };

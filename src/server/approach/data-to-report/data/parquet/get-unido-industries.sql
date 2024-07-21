@@ -1,0 +1,1 @@
+SELECT DISTINCT isic, "isic description" FROM PARQUET_TABLE

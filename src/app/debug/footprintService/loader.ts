@@ -1,12 +1,14 @@
-import { oecdService } from '@/server/services'
-import 'server-only';
+'use server';
+import { footprintService } from '@/server/services'
 
 export const preload = () => {
-  void oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015');
+  void footprintService.getIndustries();
+  void footprintService.getAnalystIndustries();
 }
 
 export default async function getLoaderData() {
   return {
-    footprint: await oecdService.getRegions('src:OECD_auth:Wiebe_from:2008_to:2015'),
+    industries: await footprintService.getIndustries(),
+    analystIndustries: await footprintService.getAnalystIndustries(),
   };
 }

@@ -6,9 +6,9 @@ export type MarketID = "COBALT | Wiebe-2019" | "NICKEL" | "COPPER" | "HYDROGEN";
 // The ID that points to certain MSR dataset
 export type MSRID = string | "COBALT INSTITUTE 2019";
 // The ID that points to certain Unido dataset
-export type UNIDOID = "src:UNIDO_auth:Wiebe_from:2008_to:2015";
+export type UNIDOID = "src-UNIDO_auth-Wiebe_from-2008_to-2015";
 // The ID that points to certain OECD dataset
-export type OECDID = "src:OECD_auth:Wiebe_from:2008_to:2015";
+export type OECDID = "src-OECD_auth-Wiebe_from-2008_to-2015";
 //#endregion
 /**
  * The forecast function allows to choose how to fill future data

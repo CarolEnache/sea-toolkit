@@ -5,11 +5,23 @@ import OECDEmployment from "../approach/data-to-report/data/json/OECD/2015/OECDE
 
 import { OECDID } from "@/server/holistic-approach/io.types";
 import { runDbQuery } from "../approach/data-to-report/data/parquet/db";
+import { Industry } from "./types";
 
 export type Region = { Region: string };
+type OecdIndustry = { COL: string, To: string };
 
 export const oecdService = {
-  getRegions: (id: OECDID) => runDbQuery<Region[]>('get-regions', id),
+  getRegions: (id: OECDID) => runDbQuery<Region[]>(
+    'get-regions',
+    id
+  ),
+  getIndustries: (id: OECDID) => runDbQuery<OecdIndustry[]>(
+    'get-oecd-industries',
+    id,
+  ).then(values => values.map<Industry>(oecd => ({
+    oecd: oecd.COL,
+    oecdDescription: oecd.To,
+  }))),
   async getIndustryData() {
     return [].concat(
       OECDRawPart0 as [],
