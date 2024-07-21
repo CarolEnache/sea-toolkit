@@ -13,12 +13,17 @@ type ReportData = {
   report: Report;
   message?: string;
 };
-export async function regionsServerAction():Promise<Region['Region'][]> {
- const regions = await oecdService.getRegions('src-OECD_auth-Wiebe_from-2008_to-2015');
- revalidatePath("/");
- return regions.map((r)=>r.Region)
+export async function getDataFromServer() {
+  const regions = await oecdService.getRegions(
+    "src-OECD_auth-Wiebe_from-2008_to-2015"
+  );
+  const products = await msrService.getProducts("src-MSR");
+  revalidatePath("/");
+  return {
+    regions: ["Global", ...regions.map((r) => r.Region)],
+    products: ["All products", ...products.map((p) => p.Product)],
+  };
 }
-
 
 export async function formServerAction(
   prevState: FormDataType,

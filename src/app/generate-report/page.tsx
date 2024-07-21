@@ -1,9 +1,9 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { formServerAction, regionsServerAction } from "./actions";
+import { formServerAction, getDataFormFromServer } from "./actions";
 import { useEffect, useState } from "react";
-import { Region } from "@/server/services";
+import { Product, Region } from "@/server/services";
 
 // import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
 // import { FormEventHandler, useState } from "react";
@@ -35,7 +35,6 @@ export type FormDataType = {
   };
 };
 
-const products = ["All products", "Fine powde"];
 const valuesChainStage = [
   "mining",
   "refining",
@@ -74,13 +73,16 @@ export const initialState: FormDataType = {
 export default function GenerateReport() {
   const [formState, formAction] = useFormState(formServerAction, initialState);
   const [regions, setRegions] = useState<Region["Region"][]>([]);
+  const [products, setProducts] = useState<Product["Product"][]>([]);
 
-  const getRegions = async () => {
-    setRegions(await regionsServerAction());
+  const setDataForm = async () => {
+    const res = await getDataFormFromServer();
+    setRegions(res.regions);
+    setProducts(res.products);
   };
 
   useEffect(() => {
-    getRegions();
+    setDataForm();
   }, []);
 
   return (
