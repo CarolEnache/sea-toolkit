@@ -13,7 +13,7 @@ type ReportData = {
   report: Report;
   message?: string;
 };
-export async function getRegions():Promise<Region['Region'][]> {
+export async function regionsServerAction():Promise<Region['Region'][]> {
  const regions = await oecdService.getRegions('src-OECD_auth-Wiebe_from-2008_to-2015');
  revalidatePath("/");
  return regions.map((r)=>r.Region)
