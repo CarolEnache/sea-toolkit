@@ -5,11 +5,12 @@ type NaceIndustry = {
   "NACE code": string;
   "NACE description": string;
 };
+export type NACEID = 'src-NACE-2_auth-EuropaEU_year-2024';
 
 export const naceService = {
-  getIndustries: () => runDbQuery<NaceIndustry[]>(
+  getIndustries: (id: NACEID) => runDbQuery<NaceIndustry[]>(
     'get-nace-industries',
-    'src-NACE'
+    id
   ).then(values => values.map<Industry>(naceIndustry => ({
     nace: naceIndustry['NACE code'],
     naceDescription: naceIndustry['NACE description'],
