@@ -8,7 +8,7 @@ export const preload = () => {
 
 export default async function getLoaderData() {
   return {
-    industries: await footprintService.getIndustries(),
+    industries: (await footprintService.getIndustries()).slice(0, 4),
     analystIndustries: await footprintService.getAnalystIndustries(),
   };
 }

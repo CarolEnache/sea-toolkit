@@ -1,283 +1,161 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import {
-  selectComodityGroupAction,
-  selectComodityAction,
-  selectRegionAction,
-} from "./actions";
-import {
-  ComoditiesListType,
-  ProductsListType,
-  RegionsListType,
-} from "./types";
-import { FormEventHandler, useState } from "react";
+import { formServerAction, regionsServerAction } from "./actions";
+import { useEffect, useState } from "react";
+import { Region } from "@/server/services";
 
-const initialComodityListState: ComoditiesListType = {
-  commodityList: [],
-  valueChainStage: [],
-  message: null,
-};
-const initialRegionListState: RegionsListType = {
-  regionList: [],
-  message: null,
-};
-const initialProductsListState: ProductsListType = {
-  productsList: [],
-  message: null,
+// import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
+// import { FormEventHandler, useState } from "react";
+// import { generateReport } from "@/server/holistic-approach/report-output";
+
+export type FormDataType = {
+  region: "Europe" | "North America" | "Global"; // ...and more | default: Global
+  product: "All products" | "Fine powder"; // ...and more | default: All products
+  valueChainStage?: {
+    mining: boolean; // default: true
+    refining: boolean; // default: true
+    firstUse: boolean; // default: true
+    endUse: boolean; // default: true
+    recycling: boolean; // default: true
+  };
+  firstUseMode?:
+    | "ISIC sectorial analysis"
+    | "Representative Companies"
+    | "Average"; // default: ISIC sectorial analysis
+  contribution?: {
+    input: boolean; // default: true
+    valueAdded: boolean; // default: true
+  };
+  effect?: {
+    directEffect: boolean; // default: true
+    firstRound: boolean; // default: true
+    industrialSupport: boolean; // default: true
+    incomeEffect: boolean; // default: true
+  };
 };
 
-function SubmitButton({ children }: { children: React.ReactElement | string }) {
-  const { pending } = useFormStatus();
-
-  return (
-    <button type="submit" aria-disabled={pending}>
-      {children}
-    </button>
-  );
-}
+const products = ["All products", "Fine powde"];
+const valuesChainStage = [
+  "mining",
+  "refining",
+  "firstUse",
+  "endUse",
+  "recycling",
+];
+const firstUseModes = [
+  "ISIC sectorial analysis",
+  "Representative Companies",
+  "Average",
+];
+export const initialState: FormDataType = {
+  region: "Global",
+  product: "All products",
+  valueChainStage: {
+    mining: false,
+    refining: false,
+    firstUse: false,
+    endUse: false,
+    recycling: false,
+  },
+  firstUseMode: "ISIC sectorial analysis",
+  contribution: {
+    input: false,
+    valueAdded: false,
+  },
+  effect: {
+    directEffect: false,
+    firstRound: false,
+    industrialSupport: false,
+    incomeEffect: false,
+  },
+};
 
 export default function GenerateReport() {
-  const [selectedComodity, setSelectedComodity] = useState<any>("");
-  const [selectedValueChainStage, setValueChainStageSelection] = useState<any>([""]);
-  const [regionListState, setRegionsList] = useState<RegionsListType>();
-  const [selectedRegions, setSelectedRegions] = useState<any>([]);
-  const [productsListState, setProductsListState] = useState([])
+  const [formState, formAction] = useFormState(formServerAction, initialState);
+  const [regions, setRegions] = useState<Region["Region"][]>([]);
 
-  const [comodityListState, selectComodityGroup] = useFormState(
-    selectComodityGroupAction,
-    initialComodityListState
-  );
-
-  console.log({
-    COMODITY_GROUP: "Metals",
-    selectedComodity,
-    selectedValueChainStage,
-    selectedRegions
-  });
-
-  // const [productsListState, selectRegion] = useFormState(
-  //   selectRegionAction,
-  //   initialProductsListState
-  // );
-  const handleComoditySelection: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const comodity = formData.get("commodity_list");
-    setSelectedComodity(comodity as string);
-    const regionList = await selectComodityAction(
-      initialRegionListState,
-      formData
-    );
-    setRegionsList(regionList);
+  const getRegions = async () => {
+    setRegions(await regionsServerAction());
   };
 
-  const handleValueChainStageSelection: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const comodity = formData.getAll("value_chain_stage");
-    setValueChainStageSelection(comodity as string[]);
-  };
-
-  const handleRegionSelection: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const selectedRegions = formData.getAll("regions");
-    if (selectedRegions.includes('global')) {
-      setSelectedRegions(regionListState?.regionList?.map(({ Region: region }) => region).concat('global'));  
-    } else {
-      setSelectedRegions(selectedRegions);
-    }
-    // const productsList = await selectRegionAction(selectedRegions)
-    // setProductsListState(productsList)
-  };
-
-
-  const handleFirstUseModeSelection: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const selectedFirtsUse = formData.get("first-use");
-
-    console.log(selectedFirtsUse);
-  };
-
-  const handleContributionSelection: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const selectedContributionType = formData.getAll("contribution");
-
-    console.log(selectedContributionType);
-  };
-
-  const handleEffectSelection: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const selectedEffect = formData.getAll("effect");
-
-    console.log(selectedEffect);
-  };
+  useEffect(() => {
+    getRegions();
+  }, []);
 
   return (
-    <>
-      <form action={selectComodityGroup} className="flex flex-col">
-        <input type="radio" id="metals" name="commodity_group" value="metals" />
-          <label htmlFor="metals">Metals</label> {" "}
-        <input
-          type="radio"
-          disabled
-          id="energy"
-          name="commodity_group"
-          value="energy"
-        />
-          <label htmlFor="energy">Energy</label> {" "}
-        <input
-          type="radio"
-          id="agricultures"
-          name="commodity_group"
-          value="agricultures"
-          disabled
-        />
-          <label htmlFor="agricultures">Agricultures</label>
-        <SubmitButton>Select Commodity Group</SubmitButton>
-        {/* <p aria-live="polite" className="sr-only" role="status">
-          {comodityListState?.message} ?
-        </p> */}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        action={formAction}
+        className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full"
+      >
+        <h2 className="text-2xl font-bold mb-6">Generate report</h2>
+        <div className="mb-4">
+          <label className="block text-gray-700">Region</label>
+          <select name="region" className="w-full mt-1 p-2 border rounded-lg">
+            {regions?.map((region, i) => (
+              <option key={i}>{region}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Product</label>
+          <select name="product" className="w-full mt-1 p-2 border rounded-lg">
+            {products.map((product, i) => (
+              <option key={i}>{product}</option>
+            ))}
+          </select>
+        </div>
+        <fieldset className="mb-4">
+          <legend className="text-gray-700">Value Chain Stage</legend>
+          {valuesChainStage.map((stage) => (
+            <div key={stage} className="flex items-center mt-2">
+              <input type="checkbox" name={stage} className="mr-2" />
+              <label className="text-gray-700 capitalize">{stage}</label>
+            </div>
+          ))}
+        </fieldset>
+        <div className="mb-4">
+          <label className="block text-gray-700">First Use Mode</label>
+          <select
+            name="firstUseMode"
+            className="w-full mt-1 p-2 border rounded-lg"
+          >
+            {firstUseModes.map((mode, i) => (
+              <option key={i}>{mode}</option>
+            ))}
+          </select>
+        </div>
+        <fieldset className="mb-4">
+          <legend className="text-gray-700">Contribution</legend>
+          {["input", "valueAdded"].map((contrib) => (
+            <div key={contrib} className="flex items-center mt-2">
+              <input type="checkbox" name={contrib} className="mr-2" />
+              <label className="text-gray-700 capitalize">{contrib}</label>
+            </div>
+          ))}
+        </fieldset>
+        <fieldset className="mb-4">
+          <legend className="text-gray-700">Effect</legend>
+          {[
+            "directEffect",
+            "firstRound",
+            "industrialSupport",
+            "incomeEffect",
+          ].map((eff) => (
+            <div key={eff} className="flex items-center mt-2">
+              <input type="checkbox" name={eff} className="mr-2" />
+              <label className="text-gray-700 capitalize">{eff}</label>
+            </div>
+          ))}
+        </fieldset>
+        <button
+          type="submit"
+          className="w-full py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
+        >
+          Submit
+        </button>
       </form>
-
-      <form onSubmit={handleComoditySelection} className="flex flex-col">
-        {comodityListState.commodityList?.map((comodity) => (
-          <>
-            <input
-              type="radio"
-              id={comodity}
-              name="commodity_list"
-              value={comodity}
-            />
-              <label htmlFor={comodity}>{comodity}</label>
-          </>
-        ))}
-        <SubmitButton>Select Commodity</SubmitButton>
-      </form>
-      <form onSubmit={handleValueChainStageSelection} className="flex flex-col">
-        {/* <form action={selectComodity} onSubmit={handleComoditySelection} className="flex flex-col"> */}
-        {comodityListState.valueChainStage?.map((stage) => (
-          <>
-            <input
-              type="checkbox"
-              id={stage}
-              name="value_chain_stage"
-              value={stage}
-            />
-              <label htmlFor={stage}>{stage}</label>
-          </>
-        ))}
-        <SubmitButton>Select Value Chain Stage</SubmitButton>
-      </form>
-      <form className="flex flex-col" onSubmit={handleRegionSelection}>
-      {/* <form action={selectRegion} className="flex flex-col"> */}
-          <>
-            <input
-              type="checkbox"
-              value="global"
-              id="region:global"
-              name="regions"
-            />
-            <label htmlFor="region:global">Global</label>
-          </>
-        {regionListState?.regionList?.map(({ Region: region }) => (
-          <>
-            <input
-              type="checkbox"
-              value={region}
-              id={region}
-              name="regions"
-            />
-            <label htmlFor={region}>{region}</label>
-          </>
-        ))}
-        {regionListState?.message && <p>{regionListState?.message}</p>}
-        <SubmitButton>Select regions</SubmitButton>
-      </form>
-      <form className="flex flex-col">
-        {/* <form action={selectRegion} className="flex flex-col" onSubmit={handleSubmit}> */}
-        {productsListState?.map(({ Product: product }) => (
-          <>
-            <input
-              type="checkbox"
-              value={product}
-              id={product}
-              name="products"
-            />
-            <label htmlFor={product}>{product}</label>
-          </>
-        ))}
-        <SubmitButton>Select products</SubmitButton>
-      </form>
-      <form className="flex flex-col" onSubmit={handleFirstUseModeSelection}>
-        <input
-          type="radio"
-          name="first-use"
-          id="sectorial-analysis"
-          value="sectorial-analysis"
-        />
-        <label htmlFor="sectorial-analysis">ISIC sectorial analysis</label>
-        <input
-          type="radio"
-          name="first-use"
-          id="representative-companies"
-          value="representative-companies"
-        />
-        <label htmlFor="representative-companies">
-          Representative Companies
-        </label>
-        <input type="radio" name="first-use" id="average" value="average" />
-        <label htmlFor="average">Average</label>
-        this omne
-        <SubmitButton>Select Fisrt Use Mode</SubmitButton>
-      </form>
-      <form className="flex flex-col" onSubmit={handleContributionSelection}>
-        <input type="checkbox" name="contribution" id="input" value="input" />
-        <label htmlFor="input">Input</label>
-        <input
-          type="checkbox"
-          name="contribution"
-          id="value-added"
-          value="value-added"
-        />
-        <label htmlFor="value-added">Value Added</label>
-        <SubmitButton>Select contribution</SubmitButton>
-      </form>
-      <form className="flex flex-col" onSubmit={handleEffectSelection}>
-        <input
-          type="checkbox"
-          name="effect"
-          id="direct-effect"
-          value="direct-effect"
-        />
-        <label htmlFor="direct-effect">Direct effect</label>
-        <input
-          type="checkbox"
-          name="effect"
-          id="first-round"
-          value="first-round"
-        />
-        <label htmlFor="first-round">First Round</label>
-        <input
-          type="checkbox"
-          name="effect"
-          id="industrial-support"
-          value="industrial-support"
-        />
-        <label htmlFor="industrial-support">Industrial Support</label>
-        <input
-          type="checkbox"
-          name="effect"
-          id="income-effect"
-          value="income-effect"
-        />
-        <label htmlFor="income-effect">Income effect</label>
-        <SubmitButton>Select the Effect</SubmitButton>
-      </form>
-    </>
+    </div>
   );
 }

@@ -15,7 +15,8 @@ export const setAnalystIndustries = async (formData: FormData) => {
     OECD: analystIndustries.OECD,
   });
 
-  redirect('/debug/footprintService');
+  // redirect('/debug/footprintService');
+  return await footprintService.getAnalystIndustries();
 }
 
 export const deleteAnalystIndustries = async (formData: FormData) => {
@@ -26,5 +27,6 @@ export const deleteAnalystIndustries = async (formData: FormData) => {
     NACE: analystIndustries.NACE,
   });
 
-  redirect('/debug/footprintService');
+  // redirect('/debug/footprintService');
+  return await footprintService.getAnalystIndustries();
 }
