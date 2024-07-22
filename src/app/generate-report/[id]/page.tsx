@@ -55,7 +55,6 @@ const ReportData = ({ params }) => {
     <div className="min-h-screen bg-gray-100 p-10">
       <div className="container mx-auto">
         <h2 className="text-4xl font-bold mb-8">Region: {report.Region}</h2>
-        <h2 className="text-4xl font-bold mb-8">Report for ID: {id}</h2>
 
         {/* Top row with 5 charts */}
         {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -81,13 +80,14 @@ const ReportData = ({ params }) => {
           </div> */}
       </div>
 
-      <div>
+      <div className="grid grid-cols-2 gap-4 mb-4 w-full ">
         {keys.map((key, index) => (
-          <div key={index} className="grid grid-cols-1 gap-8 mb-8 w-full">
-            <div className="bg-white p-6 rounded-lg shadow-lg min-h-[400px] w-full">
-              <h3 className="text-xl font-bold mb-4">{key}</h3>
-              <MyChart data={report} cat={key} />
-            </div>
+          <div
+            key={index}
+            className="bg-white p-6 rounded-lg shadow-lg min-h-[400px] w-full"
+          >
+            <h3 className="text-xl font-bold mb-4">{key}</h3>
+            <MyChart data={report} cat={key} />
           </div>
         ))}
       </div>
