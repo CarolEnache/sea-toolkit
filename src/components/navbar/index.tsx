@@ -1,5 +1,15 @@
 import React from "react";
-import {Navbar as NextNavbar, NavbarBrand, NavbarMenuToggle, NavbarMenuItem, NavbarMenu, NavbarContent, NavbarItem, Link, Button} from "@nextui-org/react";
+import {
+  Navbar as NextNavbar,
+  NavbarBrand,
+  NavbarMenuToggle,
+  NavbarMenuItem,
+  NavbarMenu,
+  NavbarContent,
+  NavbarItem,
+  Link,
+  Button,
+} from "@nextui-org/react";
 // import {AcmeLogo} from "./AcmeLogo.jsx";
 
 export default function Navbar() {
@@ -26,7 +36,9 @@ export default function Navbar() {
       shouldHideOnScroll
     >
       <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        />
       </NavbarContent>
 
       <NavbarContent className="sm:hidden pr-3" justify="center">
@@ -47,7 +59,12 @@ export default function Navbar() {
           </Link>
         </NavbarItem>
         <NavbarItem isActive>
-          <Link href="#" aria-current="page">
+          <Link aria-current="page" href="/generate-report">
+            Generate report
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="#">
             Customers
           </Link>
         </NavbarItem>
@@ -74,7 +91,11 @@ export default function Navbar() {
             <Link
               className="w-full"
               color={
-                index === 2 ? "warning" : index === menuItems.length - 1 ? "danger" : "foreground"
+                index === 2
+                  ? "warning"
+                  : index === menuItems.length - 1
+                  ? "danger"
+                  : "foreground"
               }
               href="#"
               size="lg"

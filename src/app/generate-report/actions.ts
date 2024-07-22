@@ -13,15 +13,17 @@ type ReportData = {
   report: Report;
   message?: string;
 };
-export async function getDataFromServer() {
-  const regions = await oecdService.getRegions(
-    "src-OECD_auth-Wiebe_from-2008_to-2015"
-  );
-  const products = await msrService.getProducts("src-MSR");
+export async function getDataFormFromServer() {
+
+  const res = await Promise.all([
+    oecdService.getRegions("src-OECD_auth-Wiebe_from-2008_to-2015"),
+    msrService.getProducts("src-MSR"),
+  ]);
+
   revalidatePath("/");
   return {
-    regions: ["Global", ...regions.map((r) => r.Region)],
-    products: ["All products", ...products.map((p) => p.Product)],
+    regions: ["Global", ...res[0].map((r) => r.Region)],
+    products: ["All products", ...res[1].map((p) => p.Product)],
   };
 }
 
@@ -92,7 +94,9 @@ export async function formServerAction(
 
   try {
     const reportData = await reportService.generateReport(data);
-    revalidatePath("/");
+    revalidatePath('/');
+
+
     return {
       report: reportData,
       message: "",
