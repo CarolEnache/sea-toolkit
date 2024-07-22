@@ -9,6 +9,7 @@ const ReportData = ({ params }) => {
   //   console.log(id);
   const [report, setReport] = useState({});
   const [loading, setLoading] = useState(true);
+  const [keys, setKeys] = useState([]);
 
   useEffect(() => {
     // if (id) {
@@ -22,9 +23,10 @@ const ReportData = ({ params }) => {
 
     if (data) {
       const formatedData = JSON.parse(data);
-      console.log(formatedData);
+      const extractedKeys = Object.entries(formatedData).map(([key, _]) => key);
+
+      setKeys((value) => (value = extractedKeys.filter((a) => a !== "Region")));
       setReport((value) => (value = formatedData));
-      console.log(report);
     }
 
     setLoading(false);
@@ -72,19 +74,26 @@ const ReportData = ({ params }) => {
         </div> */}
 
         {/* Middle row with 2 larger charts */}
-        <div className="grid grid-cols-1 gap-8 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg min-h-[400px]">
-            <h3 className="text-xl font-bold mb-4">Polar Area Chart 4</h3>
-            <MyChart data={report} />
-          </div>
-          {/* <div className="bg-white p-6 rounded-lg shadow-lg min-h-[400px]">
+
+        {/* <div className="bg-white p-6 rounded-lg shadow-lg min-h-[400px]">
             <h3 className="text-xl font-bold mb-4">Scatter Chart 5</h3>
         
           </div> */}
-        </div>
+      </div>
 
-        {/* Mixed layout for the remaining charts */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+      <div>
+        {keys.map((key, index) => (
+          <div key={index} className="grid grid-cols-1 gap-8 mb-8 w-full">
+            <div className="bg-white p-6 rounded-lg shadow-lg min-h-[400px] w-full">
+              <h3 className="text-xl font-bold mb-4">{key}</h3>
+              <MyChart data={report} cat={key} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Mixed layout for the remaining charts */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-lg min-h-[300px]">
             <h3 className="text-xl font-bold mb-4">Bubble Chart 8</h3>
             <MyChart />
@@ -95,7 +104,7 @@ const ReportData = ({ params }) => {
           </div>
         </div> */}
 
-        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-lg col-span-2 min-h-[300px]">
             <h3 className="text-xl font-bold mb-4">Line Chart 10</h3>
             <MyChart />
@@ -153,7 +162,6 @@ const ReportData = ({ params }) => {
             <MyChart />
           </div>
         </div> */}
-      </div>
     </div>
   );
 };

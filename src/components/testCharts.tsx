@@ -27,22 +27,23 @@ const options: ChartConfiguration<"line"> = {
     },
   },
 };
-const MyChart = ({ data }) => {
+const MyChart = ({ data, cat }) => {
   console.log(data);
+  console.log(cat);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const goodData = data.Employment.BASE["Income Effect"]["Direct Applications"];
 
   useEffect(() => {
     if (chartRef.current) {
-      const categories = Object.keys(data.Employment.BASE);
+      const categories = Object.keys(data[cat].BASE);
       console.log("categories", categories);
 
       // Extraire dynamiquement les labels à partir des données
       const extractLabels = () => {
         const allLabels = new Set();
         categories.forEach((category) => {
-          Object.keys(data.Employment.BASE[category]).forEach((label) => {
+          Object.keys(data[cat].BASE[category]).forEach((label) => {
             allLabels.add(label);
           });
         });
@@ -53,9 +54,10 @@ const MyChart = ({ data }) => {
 
       const extractData = (scenario) => {
         return categories.map((category) => {
-          const dataPoints = data.Employment[scenario][category];
+          const dataPoints = data[cat][scenario][category];
           console.log(dataPoints);
           return labels.map((label) => {
+            console.log("a", Object.values(dataPoints[label]));
             return Object.values(dataPoints[label]);
           });
         });
@@ -65,7 +67,7 @@ const MyChart = ({ data }) => {
       const lowData = extractData("LOW");
       const highData = extractData("HIGH");
       console.log("baseData", baseData);
-      const datasets = categories
+      let datasets = categories
         .map((category, index) => {
           // console.log(highData[index]);
           return [
@@ -94,6 +96,10 @@ const MyChart = ({ data }) => {
         })
         .flat();
 
+      console.log("datasets", datasets);
+      datasets = datasets.map((a) => {
+        return { ...a, data: a.data.flatMap((d) => d) };
+      });
       const ctx = chartRef.current.getContext("2d");
 
       // Détruire le graphique existant avant d'en créer un nouveau
@@ -108,18 +114,27 @@ const MyChart = ({ data }) => {
           datasets: datasets,
         },
         options: {
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+          interaction: {
+            intersect: false,
+          },
           scales: {
             y: {
               beginAtZero: true,
+              max: 25000,
             },
           },
         },
       });
     }
   }, [data, options]);
-
+  // h-[85%]
   return (
-    <div className="flex h-[85%]  w-full ">
+    <div className="flex  min-w-full ">
       <h1></h1>
       <canvas ref={chartRef}></canvas>
     </div>
