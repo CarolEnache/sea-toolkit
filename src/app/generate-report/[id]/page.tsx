@@ -80,11 +80,11 @@ const ReportData = ({ params }) => {
           </div> */}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4 w-full ">
+      <div className="grid grid-cols-1 gap-4 mb-4 w-full ">
         {keys.map((key, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-lg shadow-lg min-h-[400px] w-full"
+            className="bg-white p-6 rounded-lg shadow-lg min-h-full w-full"
           >
             <h3 className="text-xl font-bold mb-4">{key}</h3>
             <MyChart data={report} cat={key} />

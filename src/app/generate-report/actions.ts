@@ -62,26 +62,27 @@ export async function formServerAction(
       })
       .optional(),
   });
+  console.log(formData)
   const formattedData = {
     region: formData.get("region"),
     product: formData.get("product"),
     valueChainStage: {
-      mining: formData.get("mining") === "true",
-      refining: formData.get("refining") === "true",
-      firstUse: formData.get("firstUse") === "true",
-      endUse: formData.get("endUse") === "true",
-      recycling: formData.get("recycling") === "true",
+      mining: formData.get("mining") === "on",
+      refining: formData.get("refining") === "on",
+      firstUse: formData.get("firstUse") === "on",
+      endUse: formData.get("endUse") === "on",
+      recycling: formData.get("recycling") === "on",
     },
     firstUseMode: formData.get("firstUseMode"),
     contribution: {
-      input: formData.get("input") === "true",
-      valueAdded: formData.get("valueAdded") === "true",
+      input: formData.get("input") === "on",
+      valueAdded: formData.get("valueAdded") === "on",
     },
     effect: {
-      directEffect: formData.get("directEffect") === "true",
-      firstRound: formData.get("firstRound") === "true",
-      industrialSupport: formData.get("industrialSupport") === "true",
-      incomeEffect: formData.get("incomeEffect") === "true",
+      directEffect: formData.get("directEffect") ==="on",
+      firstRound: formData.get("firstRound") === "on",
+      industrialSupport: formData.get("industrialSupport") ==="on",
+      incomeEffect: formData.get("incomeEffect") === "on",
     },
   };
   const parse = schema.safeParse(formattedData);
@@ -91,6 +92,8 @@ export async function formServerAction(
   }
 
   const data = parse.data;
+
+  console.log(data)
 
   try {
     const reportData = await reportService.generateReport(data);

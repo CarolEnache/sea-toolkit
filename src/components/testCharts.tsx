@@ -134,8 +134,7 @@ const MyChart = ({ data, cat }) => {
   }, [data, options]);
   // h-[85%]
   return (
-    <div className="flex  min-w-full ">
-      <h1></h1>
+    <div className="flex w-full  h-full min-h-[80%]  min-w-full ">
       <canvas ref={chartRef}></canvas>
     </div>
   );
