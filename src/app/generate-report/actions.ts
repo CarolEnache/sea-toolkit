@@ -62,7 +62,7 @@ export async function formServerAction(
       })
       .optional(),
   });
-  console.log(formData)
+
   const formattedData = {
     region: formData.get("region"),
     product: formData.get("product"),
