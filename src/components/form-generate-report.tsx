@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import { useEffect, useState } from "react";
 import { Product, Region } from "@/server/services";
@@ -9,6 +9,7 @@ import {
   formServerAction,
   getDataFormFromServer,
 } from "@/app/generate-report/actions";
+import { EconomicFactors } from "@/server/holistic-approach/report.types";
 
 // import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
 // import { FormEventHandler, useState } from "react";
@@ -39,6 +40,13 @@ export type FormDataType = {
     incomeEffect: boolean; // default: true
   };
 };
+
+const economicFactors = [
+  "directEffect",
+  "firstRound",
+  "industrialSupport",
+  "incomeEffect",
+];
 const valuesChainStage = [
   "mining",
   "refining",
@@ -51,6 +59,9 @@ const firstUseModes = [
   "Representative Companies",
   "Average",
 ];
+
+const mdScreen = 768;
+
 export const initialState: FormDataType = {
   region: "Global",
   product: "All products",
@@ -73,15 +84,15 @@ export const initialState: FormDataType = {
     incomeEffect: false,
   },
 };
-const mdScreen = 768;
+
 export default function GenerateReport() {
   const router = useRouter();
+
   const [formState, formAction] = useFormState(formServerAction, initialState);
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);
   const [showMenu, setShowMenu] = useState(false);
-  const isDetailPageReport =
-    window?.location?.href.includes("generate-report/");
+  const isReportDetailPage = usePathname().includes("generate-report/");
 
   // to automaticly close mobile menu
   useEffect(() => {
@@ -122,18 +133,20 @@ export default function GenerateReport() {
   return (
     <>
       <div
-        className={`md:min-h-screen ${
-          showMenu ? "fixed top-0 left-0 w-full h-full z-10 " : "hidden "
-        } md:block ${
-          isDetailPageReport ? "w-auto" : "w-screen min-w-screen"
+        className={`md:min-h-screen  ${
+          isReportDetailPage
+            ? `w-auto md:block ${
+                showMenu ? "fixed top-0 left-0 w-full h-full z-30 " : "hidden"
+              } `
+            : "w-screen min-w-screen"
         } bg-white `}
       >
         <form
           id="formator"
           action={formAction}
           className={`bg-white py-8 px-4 h-screen  shadow-lg  sticky top-0 ${
-            isDetailPageReport ? "w-auto" : "w-screen "
-          } bg-white `}
+            isReportDetailPage ? "w-auto " : "w-screen "
+          }  `}
         >
           <h2 className="text-2xl font-bold mb-6 text-secondary">
             Generate report
@@ -197,12 +210,7 @@ export default function GenerateReport() {
           </fieldset>
           <fieldset className="mb-4">
             <legend className="text-gray-700">Effect</legend>
-            {[
-              "directEffect",
-              "firstRound",
-              "industrialSupport",
-              "incomeEffect",
-            ].map((eff) => (
+            {economicFactors.map((eff) => (
               <div key={eff} className="flex items-center mt-2">
                 <input
                   type="checkbox"
@@ -225,7 +233,11 @@ export default function GenerateReport() {
 
       {/* mobile toggle button show menu */}
       <button
-        className="fixed top-4 right-4 md:hidden block z-20"
+        className={`${
+          isReportDetailPage
+            ? "fixed top-8 right-8 md:hidden block z-50 "
+            : "hidden"
+        }`}
         onClick={() => setShowMenu(!showMenu)}
       >
         {showMenu ? (
