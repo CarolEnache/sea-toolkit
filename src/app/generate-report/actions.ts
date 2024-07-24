@@ -8,13 +8,13 @@ import { z } from "zod";
 
 import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
 import { FormDataType } from "./page";
+import { RegionalReport } from "@/server/holistic-approach/report.types";
 
 type ReportData = {
-  report: Report;
+  report: Report | RegionalReport[] | null;
   message?: string;
 };
 export async function getDataFormFromServer() {
-
   const res = await Promise.all([
     oecdService.getRegions("src-OECD_auth-Wiebe_from-2008_to-2015"),
     msrService.getProducts("src-MSR"),
@@ -79,9 +79,9 @@ export async function formServerAction(
       valueAdded: formData.get("valueAdded") === "on",
     },
     effect: {
-      directEffect: formData.get("directEffect") ==="on",
+      directEffect: formData.get("directEffect") === "on",
       firstRound: formData.get("firstRound") === "on",
-      industrialSupport: formData.get("industrialSupport") ==="on",
+      industrialSupport: formData.get("industrialSupport") === "on",
       incomeEffect: formData.get("incomeEffect") === "on",
     },
   };
@@ -93,17 +93,14 @@ export async function formServerAction(
 
   const data = parse.data;
 
-  console.log(data)
-
   try {
     const reportData = await reportService.generateReport(data);
-    revalidatePath('/');
-
-
-    return {
-      report: reportData,
-      message: "",
-    };
+    revalidatePath("/");
+    if (reportData)
+      return {
+        report: Array.isArray(reportData) ? reportData : [reportData],
+        message: "",
+      };
   } catch (e) {}
   return {
     report: null,

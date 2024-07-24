@@ -1,32 +1,46 @@
 "use client";
 
-import MyChart from "@/components/testCharts";
+import ReportChart from "@/components/reportChart";
 
 import React, { useState, useEffect } from "react";
+import {
+  EconomicParameters,
+  RegionalReport,
+} from "@/server/holistic-approach/report.types";
 
-const ReportData = ({ params }) => {
+type EconomicParametersWithoutRegion = Exclude<
+  keyof typeof EconomicParameters,
+  "region"
+>;
+export type EconomicParameterValues =
+  (typeof EconomicParameters)[EconomicParametersWithoutRegion];
+
+const ReportData = ({ params }: { params: { id: string } }) => {
   const { id } = params;
-  //   console.log(id);
-  const [report, setReport] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [keys, setKeys] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [reports, setReports] = useState<RegionalReport[]>([]);
+  const [economicParametersKey, setEconomicParametersKey] = useState<
+    EconomicParameterValues[]
+  >([]);
+  const [loading, setLoading] = useState(false);
 
+  const handleSelectedRegion = (region) => {
+    setSelectedRegion(region);
+  };
   useEffect(() => {
-    // if (id) {
-    //   // Simulate fetching report data based on the id
-    //   fetchReportData(id).then((data) => {
-    //     setReport(data);
-    //     setLoading(false);
-    //   });
-    // }
+    setLoading(true);
     const data = window?.localStorage?.getItem("report") || "";
 
     if (data) {
       const formatedData = JSON.parse(data);
-      const extractedKeys = Object.entries(formatedData).map(([key, _]) => key);
 
-      setKeys((value) => (value = extractedKeys.filter((a) => a !== "Region")));
-      setReport((value) => (value = formatedData));
+      const extractedKeys = Object.entries(formatedData[0]).map(
+        ([key, _]) => key
+      ) as EconomicParameters[];
+
+      setEconomicParametersKey(extractedKeys.filter((a) => a !== "Region"));
+      setSelectedRegion(formatedData[0].Region);
+      setReports(formatedData);
     }
 
     setLoading(false);
@@ -43,43 +57,58 @@ const ReportData = ({ params }) => {
     );
   }
 
-  if (!report) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p>No report found for ID: {id}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
+    <div className="min-h-screen bg-tertiary/50 p-10">
       <div className="container mx-auto">
-        <h2 className="text-4xl font-bold mb-8">Region: {report.Region}</h2>
+        {reports.length > 0 && (
+          <>
+            {reports
+              .filter((report) => report.Region === selectedRegion)
+              .map((report, i) => (
+                <div key={i}>
+                  {/* <h2 className="text-4xl font-bold mb-8 ">
+                    Region: {report.Region}
+                  </h2> */}
 
-        <div className="grid grid-cols-1 gap-4 mb-4 w-full ">
-          {keys.map((key, index) => (
-            <div
-              key={index}
-              className="bg-white p-6 rounded-lg shadow-lg min-h-full w-full"
-            >
-              <h3 className="text-xl font-bold mb-4">{key}</h3>
-              <MyChart data={report} cat={key} />
-            </div>
-          ))}
-        </div>
+                  <div className={`flex flex-wrap flex-1 gap-4 mb-6`}>
+                    {reports.map((report, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSelectedRegion(report.Region)}
+                        className={` flex items-center justify-center px-6 py-3 font-medium  transition duration-300 ease-out border-2  rounded-lg shadow-md focus:outline-none ${
+                          selectedRegion === report.Region
+                            ? "bg-secondary text-tertiary border-secondary/70"
+                            : "bg-white text-primary border-tertiary"
+                        } hover:bg-secondary hover:text-tertiary hover:border-secondary/70`}
+                      >
+                        {report.Region}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 xl:grid-cols-2  gap-4 mb-4 w-full ">
+                    {economicParametersKey.map((economicParamKey, index) => (
+                      <div
+                        key={index}
+                        className="bg-white p-6 rounded-lg shadow-lg min-h-full w-full"
+                      >
+                        <h3 className="text-2xl font-bold mb-4">
+                          {economicParamKey}
+                        </h3>
+                        <ReportChart
+                          report={report}
+                          economicParamKey={economicParamKey}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </>
+        )}
       </div>
     </div>
   );
 };
-
-// Simulate fetching report data
-async function fetchReportData(id) {
-  // Replace with your actual data fetching logic
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ id, details: `Details for report ${id}` });
-    }, 2000); // Simulate a 2 seconds delay for fetching data
-  });
-}
 
 export default ReportData;

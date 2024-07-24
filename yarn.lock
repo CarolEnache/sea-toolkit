@@ -2350,12 +2350,19 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chart.js@^4.4.3:
+chart.js@^4.4.3, chart.js@>=3.2.0:
   version "4.4.3"
   resolved "https://registry.npmjs.org/chart.js/-/chart.js-4.4.3.tgz"
   integrity sha512-qK1gkGSRYcJzqrrzdR6a+I0vQ4/R+SoODXyAjscQ/4mzuNzySaMCd+hyVxitSY1+L2fjPD1Gbn+ibNqRmwQeLw==
   dependencies:
     "@kurkle/color" "^0.3.0"
+
+chartjs-plugin-zoom@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/chartjs-plugin-zoom/-/chartjs-plugin-zoom-2.0.1.tgz"
+  integrity sha512-ogOmLu6e+Q7E1XWOCOz9YwybMslz9qNfGV2a+qjfmqJYpsw5ZMoRHZBUyW+NGhkpQ5PwwPA/+rikHpBZb7PZuA==
+  dependencies:
+    hammerjs "^2.0.8"
 
 chokidar@^3.5.3:
   version "3.6.0"
@@ -3297,6 +3304,11 @@ graphemer@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/graphemer/-/graphemer-1.4.0.tgz"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
+
+hammerjs@^2.0.8:
+  version "2.0.8"
+  resolved "https://registry.npmjs.org/hammerjs/-/hammerjs-2.0.8.tgz"
+  integrity sha512-tSQXBXS/MWQOn/RKckawJ61vvsDpCom87JgxiYdGwHdOa0ht0vzUWDlfioofFCRU0L+6NGDt6XzbgoJvZkMeRQ==
 
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
