@@ -5,6 +5,7 @@ import ReportChart from "@/components/reportChart";
 import React, { useState, useEffect } from "react";
 import {
   EconomicParameters,
+  ForecastingGroup,
   RegionalReport,
 } from "@/server/holistic-approach/report.types";
 
@@ -17,16 +18,28 @@ export type EconomicParameterValues =
   (typeof EconomicParameters)[EconomicParametersWithoutRegion];
 
 const chartColors = { LOW: "#F1FAFF", BASE: "#53709D", HIGH: "#012d49" };
+const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroup[];
 
 const ReportData = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedForecastingGroup, setSelectedForecastingGroup] =
+    useState(keysForecastingGroup);
   const [reports, setReports] = useState<RegionalReport[]>([]);
   const [economicParametersKey, setEconomicParametersKey] = useState<
     EconomicParameterValues[]
   >([]);
   const [loading, setLoading] = useState(false);
 
+  const handleToggleDataArray = (value: T, setState) => {
+    setState((prevStages) => {
+      if (!prevStages.includes(value)) {
+        return [...prevStages, value];
+      } else {
+        return prevStages.filter((va) => va !== value);
+      }
+    });
+  };
   const handleSelectedRegion = (region: string) => {
     setSelectedRegion(region);
   };
@@ -61,8 +74,8 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="min-h-screen bg-tertiary/50 p-6 ">
-      <div className="container mx-auto ">
+    <div className="min-h-screen bg-tertiary/50 ">
+      <div className="container mx-auto  p-6">
         {reports.length > 0 && (
           <>
             {reports
@@ -70,34 +83,53 @@ const ReportData = ({ params }: { params: { id: string } }) => {
               .map((report, i) => (
                 <div key={i}>
                   {/* TOP CONTENT  */}
-                  <div className="flex items-center flex-wrap gap-4 mb-6">
-                    {/* BUTTON TAB REGION  */}
-                    {reports.map((report, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSelectedRegion(report.Region)}
-                        className={`flex items-center justify-center px-6 py-3 font-medium  transition duration-300 ease-out border-2  rounded-lg shadow-md focus:outline-none hover:bg-secondary hover:text-tertiary hover:border-secondary/70 ${
-                          selectedRegion === report.Region
-                            ? "bg-secondary text-tertiary border-secondary/70"
-                            : "bg-white text-primary border-tertiary active:scale-95"
-                        } `}
-                      >
-                        {report.Region}
-                      </button>
-                    ))}
-
+                  <div
+                    className={`flex justify-between  sticky top-6 mb-6 z-10`}
+                  >
+                    <div className="flex items-center flex-wrap gap-3">
+                      {/* BUTTON TAB REGION  */}
+                      {reports.map((report, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSelectedRegion(report.Region)}
+                          className={` px-6 py-3 font-medium  transition duration-300 ease-out border-2  rounded-lg shadow-md focus:outline-none   focus:ring-2 focus:ring-primary focus:ring-opacity-50 hover:bg-secondary hover:text-tertiary hover:border-secondary/70 ${
+                            selectedRegion === report.Region
+                              ? "bg-secondary text-tertiary border-secondary/70  ring-2 ring-primary ring-opacity-50"
+                              : "bg-white text-primary border-tertiary active:scale-95"
+                          } `}
+                        >
+                          {report.Region}
+                        </button>
+                      ))}
+                    </div>
                     {/* LEGENDS  */}
-                    <ul className="hidden md:flex items-center justify-center h-full gap-2.5 bg-white p-3.5 rounded ">
+                    <div className="hidden md:flex items-center justify-center  border-2 border-tertiary gap-4 bg-white px-6 py-3 h-[52px] rounded-lg shadow-md">
                       {Object.entries(chartColors).map(([key, color], i) => (
-                        <li key={i} className="flex items-center gap-1">
+                        <button
+                          onClick={() =>
+                            handleToggleDataArray(
+                              key,
+                              setSelectedForecastingGroup
+                            )
+                          }
+                          key={i}
+                          className="flex items-center gap-1"
+                        >
                           <div
-                            className="w-5 h-5 border rounded border-secondary"
+                            className={`w-6 h-6 border rounded-full border-gray-300 `}
                             style={{ backgroundColor: color }}
                           ></div>
-                          <span>{key}</span>
-                        </li>
+                          <span
+                            className={`${
+                              !selectedForecastingGroup.includes(key) &&
+                              "line-through text-gray-400"
+                            } font-medium text-gray-700`}
+                          >
+                            {key}
+                          </span>
+                        </button>
                       ))}
-                    </ul>
+                    </div>
                   </div>
 
                   {/* each chartReport  */}
@@ -111,6 +143,9 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                           report={report}
                           economicParamKey={economicParamKey}
                           chartColors={chartColors}
+                          keysForecastingGroup={keysForecastingGroup}
+                          selectedForecastingGroup={selectedForecastingGroup}
+                          handleToggleDataArray={handleToggleDataArray}
                         />
                       </div>
                     ))}

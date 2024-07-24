@@ -20,6 +20,9 @@ type chartProps = {
     BASE: string;
     LOW: string;
   };
+  keysForecastingGroup: ForecastingGroup[];
+  selectedForecastingGroup: ForecastingGroup[];
+  handleToggleDataArray: () => void;
 };
 
 const convertStringDataToNumber = (data: string[]): number[] => {
@@ -29,7 +32,14 @@ const convertStringDataToNumber = (data: string[]): number[] => {
   }) as number[];
 };
 
-const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
+const ReportChart = ({
+  report,
+  economicParamKey,
+  chartColors,
+  keysForecastingGroup,
+  selectedForecastingGroup,
+  handleToggleDataArray,
+}: chartProps) => {
   const dates = Object.keys(
     report[economicParamKey].BASE.Change["Direct Applications"]
   );
@@ -45,16 +55,6 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
   const [selectedManufacturingStages, setSelectedManufacturingStages] =
     useState([manufacturingStages[0]]);
   const chartRef = useRef<any>(null);
-
-  const handleStageToggle = (stage: ManufacturingStage) => {
-    setSelectedManufacturingStages((prevStages) => {
-      if (!prevStages.includes(stage)) {
-        return [...prevStages, stage];
-      } else {
-        return prevStages.filter((va) => va !== stage);
-      }
-    });
-  };
 
   useEffect(() => {
     if (chartRef.current) {
@@ -78,9 +78,11 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
         });
       };
 
-      const forecastingGroup = Object.keys(chartColors) as ForecastingGroup[];
+      const forecastingGroup = keysForecastingGroup.filter((key) =>
+        selectedForecastingGroup.includes(key)
+      );
 
-      let datasets = economicFactors
+      const datasets = economicFactors
         .map((factor, index) => {
           return forecastingGroup.map((keyColor) => ({
             label: `${keyColor} - ${factor} ${factor === "Change" ? "%" : ""}`,
@@ -151,7 +153,32 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
             intersect: true,
           },
           scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  weight: 600,
+                },
+              },
+            },
             y: {
+              ticks: {
+                font: {
+                  weight: 600,
+                },
+              },
+              title: {
+                display: true,
+              },
+              border: {
+                dash: [5, 5],
+                display: true,
+              },
+              grid: {
+                display: true,
+
+                color: "rgba(0, 0, 0, 0.1)", // Couleur des lignes pointillées
+              },
               beginAtZero: true,
             },
           },
@@ -162,16 +189,23 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report, indexDate, selectedManufacturingStages]);
+  }, [
+    report,
+    indexDate,
+    selectedManufacturingStages,
+    selectedForecastingGroup,
+  ]);
 
   // h-[85%]
   return (
     <div className="flex flex-col w-full  h-full min-h-[80%]  min-w-full  relative ">
-      <div className=" flex justify-between mb-3">
+      <div className=" flex justify-between mb-4">
+        {/* TITLE */}
         <h3 className="text-2xl font-bold text-secondary ">
           {economicParamKey}
         </h3>
 
+        {/* DATES BUTTON  */}
         <div className="flex gap-2 ">
           {dates.map((date, i) => (
             <button
@@ -179,8 +213,8 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
               className={`${
                 indexDate === i
                   ? "bg-primary text-white"
-                  : "bg-white text-secondary/50 border-secondary/"
-              }  py-1.5 px-2 border y rounded-full shadow transition duration-200 ease-in-out transform hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50`}
+                  : "bg-white text-secondary/50 border-secondary/10"
+              }  buttonChart hover:bg-primary hover:text-white`}
               onClick={() => {
                 setIndexDate(i);
               }}
@@ -191,9 +225,6 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
         </div>
       </div>
 
-      <div className="border-b border-primary/30 mb-3"></div>
-      {/* DATES BUTTON  */}
-
       {/* ManufacturingStages TOGGLE BUTTONS  */}
       <div className="flex justify-center ">
         <div className="flex flex-wrap gap-2 mb-3">
@@ -203,9 +234,11 @@ const ReportChart = ({ report, economicParamKey, chartColors }: chartProps) => {
               className={`${
                 selectedManufacturingStages.includes(stage)
                   ? "bg-tertiary text-primary"
-                  : "bg-white text-secondary/50 border-secondary/"
-              } text-sm py-1.5 px-2 border  rounded-full shadow transition duration-200 ease-in-out transform hover:bg-tertiary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/10 focus:ring-opacity-50`}
-              onClick={() => handleStageToggle(stage)}
+                  : "bg-white text-secondary/50 border-secondary/10"
+              } buttonChart hover:bg-tertiary hover:text-primary`}
+              onClick={() =>
+                handleToggleDataArray(stage, setSelectedManufacturingStages)
+              }
             >
               {stage}
             </button>
