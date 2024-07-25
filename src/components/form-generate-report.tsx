@@ -125,8 +125,7 @@ export default function GenerateReport() {
     if (formState?.report) {
       setShowMenu(false);
       window.localStorage.setItem("report", JSON.stringify(formState.report));
-      const number = Math.floor(Math.random() * 1000);
-      router.push(`/generate-report/${number}`);
+      router.push(`/generate-report/${formState.reportId}`);
     }
   }, [formState.report, router]);
 

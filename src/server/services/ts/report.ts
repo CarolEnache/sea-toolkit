@@ -36,7 +36,8 @@ const generateReportId = () => {
   return crypto.randomUUID().slice(-8);
 }
 
-export async function generateReport(report_id: string) {
+export async function generateReport(key: string) {
+  const [report_id, license] = key.split('_');
   const data = (await runDbQuery<FormDataType[]>('report.get_request', 'report.requests', { where: { report_id }}))[0];
 
   const formData: FormData = {
@@ -105,12 +106,12 @@ export async function requestReport(insert: FormDataType = {}) {
   return [id, license].join('_');
 }
 
-export async function getReport(key: string) {
-  const [id, license] = key.split('_');
-  // Check if license is valid
-  // runDbQuery()
-  // Retrieve from result
-  // runDbQuery()
-}
+// export async function getReport(key: string) {
+//   const [id, license] = key.split('_');
+//   // Check if license is valid
+//   // runDbQuery()
+//   // Retrieve from result
+//   // runDbQuery()
+// }
 
 export type Report = Awaited<ReturnType<typeof generateReport>>;

@@ -8,8 +8,12 @@ export const preload = () => {
 }
 
 export default async function getLoaderData() {
+  const requests = (await runDbQuery<any[]>('generic.get', 'report.requests')).slice(-4);
+  const { report_id } = requests[0];
+
   return {
-    requests: await runDbQuery('generic.get', 'report.requests'),
-    report: await reportService.generateReport('a04d3364'),
+    requests,
+    report: await reportService.generateReport(report_id),
+    report_id,
   };
 }

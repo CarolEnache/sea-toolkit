@@ -11,6 +11,7 @@ import { FormDataType } from "./page";
 import { RegionalReport } from "@/server/holistic-approach/report.types";
 
 type ReportData = {
+  reportId: string;
   report: Report | RegionalReport[] | null;
   message?: string;
 };
@@ -94,16 +95,17 @@ export async function formServerAction(
   }
 
   const data = parse.data;
- console.log(data)
   try {
-    const reportData = await reportService.generateReport(data);
+    const reportId = await reportService.requestReport(data);
+    const reportData = await reportService.generateReport(reportId);
     revalidatePath("/");
     if (reportData)
       return {
+        reportId,
         report: Array.isArray(reportData) ? reportData : [reportData],
         message: "",
       };
-  } catch (e) {}
+  } catch { }
   return {
     report: null,
     message: "Failed to submit the form",

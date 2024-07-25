@@ -6,7 +6,7 @@ import getLoaderData from "./loader";
 
 export default async function DebugPage() {
   // preload();
-  const { requests, report } = await getLoaderData();
+  const { requests, report, report_id } = await getLoaderData();
 
   return (
     <div>
@@ -21,8 +21,8 @@ export default async function DebugPage() {
         </label>
         <button type="submit">Delete Analyst Industries</button>
       </form>
-      <pre>{JSON.stringify(requests, null, 2)}</pre>
-      <pre className="code">{`reportService.generateReport('a04d3364')`}</pre>
+      <pre>Showing the last 4 entries:<br/>{JSON.stringify(requests, null, 2)}</pre>
+      <pre className="code">{`reportService.generateReport('${report_id}')`}</pre>
       <pre>{JSON.stringify(report, null, 2)}</pre>
       <Navigation />
     </div>

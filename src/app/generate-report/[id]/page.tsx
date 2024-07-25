@@ -67,6 +67,8 @@ const ReportData = ({ params }: { params: { id: string } }) => {
       setEconomicParametersKey(extractedKeys.filter((a) => a !== "Region"));
       setSelectedRegion(formatedData[0].Region);
       setReports(formatedData);
+    } else {
+      // If there's no data in the localStorage, I guess you want to use the param id to retrieve it
     }
 
     setLoading(false);
