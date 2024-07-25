@@ -52,7 +52,7 @@ export const uploadIndustryMatrixSource = async (
 ) => {
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
-  const regions = await oecdService.getRegions('src-OECD_auth-Wiebe_from-2008_to-2015');
+  const regions = await oecdService.getRegions('oecd.wiebe_2008-2015');
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
   for (const selectedRegion of regions) {
     console.log('Calculating', selectedRegion.Region);
@@ -66,7 +66,7 @@ export const uploadManufacturingSource = async (
 ) => {
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
-  const regions = await oecdService.getRegions('src-OECD_auth-Wiebe_from-2008_to-2015');
+  const regions = await oecdService.getRegions('oecd.wiebe_2008-2015');
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
   for (const selectedRegion of regions) {
     console.log('Calculating', selectedRegion);
@@ -81,7 +81,7 @@ export const uploadIndustryMetricSource = async (
   // Somethig to handle the request, receive the new file, etc... then process it
   // First extract the regions
   // Now we have to produce the output of this model for each region, then store it so it can be accessed fast
-    const result = await unidoService.getUnido();
+    const result = await unidoService.getUnido('unido.wiebe_2008-2015');
     await fs.writeFile(path.join(import.meta.url, `../cache/unido.json`).replace('file:', ''), JSON.stringify(result), 'utf8');
 };
 // #endregion

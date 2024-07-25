@@ -16,18 +16,18 @@ export const formData: FormData = {
       id: "COBALT | Enache-Costas-2023",
     },
     manufacturing: {
-      id: "COBALT INSTITUTE 2019",
+      id: 'msr.cobalt-insitute_2019',
       startYear: LAST_YEAR,
       endYear: 2030,
     },
     industryMatrix: [
       {
-        id: "src-OECD_auth-Wiebe_from-2008_to-2015",
+        id: 'oecd.wiebe_2008-2015',
       },
     ],
     industryMetric: [
       {
-        id: "src-UNIDO_auth-Wiebe_from-2008_to-2015",
+        id: 'unido.wiebe_2008-2015',
         startYear: 2010,
         endYear: LAST_YEAR - 1,
       },
