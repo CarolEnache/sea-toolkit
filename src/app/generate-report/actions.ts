@@ -16,8 +16,8 @@ type ReportData = {
 };
 export async function getDataFormFromServer() {
   const res = await Promise.all([
-    oecdService.getRegions("src-OECD_auth-Wiebe_from-2008_to-2015"),
-    msrService.getProducts("src-MSR"),
+    oecdService.getRegions('oecd.wiebe_2008-2015'),
+    msrService.getProducts('msr.cobalt-insitute_2019'),
   ]);
 
   revalidatePath("/");
