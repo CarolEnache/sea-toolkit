@@ -31,6 +31,8 @@ export async function formServerAction(
   prevState: FormDataType,
   formData: FormDataType
 ): Promise<ReportData> {
+
+
   const schema = z.object({
     region: z.enum(["Europe", "North America", "Global"]).default("Global"),
     product: z.enum(["All products", "Fine powder"]).default("All products"),
@@ -67,22 +69,22 @@ export async function formServerAction(
     region: formData.get("region"),
     product: formData.get("product"),
     valueChainStage: {
-      mining: formData.get("mining") === "on",
-      refining: formData.get("refining") === "on",
-      firstUse: formData.get("firstUse") === "on",
-      endUse: formData.get("endUse") === "on",
-      recycling: formData.get("recycling") === "on",
+      mining: formData.get("mining") === "",
+      refining: formData.get("refining") === "",
+      firstUse: formData.get("firstUse") === "",
+      endUse: formData.get("endUse") === "",
+      recycling: formData.get("recycling") === "",
     },
     firstUseMode: formData.get("firstUseMode"),
     contribution: {
-      input: formData.get("input") === "on",
-      valueAdded: formData.get("valueAdded") === "on",
+      input: formData.get("input") === "",
+      valueAdded: formData.get("valueAdded") === "",
     },
     effect: {
-      directEffect: formData.get("directEffect") === "on",
-      firstRound: formData.get("firstRound") === "on",
-      industrialSupport: formData.get("industrialSupport") === "on",
-      incomeEffect: formData.get("incomeEffect") === "on",
+      directEffect: formData.get("directEffect") === "",
+      firstRound: formData.get("firstRound") === "",
+      industrialSupport: formData.get("industrialSupport") === "",
+      incomeEffect: formData.get("incomeEffect") === "",
     },
   };
   const parse = schema.safeParse(formattedData);
@@ -92,7 +94,7 @@ export async function formServerAction(
   }
 
   const data = parse.data;
-
+ console.log(data)
   try {
     const reportData = await reportService.generateReport(data);
     revalidatePath("/");

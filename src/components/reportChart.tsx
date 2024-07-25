@@ -2,7 +2,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import zoomPlugin from "chartjs-plugin-zoom";
-import { EconomicParameterValues } from "@/app/generate-report/[id]/page";
+import {
+  EconomicParameterValues,
+  ForecastingGroupKey,
+  HandleToggleDataArrayProps,
+} from "@/app/generate-report/[id]/page";
 import {
   EconomicFactors,
   ForecastingGroup,
@@ -20,9 +24,9 @@ type chartProps = {
     BASE: string;
     LOW: string;
   };
-  keysForecastingGroup: ForecastingGroup[];
-  selectedForecastingGroup: ForecastingGroup[];
-  handleToggleDataArray: () => void;
+  keysForecastingGroup: ForecastingGroupKey[];
+  selectedForecastingGroup: ForecastingGroupKey[];
+  handleToggleDataArray: HandleToggleDataArrayProps<any>;
 };
 
 const convertStringDataToNumber = (data: string[]): number[] => {
@@ -90,7 +94,6 @@ const ReportChart = ({
             backgroundColor: chartColors[keyColor],
             borderColor: chartColors.BASE,
             borderWidth: 1,
-            borderRadius: 2,
           }));
         })
         .flat();
@@ -126,6 +129,7 @@ const ReportChart = ({
                 },
               },
             },
+            // uncomment to enable zoom (need config)
             // zoom: {
             //   zoom: {
             //     wheel: {
@@ -140,13 +144,13 @@ const ReportChart = ({
             legend: {
               display: false,
               position: "bottom",
-              labels: {
-                // Custom filter function to show only specific datasets
-                filter: function (legendItem, chartData) {
-                  // Show only the first three datasets in the legend
-                  return legendItem.datasetIndex < 3;
-                },
-              },
+              // labels: {
+              //   // Custom filter function to show only specific datasets
+              //   filter: function (legendItem, chartData) {
+              //     // Show only the first three datasets in the legend
+              //     return legendItem.datasetIndex < 3;
+              //   },
+              // },
             },
           },
           interaction: {
@@ -159,6 +163,10 @@ const ReportChart = ({
                 font: {
                   weight: 600,
                 },
+              },
+              grid: {
+                display: true,
+                color: "rgba(0, 0, 0, 0.2)",
               },
             },
             y: {
@@ -176,8 +184,7 @@ const ReportChart = ({
               },
               grid: {
                 display: true,
-
-                color: "rgba(0, 0, 0, 0.1)", // Couleur des lignes pointillées
+                color: "rgba(0, 0, 0, 0.1)",
               },
               beginAtZero: true,
             },

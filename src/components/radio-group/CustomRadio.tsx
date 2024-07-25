@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRadio, VisuallyHidden, cn } from "@nextui-org/react";
 export const CustomRadio = (props) => {

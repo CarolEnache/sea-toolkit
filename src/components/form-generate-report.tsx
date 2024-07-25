@@ -3,17 +3,14 @@
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter, usePathname } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Product, Region } from "@/server/services";
 import {
   formServerAction,
   getDataFormFromServer,
 } from "@/app/generate-report/actions";
-import { EconomicFactors } from "@/server/holistic-approach/report.types";
 
-// import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
-// import { FormEventHandler, useState } from "react";
-// import { generateReport } from "@/server/holistic-approach/report-output";
+import { Checkbox } from "@nextui-org/react";
 
 export type FormDataType = {
   region: "Europe" | "North America" | "Global"; // ...and more | default: Global
@@ -88,11 +85,14 @@ export const initialState: FormDataType = {
 export default function GenerateReport() {
   const router = useRouter();
 
+  // NEED TO FIX THE TYPES
   const [formState, formAction] = useFormState(formServerAction, initialState);
+
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);
   const [showMenu, setShowMenu] = useState(false);
   const isReportDetailPage = usePathname().includes("generate-report/");
+  const formRef = useRef(null);
 
   // to automaticly close mobile menu
   useEffect(() => {
@@ -133,101 +133,141 @@ export default function GenerateReport() {
   return (
     <>
       <div
-        className={`md:min-h-screen  ${
+        className={`md:min-h-screen flex justify-center items-center bg-white ${
           isReportDetailPage
-            ? `w-auto md:block ${
+            ? `md:w-[250px] lg:w-[300px] xl:w-[350px] min-w-[250px] w-auto md:block ${
                 showMenu ? "fixed top-0 left-0 w-full h-full z-30 " : "hidden"
               } `
             : "w-screen min-w-screen"
-        } bg-white `}
+        }  `}
       >
         <form
-          id="formator"
+          ref={formRef}
           action={formAction}
-          className={`bg-white py-8 px-4 h-screen  shadow-lg  sticky top-0 ${
-            isReportDetailPage ? "w-auto " : "w-screen "
+          className={`flex flex-col justify-between gap-8 py-6   h-screen  shadow-lg  sticky top-0 w-full ${
+            !isReportDetailPage && "md:max-w-2xl"
           }  `}
         >
-          <h2 className="text-2xl font-bold mb-6 text-secondary">
+          <h2 className="text-2xl font-bold  text-gray-700 px-4">
             Generate report
           </h2>
 
-          <div className="mb-4">
-            <label className="block text-gray-700">Region</label>
-            <select name="region" className="w-full mt-1 p-2 border rounded-lg">
-              {regions?.map((region, i) => (
-                <option key={i}>{region}</option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Product</label>
-            <select
-              name="product"
-              className="w-full mt-1 p-2 border rounded-lg"
-            >
-              {products.map((product, i) => (
-                <option key={i}>{product}</option>
-              ))}
-            </select>
-          </div>
-          <fieldset className="mb-4">
-            <legend className="text-gray-700">Value Chain Stage</legend>
-            {valuesChainStage.map((stage) => (
-              <div key={stage} className="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  name={stage}
-                  className="mr-2 accent-primary"
-                />
-                <label className="text-gray-700 capitalize">{stage}</label>
-              </div>
-            ))}
-          </fieldset>
-          <div className="mb-4">
-            <label className="block text-gray-700">First Use Mode</label>
-            <select
-              name="firstUseMode"
-              className="w-full mt-1 p-2 border rounded-lg"
-            >
-              {firstUseModes.map((mode, i) => (
-                <option key={i}>{mode}</option>
-              ))}
-            </select>
-          </div>
-          <fieldset className="mb-4">
-            <legend className="text-gray-700">Contribution</legend>
-            {["input", "valueAdded"].map((contrib) => (
-              <div key={contrib} className="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  name={contrib}
-                  className="mr-2 accent-primary "
-                />
-                <label className="text-gray-700 capitalize">{contrib}</label>
-              </div>
-            ))}
-          </fieldset>
-          <fieldset className="mb-4">
-            <legend className="text-gray-700">Effect</legend>
-            {economicFactors.map((eff) => (
-              <div key={eff} className="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  name={eff}
-                  className="mr-2 accent-primary"
-                />
-                <label className="text-gray-700 capitalize">{eff}</label>
-              </div>
-            ))}
-          </fieldset>
+          <div className="max-h-full customScrollbar overflow-y-auto px-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold  mb-1">
+                Region
+              </label>
 
-          <button
-            type="submit"
-            className="w-full py-2 bg-secondary active:scale-95 text-white font-bold rounded-lg hover:bg-primary transition duration-300"
-          >
-            Generate
-          </button>
+              {!regions.length ? (
+                <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
+              ) : (
+                <select name="region" className="selectForm">
+                  {regions.map((region) => (
+                    <option key={region}>{region}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold  mb-1">
+                Product
+              </label>
+
+              {!products.length ? (
+                <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
+              ) : (
+                <select name="product" className="selectForm">
+                  {products.map((product) => (
+                    <option key={product}>{product}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <fieldset className="mb-4">
+              <legend className="text-gray-700 font-semibold">
+                Value Chain Stage
+              </legend>
+
+              {valuesChainStage.map((stage) => (
+                <div key={stage} className="flex items-center mt-2">
+                  <Checkbox
+                    color="secondary"
+                    name={stage}
+                    size="sm"
+                    key={stage}
+                    defaultSelected
+                  >
+                    <p className="text-gray-700 capitalize text-base">
+                      {stage}
+                    </p>
+                  </Checkbox>
+                </div>
+              ))}
+            </fieldset>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold  mb-1">
+                First Use Mode
+              </label>
+
+              {!firstUseModes.length ? (
+                <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
+              ) : (
+                <select name="firstUseMode" className="selectForm">
+                  {firstUseModes.map((mode) => (
+                    <option key={mode}>{mode}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <fieldset className="mb-4">
+              <legend className="text-gray-700 font-semibold">Effect</legend>
+
+              {["input", "valueAdded"].map((stage) => (
+                <div key={stage} className="flex items-center mt-2">
+                  <Checkbox
+                    color="secondary"
+                    name={stage}
+                    size="sm"
+                    key={stage}
+                    defaultSelected
+                  >
+                    <p className="text-gray-700 capitalize text-base">
+                      {stage}
+                    </p>
+                  </Checkbox>
+                </div>
+              ))}
+            </fieldset>
+
+            <fieldset className="mb-4">
+              <legend className="text-gray-700 font-semibold">Effect</legend>
+              {economicFactors.map((stage) => (
+                <div key={stage} className="flex items-center mt-2">
+                  <Checkbox
+                    color="secondary"
+                    name={stage}
+                    size="sm"
+                    key={stage}
+                    defaultSelected
+                  >
+                    <p className="text-gray-700 capitalize text-base">
+                      {stage}
+                    </p>
+                  </Checkbox>
+                </div>
+              ))}
+            </fieldset>
+          </div>
+          <div className="px-4">
+            <button
+              type="submit"
+              className="w-full py-2  bg-secondary active:scale-95 text-white font-bold rounded-lg hover:bg-primary transition duration-300"
+            >
+              Generate
+            </button>
+          </div>
         </form>
       </div>
 

@@ -2,7 +2,7 @@
 
 import ReportChart from "@/components/reportChart";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SetStateAction, Dispatch } from "react";
 import {
   EconomicParameters,
   ForecastingGroup,
@@ -17,8 +17,14 @@ type EconomicParametersWithoutRegion = Exclude<
 export type EconomicParameterValues =
   (typeof EconomicParameters)[EconomicParametersWithoutRegion];
 
+export type HandleToggleDataArrayProps<T> = (
+  value: T,
+  setState: Dispatch<SetStateAction<T[]>>
+) => void;
+
 const chartColors = { LOW: "#F1FAFF", BASE: "#53709D", HIGH: "#012d49" };
-const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroup[];
+export type ForecastingGroupKey = keyof typeof ForecastingGroup;
+const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
 
 const ReportData = ({ params }: { params: { id: string } }) => {
   const { id } = params;
@@ -31,7 +37,10 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   >([]);
   const [loading, setLoading] = useState(false);
 
-  const handleToggleDataArray = (value: T, setState) => {
+  const handleToggleDataArray: HandleToggleDataArrayProps<any> = (
+    value,
+    setState
+  ) => {
     setState((prevStages) => {
       if (!prevStages.includes(value)) {
         return [...prevStages, value];
@@ -40,6 +49,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
       }
     });
   };
+
   const handleSelectedRegion = (region: string) => {
     setSelectedRegion(region);
   };
@@ -64,7 +74,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen ">
         <div className="relative">
           <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
           <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-blue-500 animate-spin"></div>
@@ -74,8 +84,8 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="min-h-screen bg-tertiary/50 ">
-      <div className="container mx-auto  p-6">
+    <div className="min-h-screen ">
+      <div className="w-full mx-auto p-6">
         {reports.length > 0 && (
           <>
             {reports
@@ -84,17 +94,17 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                 <div key={i}>
                   {/* TOP CONTENT  */}
                   <div
-                    className={`flex justify-between  sticky top-6 mb-6 z-10`}
+                    className={`flex flex-col md:flex-row justify-between gap-3 w-full mb-6 z-10`}
                   >
-                    <div className="flex items-center flex-wrap gap-3">
+                    <div className="flex items-center flex-wrap gap-3 max-w-[90%] md:max-w-full">
                       {/* BUTTON TAB REGION  */}
                       {reports.map((report, i) => (
                         <button
                           key={i}
                           onClick={() => handleSelectedRegion(report.Region)}
-                          className={` px-6 py-3 font-medium  transition duration-300 ease-out border-2  rounded-lg shadow-md focus:outline-none   focus:ring-2 focus:ring-primary focus:ring-opacity-50 hover:bg-secondary hover:text-tertiary hover:border-secondary/70 ${
+                          className={`px-6 py-3 font-medium transition duration-300 ease-out border-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 hover:bg-secondary hover:text-tertiary hover:border-secondary/70 ${
                             selectedRegion === report.Region
-                              ? "bg-secondary text-tertiary border-secondary/70  ring-2 ring-primary ring-opacity-50"
+                              ? "bg-secondary text-tertiary border-secondary/70 ring-2 ring-primary ring-opacity-50"
                               : "bg-white text-primary border-tertiary active:scale-95"
                           } `}
                         >
@@ -103,7 +113,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                       ))}
                     </div>
                     {/* LEGENDS  */}
-                    <div className="hidden md:flex items-center justify-center  border-2 border-tertiary gap-4 bg-white px-6 py-3 h-[52px] rounded-lg shadow-md">
+                    <div className="flex items-center justify-center  border-2 border-tertiary gap-4 bg-white px-6 py-3 h-[52px] rounded-lg shadow-md">
                       {Object.entries(chartColors).map(([key, color], i) => (
                         <button
                           onClick={() =>
@@ -121,8 +131,9 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                           ></div>
                           <span
                             className={`${
-                              !selectedForecastingGroup.includes(key) &&
-                              "line-through text-gray-400"
+                              !selectedForecastingGroup.includes(
+                                key as ForecastingGroupKey
+                              ) && "line-through text-gray-400"
                             } font-medium text-gray-700`}
                           >
                             {key}
@@ -133,7 +144,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                   </div>
 
                   {/* each chartReport  */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2  gap-4 mb-4 w-full">
+                  <div className="grid grid-cols-1 xl:grid-cols-2   gap-4 mb-4 w-full">
                     {economicParametersKey.map((economicParamKey, index) => (
                       <div
                         key={index}
