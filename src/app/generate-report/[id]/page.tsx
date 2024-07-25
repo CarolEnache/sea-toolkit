@@ -43,10 +43,10 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   const [economicParametersKey, setEconomicParametersKey] = useState<
     EconomicParameterValues[]
   >([]);
-  const [loading, startTransition] = useTransition();
+  const [isLoading, startLoading] = useTransition();
 
   const updatereportData = async () => {
-    startTransition(async () => {
+    startLoading(async () => {
       const res = await getReportDataAction(id);
       const extractedKeys = Object.entries(res[0]).map(
         ([key, _]) => key
@@ -79,7 +79,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
     setSelectedRegion(region);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen ">
         <div className="relative">

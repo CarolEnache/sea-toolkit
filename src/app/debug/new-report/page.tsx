@@ -17,9 +17,9 @@ export default async function DebugPage() {
       </form>
       <form action={deleteReportRequest}>
         <label>
-          NACE code: <input type="text" name="report_id" />
+          Report ID: <input type="text" name="report_id" />
         </label>
-        <button type="submit">Delete Analyst Industries</button>
+        <button type="submit">Delete Report</button>
       </form>
       <pre>Showing the last 4 entries:<br/>{JSON.stringify(requests, null, 2)}</pre>
       <pre className="code">{`reportService.generateReport('${report_id}')`}</pre>

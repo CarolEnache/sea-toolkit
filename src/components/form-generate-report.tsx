@@ -11,7 +11,7 @@ import {
 import { Checkbox } from "@nextui-org/react";
 import { Region } from "@/server/services/ts/oecd";
 import { Product } from "@/server/services/ts/msr";
-// import { reportService } from "@/server/services";
+import { reportService } from "@/server/services";
 
 // import { Checkbox } from "@next@/app/generate-report/[id]/layout
 
@@ -87,7 +87,7 @@ export const initialState: FormDataType = {
 
 export default function GenerateReport() {
   const router = useRouter();
-
+  const { pending, data, method, action } = useFormStatus();
   // NEED TO FIX THE TYPES
   const [formState, formAction] = useFormState(formServerAction, initialState);
 
@@ -125,12 +125,11 @@ export default function GenerateReport() {
   }, []);
 
   useEffect(() => {
-    if (formState?.report) {
+    if (formState?.reportId) {
       setShowMenu(false);
-      window.localStorage.setItem("report", JSON.stringify(formState.report));
       router.push(`/generate-report/${formState.reportId}`);
     }
-  }, [formState.report, router]);
+  }, [formState.reportId, router]);
 
   return (
     <>
@@ -265,9 +264,10 @@ export default function GenerateReport() {
           <div className="px-4">
             <button
               type="submit"
+              disabled={pending}
               className="w-full py-2  bg-secondary active:scale-95 text-white font-bold rounded-lg hover:bg-primary transition duration-300"
             >
-              Generate
+              {pending ? "Sending..." : "Generate"}
             </button>
           </div>
         </form>
