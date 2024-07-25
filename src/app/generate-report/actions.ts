@@ -1,13 +1,13 @@
 "use server";
 
-import { msrService, oecdService, Region } from "@/server/services";
+import { FormDataType, msrService, oecdService, Region } from "@/server/services";
 import { FirstUseMode, UUID } from "@/server/holistic-approach/io.types";
 import { type Report, reportService } from "@/server/services";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
-import { FormDataType } from "./page";
+import { ComoditiesListType, ProductsListType, RegionsListType } from "./[id]/types";
+// import { FormDataType } from "../page";
 import { RegionalReport } from "@/server/holistic-approach/report.types";
 
 type ReportData = {
@@ -31,70 +31,71 @@ export async function formServerAction(
   prevState: FormDataType,
   formData: FormDataType
 ): Promise<ReportData> {
-  const schema = z.object({
-    region: z.enum(["Europe", "North America", "Global"]).default("Global"),
-    product: z.enum(["All products", "Fine powder"]).default("All products"),
-    valueChainStage: z
-      .object({
-        mining: z.boolean().default(true),
-        refining: z.boolean().default(true),
-        firstUse: z.boolean().default(true),
-        endUse: z.boolean().default(true),
-        recycling: z.boolean().default(true),
-      })
-      .optional(),
-    firstUseMode: z
-      .enum(["ISIC sectorial analysis", "Representative Companies", "Average"])
-      .default("ISIC sectorial analysis")
-      .optional(),
-    contribution: z
-      .object({
-        input: z.boolean().default(true),
-        valueAdded: z.boolean().default(true),
-      })
-      .optional(),
-    effect: z
-      .object({
-        directEffect: z.boolean().default(true),
-        firstRound: z.boolean().default(true),
-        industrialSupport: z.boolean().default(true),
-        incomeEffect: z.boolean().default(true),
-      })
-      .optional(),
-  });
+  // const schema = z.object({
+  //   region: z.enum(["Europe", "North America", "Global"]).default("Global"),
+  //   product: z.enum(["All products", "Fine powder"]).default("All products"),
+  //   valueChainStage: z
+  //     .object({
+  //       mining: z.boolean().default(true),
+  //       refining: z.boolean().default(true),
+  //       firstUse: z.boolean().default(true),
+  //       endUse: z.boolean().default(true),
+  //       recycling: z.boolean().default(true),
+  //     })
+  //     .optional(),
+  //   firstUseMode: z
+  //     .enum(["ISIC sectorial analysis", "Representative Companies", "Average"])
+  //     .default("ISIC sectorial analysis")
+  //     .optional(),
+  //   contribution: z
+  //     .object({
+  //       input: z.boolean().default(true),
+  //       valueAdded: z.boolean().default(true),
+  //     })
+  //     .optional(),
+  //   effect: z
+  //     .object({
+  //       directEffect: z.boolean().default(true),
+  //       firstRound: z.boolean().default(true),
+  //       industrialSupport: z.boolean().default(true),
+  //       incomeEffect: z.boolean().default(true),
+  //     })
+  //     .optional(),
+  // });
 
-  const formattedData = {
-    region: formData.get("region"),
-    product: formData.get("product"),
-    valueChainStage: {
-      mining: formData.get("mining") === "on",
-      refining: formData.get("refining") === "on",
-      firstUse: formData.get("firstUse") === "on",
-      endUse: formData.get("endUse") === "on",
-      recycling: formData.get("recycling") === "on",
-    },
-    firstUseMode: formData.get("firstUseMode"),
-    contribution: {
-      input: formData.get("input") === "on",
-      valueAdded: formData.get("valueAdded") === "on",
-    },
-    effect: {
-      directEffect: formData.get("directEffect") === "on",
-      firstRound: formData.get("firstRound") === "on",
-      industrialSupport: formData.get("industrialSupport") === "on",
-      incomeEffect: formData.get("incomeEffect") === "on",
-    },
-  };
-  const parse = schema.safeParse(formattedData);
+  // const formattedData = {
+  //   region: formData.get("region"),
+  //   product: formData.get("product"),
+  //   valueChainStage: {
+  //     mining: formData.get("mining") === "on",
+  //     refining: formData.get("refining") === "on",
+  //     firstUse: formData.get("firstUse") === "on",
+  //     endUse: formData.get("endUse") === "on",
+  //     recycling: formData.get("recycling") === "on",
+  //   },
+  //   firstUseMode: formData.get("firstUseMode"),
+  //   contribution: {
+  //     input: formData.get("input") === "on",
+  //     valueAdded: formData.get("valueAdded") === "on",
+  //   },
+  //   effect: {
+  //     directEffect: formData.get("directEffect") === "on",
+  //     firstRound: formData.get("firstRound") === "on",
+  //     industrialSupport: formData.get("industrialSupport") === "on",
+  //     incomeEffect: formData.get("incomeEffect") === "on",
+  //   },
+  // };
+  // const parse = schema.safeParse(formattedData);
 
-  if (!parse.success) {
-    return { report: null, message: "Failed to submit the form" };
-  }
+  // if (!parse.success) {
+  //   return { report: null, message: "Failed to submit the form" };
+  // }
 
-  const data = parse.data;
+  // const data = parse.data;
 
   try {
-    const reportData = await reportService.generateReport(data);
+    const reportData = await reportService.generateReport(formData);
+    // const reportData = await reportService.generateReport(data);
     revalidatePath("/");
     if (reportData)
       return {

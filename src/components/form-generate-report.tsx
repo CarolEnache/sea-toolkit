@@ -1,15 +1,16 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { useRouter, usePathname } from "next/navigation";
+// import { useRouter, usePathname } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Product, Region } from "@/server/services";
 import {
   formServerAction,
   getDataFormFromServer,
 } from "@/app/generate-report/actions";
 import { EconomicFactors } from "@/server/holistic-approach/report.types";
+import { LayoutContext } from "@/app/generate-report/layout";
 
 // import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
 // import { FormEventHandler, useState } from "react";
@@ -85,31 +86,53 @@ export const initialState: FormDataType = {
   },
 };
 
-export default function GenerateReport() {
-  const router = useRouter();
+  function GenerateReport() {
+    const { setData } = useContext(LayoutContext);
+  // const router = useRouter();
 
-  const [formState, formAction] = useFormState(formServerAction, initialState);
+  // const [formState, formAction] = useFormState(formServerAction, initialState);
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);
-  const [showMenu, setShowMenu] = useState(false);
-  const isReportDetailPage = usePathname().includes("generate-report/");
+  // const [showMenu, setShowMenu] = useState(false);
+  // const isReportDetailPage = usePathname().includes("generate-report/");
+
+
+
+
+
+	const handleSubmit = async (event: { preventDefault: () => void; target: HTMLFormElement | undefined; }) => {
+		event?.preventDefault();
+    const formData = new FormData(event?.target);
+		// event.preventDefault();
+		const res = await formServerAction(formData, initialState)
+    setData(res.report)
+	}
+
+
+
+
+
+
+
+
+  // console.log({ formState });
 
   // to automaticly close mobile menu
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > mdScreen) {
-        setShowMenu(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (window.innerWidth > mdScreen) {
+  //       setShowMenu(false);
+  //     }
+  //   };
 
-    handleResize();
+  //   handleResize();
 
-    window.addEventListener("resize", handleResize);
+  //   window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   const setDataForm = async () => {
     const res = await getDataFormFromServer();
@@ -121,32 +144,33 @@ export default function GenerateReport() {
     setDataForm();
   }, []);
 
-  useEffect(() => {
-    if (formState?.report) {
-      setShowMenu(false);
-      window.localStorage.setItem("report", JSON.stringify(formState.report));
-      const number = Math.floor(Math.random() * 1000);
-      router.push(`/generate-report/${number}`);
-    }
-  }, [formState.report, router]);
+  // useEffect(() => {
+  //   if (formState?.report) {
+  //     setShowMenu(false);
+  //     window.localStorage.setItem("report", JSON.stringify(formState.report));
+  //     const number = Math.floor(Math.random() * 1000);
+  //     router.push(`/generate-report/${number}`);
+  //   }
+  // }, [formState.report, router]);
 
   return (
     <>
       <div
-        className={`md:min-h-screen  ${
-          isReportDetailPage
-            ? `w-auto md:block ${
-                showMenu ? "fixed top-0 left-0 w-full h-full z-30 " : "hidden"
-              } `
-            : "w-screen min-w-screen"
-        } bg-white `}
+        // className={`md:min-h-screen  ${
+        //   isReportDetailPage
+        //     ? `w-auto md:block ${
+        //         showMenu ? "fixed top-0 left-0 w-full h-full z-30 " : "hidden"
+        //       } `
+        //     : "w-screen min-w-screen"
+        // } bg-white `}
       >
         <form
           id="formator"
-          action={formAction}
-          className={`bg-white py-8 px-4 h-screen  shadow-lg  sticky top-0 ${
-            isReportDetailPage ? "w-auto " : "w-screen "
-          }  `}
+          onSubmit={handleSubmit}
+          // action={handleSubmit}
+          // className={`bg-white py-8 px-4 h-screen  shadow-lg  sticky top-0 ${
+          //   isReportDetailPage ? "w-auto " : "w-screen "
+          // }  `}
         >
           <h2 className="text-2xl font-bold mb-6 text-secondary">
             Generate report
@@ -166,7 +190,7 @@ export default function GenerateReport() {
               name="product"
               className="w-full mt-1 p-2 border rounded-lg"
             >
-              {products.map((product, i) => (
+              {products?.map((product, i) => (
                 <option key={i}>{product}</option>
               ))}
             </select>
@@ -233,14 +257,14 @@ export default function GenerateReport() {
 
       {/* mobile toggle button show menu */}
       <button
-        className={`${
-          isReportDetailPage
-            ? "fixed top-8 right-8 md:hidden block z-50 "
-            : "hidden"
-        }`}
-        onClick={() => setShowMenu(!showMenu)}
+        // className={`${
+        //   isReportDetailPage
+        //     ? "fixed top-8 right-8 md:hidden block z-50 "
+        //     : "hidden"
+        // }`}
+        // onClick={() => setShowMenu(!showMenu)}
       >
-        {showMenu ? (
+        {/* {showMenu ? (
           <svg
             className="w-8 h-8 text-gray-800"
             xmlns="http://www.w3.org/2000/svg"
@@ -270,8 +294,10 @@ export default function GenerateReport() {
               d="M4 6h16M4 12h16m-7 6h7"
             />
           </svg>
-        )}
+        )} */}
       </button>
     </>
   );
 }
+
+export default GenerateReport;
