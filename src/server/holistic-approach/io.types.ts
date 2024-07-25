@@ -1,14 +1,13 @@
 //#region FROM DATABASE
+
+import { MSRID } from "../services/ts/msr";
+import { OECDID } from "../services/ts/oecd";
+import { UNIDOID } from "../services/ts/unido";
+
 // The model ID allows to select different industry links across data sources and weights
 export type ModelID = "COBALT | Enache-Costas-2023" | "NICKEL" | "COPPER" | "HYDROGEN";
 // The market ID allows to select the source for historical prices of the commodity
 export type MarketID = "COBALT | Wiebe-2019" | "NICKEL" | "COPPER" | "HYDROGEN";
-// The ID that points to certain MSR dataset
-export type MSRID = string | "COBALT INSTITUTE 2019";
-// The ID that points to certain Unido dataset
-export type UNIDOID = "src-UNIDO_auth-Wiebe_from-2008_to-2015";
-// The ID that points to certain OECD dataset
-export type OECDID = "src-OECD_auth-Wiebe_from-2008_to-2015";
 //#endregion
 /**
  * The forecast function allows to choose how to fill future data
@@ -33,9 +32,7 @@ export enum FirstUseMode {
 /**
  * Some silly more verbose types
  */
-type StringLength<N extends number> = { 0: string; length: N } & string;
-export type UUID =
-  `${StringLength<8>}-${StringLength<4>}-${StringLength<4>}-${StringLength<4>}-${StringLength<12>}`;
+export type UUID = string;
 type AuthorName = string;
 type OrgName = string;
 type FullYear = number;

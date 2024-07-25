@@ -1,7 +1,9 @@
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Database } from 'duckdb';
-import { readFileSync } from 'node:fs';
+
+import { ParquetFiles, SqlFiles } from './db-types';
 
 // Get the directory of the current script
 const __filename = fileURLToPath(import.meta.url);
@@ -10,13 +12,8 @@ const __dirname = dirname(__filename);
 // Initialise the database
 const db = new Database(':memory:');
 
-// List of sql files
-type SqlFiles = 'get-regions' | 'get-unido' |
-  'get-oecd-industries' | 'get-unido-industries' | 'get-nace-industries' |
-  'get-analyst-industries' | 'update-analyst-industries' | 'delete-analyst-industries';
-
 // File string builder
-const raw_parquet = (file_name: string) => `'${join(__dirname, `${file_name}.parquet`)}'`;
+const raw_parquet = (file_name: string) => `'${join(__dirname, 'parquet', `${file_name}.parquet`)}'`;
 
 // DUCKDB Function that reads parquet files as tables
 const read_parquet = (file_name: string, start_row?: number, page_size?: number) => {
@@ -56,8 +53,8 @@ type QueryOptions = {
   page_size?: number,
 };
 
-export const runDbQuery = <T>(sqlFile: SqlFiles, parquetFileName: string, options?: QueryOptions) => new Promise<T>((resolve, reject) => {
-  let query = readFileSync(join(__dirname, `${sqlFile}.sql`), 'utf8');
+export const runDbQuery = <T>(sqlFile: SqlFiles, parquetFileName: ParquetFiles, options?: QueryOptions) => new Promise<T>((resolve, reject) => {
+  let query = readFileSync(join(__dirname, 'sql', `${sqlFile}.sql`), 'utf8');
   
   if (query.includes('WHERE_CLAUSE') && options?.where) {
     const whereClause = getWhereClause(options.where);
@@ -82,5 +79,34 @@ export const runDbQuery = <T>(sqlFile: SqlFiles, parquetFileName: string, option
     if (error) reject(error);
 
     resolve(response as T);
+  });
+});
+
+type TableSchema = { [key: string]: 'INT' | 'FLOAT' | 'VARCHAR' | 'BOOLEAN' };
+type Options = { primaryKey?: string };
+export const createDbTable = async (
+  fileName: string,
+  schema: TableSchema,
+  options: Options = {}
+) => new Promise<void>((resolve, reject) => {
+  const filePath = raw_parquet(fileName);
+
+  if (existsSync(filePath.slice(1,-1))) return resolve();
+
+  const modifiers = Object.entries(schema)
+    .map(([columnName, columnType]) => `${columnName} ${columnType}`);
+
+  if (options.primaryKey) {
+    modifiers.push(`PRIMARY KEY (${options.primaryKey})`);
+  }
+
+  const query = `CREATE TEMPORARY TABLE TempTable (${modifiers.join(', ')});COPY TempTable TO ${filePath};DROP TABLE TempTable;`;
+
+  db.all(query, (error) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve();
+    }
   });
 });

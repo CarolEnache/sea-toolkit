@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,6 +8,9 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --primary: #53709d;
+  --secondary: #012d49;
+  --tertiary: #f1faff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,4 +35,48 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .buttonChart {
+    @apply py-1.5 px-2 border  rounded-full shadow transition duration-200 ease-in-out transform  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+  }
+  .selectForm {
+    @apply w-full  py-2 px-2 border rounded-lg hover:outline-1 hover:outline-secondary/20 focus:outline-1 focus:outline-secondary/10 outline-none cursor-pointer hover:bg-primary/5  text-gray-700  transition-all duration-200;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--tertiary);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--secondary);
+  border-radius: 2px;
+  border: 2px solid #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary);
+}
+
+.customScrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.customScrollbar::-webkit-scrollbar-track {
+  background: white;
+  border-radius: 2px;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--secondary);
+  border-radius: 2px;
+  border: 2px solid white;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary);
 }
