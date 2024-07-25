@@ -2,12 +2,19 @@
 
 import ReportChart from "@/components/reportChart";
 
-import React, { useState, useEffect, SetStateAction, Dispatch } from "react";
+import React, {
+  useState,
+  useEffect,
+  SetStateAction,
+  Dispatch,
+  useTransition,
+} from "react";
 import {
   EconomicParameters,
   ForecastingGroup,
   RegionalReport,
 } from "@/server/holistic-approach/report.types";
+import { getReportDataAction } from "../actions";
 
 type EconomicParametersWithoutRegion = Exclude<
   keyof typeof EconomicParameters,
@@ -28,6 +35,7 @@ const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
 
 const ReportData = ({ params }: { params: { id: string } }) => {
   const { id } = params;
+
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedForecastingGroup, setSelectedForecastingGroup] =
     useState(keysForecastingGroup);
@@ -35,7 +43,24 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   const [economicParametersKey, setEconomicParametersKey] = useState<
     EconomicParameterValues[]
   >([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, startTransition] = useTransition();
+
+  const updatereportData = async () => {
+    startTransition(async () => {
+      const res = await getReportDataAction(id);
+      const extractedKeys = Object.entries(res[0]).map(
+        ([key, _]) => key
+      ) as EconomicParameters[];
+
+      setEconomicParametersKey(extractedKeys.filter((a) => a !== "Region"));
+      setSelectedRegion(res[0].Region);
+      setReports(res);
+    });
+  };
+
+  useEffect(() => {
+    updatereportData();
+  }, []);
 
   const handleToggleDataArray: HandleToggleDataArrayProps<any> = (
     value,
@@ -53,26 +78,6 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   const handleSelectedRegion = (region: string) => {
     setSelectedRegion(region);
   };
-  useEffect(() => {
-    setLoading(true);
-    const data = window?.localStorage?.getItem("report") || "";
-
-    if (data) {
-      const formatedData = JSON.parse(data);
-
-      const extractedKeys = Object.entries(formatedData[0]).map(
-        ([key, _]) => key
-      ) as EconomicParameters[];
-
-      setEconomicParametersKey(extractedKeys.filter((a) => a !== "Region"));
-      setSelectedRegion(formatedData[0].Region);
-      setReports(formatedData);
-    } else {
-      // If there's no data in the localStorage, I guess you want to use the param id to retrieve it
-    }
-
-    setLoading(false);
-  }, []);
 
   if (loading) {
     return (
@@ -88,7 +93,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   return (
     <div className="min-h-screen ">
       <div className="w-full mx-auto p-6">
-        {reports.length > 0 && (
+        {reports.length > 0 && Array.isArray(reports) && (
           <>
             {reports
               .filter((report) => report.Region === selectedRegion)

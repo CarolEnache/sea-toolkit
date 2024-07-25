@@ -1,24 +1,25 @@
 "use server";
 
-import { msrService, oecdService, Region } from "@/server/services";
-import { FirstUseMode, UUID } from "@/server/holistic-approach/io.types";
-import { type Report, reportService } from "@/server/services";
+import { msrService, oecdService } from "@/server/services";
+import { reportService } from "@/server/services";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { ComoditiesListType, ProductsListType, RegionsListType } from "./types";
-import { FormDataType } from "./page";
-import { RegionalReport } from "@/server/holistic-approach/report.types";
+import { FormDataType } from "@/components/form-generate-report";
 
 type ReportData = {
-  reportId: string;
-  report: Report | RegionalReport[] | null;
+  reportId: string | null;
   message?: string;
 };
+
+export async function getReportDataAction(id: string) {
+  return reportService.generateReport(id);
+}
+
 export async function getDataFormFromServer() {
   const res = await Promise.all([
-    oecdService.getRegions('oecd.wiebe_2008-2015'),
-    msrService.getProducts('msr.cobalt-insitute_2019'),
+    oecdService.getRegions("oecd.wiebe_2008-2015"),
+    msrService.getProducts("msr.cobalt-insitute_2019"),
   ]);
 
   revalidatePath("/");
@@ -32,8 +33,6 @@ export async function formServerAction(
   prevState: FormDataType,
   formData: FormDataType
 ): Promise<ReportData> {
-
-
   const schema = z.object({
     region: z.enum(["Europe", "North America", "Global"]).default("Global"),
     product: z.enum(["All products", "Fine powder"]).default("All products"),
@@ -97,79 +96,15 @@ export async function formServerAction(
   const data = parse.data;
   try {
     const reportId = await reportService.requestReport(data);
-    const reportData = await reportService.generateReport(reportId);
     revalidatePath("/");
-    if (reportData)
+    if (reportId)
       return {
         reportId,
-        report: Array.isArray(reportData) ? reportData : [reportData],
         message: "",
       };
-  } catch { }
+  } catch {}
   return {
-    report: null,
+    reportId: null,
     message: "Failed to submit the form",
   };
 }
-
-// export async function selectComodityAction(
-//   prevState: RegionsListType,
-//   formData: FormData
-// ): Promise<RegionsListType> {
-//   const schema = z.object({
-//     selectedComodity: z.string().min(1),
-//   });
-//   const parse = schema.safeParse({
-//     selectedComodity: formData.get("commodity_list"),
-//   });
-
-//   if (!parse.success) {
-//     return { regionList: null, message: "Failed to select comodity" };
-//   }
-
-//   const data = parse.data;
-//   // console.log({ data });
-
-//   try {
-//     // It's not the commodity, OECD depends only on the year and its calculation on the region
-//     // const regions = await getRegionsFrom(data.selectedComodity);
-//     const regions = await oecdService.getRegions('src-OECD_auth-Wiebe_from-2008_to-2015');
-
-//     revalidatePath("/");
-//     return { regionList: regions, message: null };
-//   } catch (e) {}
-//   return {
-//     regionList: null,
-//     message: "Failed to select the commodity",
-//   };
-// }
-// export async function selectRegionAction(
-//   prevState: ProductsListType,
-//   formData: FormData
-// ): Promise<ProductsListType> {
-//   // console.log(formData.getAll("regions"));
-//   const schema = z.object({
-//     selectedRegions: z.array(z.string()),
-//   });
-//   const parse = schema.safeParse({
-//     selectedRegions: formData.getAll("regions"),
-//   });
-
-//   if (!parse.success) {
-//     return { productsList: null, message: "Failed to select regions" };
-//   }
-
-//   const data = parse.data;
-//   // console.log({ data });
-
-//   try {
-//     const products = await msrService.getProducts("");
-
-//     revalidatePath("/");
-//     return { productsList: products, message: null };
-//   } catch (e) {}
-//   return {
-//     productsList: null,
-//     message: "Failed to select the commodity",
-//   };
-// }

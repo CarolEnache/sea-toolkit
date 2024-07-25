@@ -4,13 +4,16 @@ import { useFormState, useFormStatus } from "react-dom";
 import { useRouter, usePathname } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
-import { Product, Region } from "@/server/services";
 import {
   formServerAction,
   getDataFormFromServer,
 } from "@/app/generate-report/actions";
-
 import { Checkbox } from "@nextui-org/react";
+import { Region } from "@/server/services/ts/oecd";
+import { Product } from "@/server/services/ts/msr";
+// import { reportService } from "@/server/services";
+
+// import { Checkbox } from "@next@/app/generate-report/[id]/layout
 
 export type FormDataType = {
   region: "Europe" | "North America" | "Global"; // ...and more | default: Global
