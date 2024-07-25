@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import zoomPlugin from "chartjs-plugin-zoom";
+import { SlSizeFullscreen } from "react-icons/sl";
+import { SlSizeActual } from "react-icons/sl";
 import {
   EconomicParameterValues,
   ForecastingGroupKey,
@@ -27,6 +29,9 @@ type chartProps = {
   keysForecastingGroup: ForecastingGroupKey[];
   selectedForecastingGroup: ForecastingGroupKey[];
   handleToggleDataArray: HandleToggleDataArrayProps<any>;
+  index: number;
+  setIndexChartFullScreen: (index: number | null) => void;
+  indexChartFullScreen: number | null;
 };
 
 const convertStringDataToNumber = (data: string[]): number[] => {
@@ -43,6 +48,9 @@ const ReportChart = ({
   keysForecastingGroup,
   selectedForecastingGroup,
   handleToggleDataArray,
+  index,
+  indexChartFullScreen,
+  setIndexChartFullScreen,
 }: chartProps) => {
   const dates = Object.keys(
     report[economicParamKey].BASE.Change["Direct Applications"]
@@ -56,6 +64,7 @@ const ReportChart = ({
   ) as ManufacturingStage[];
 
   const [indexDate, setIndexDate] = useState(0);
+
   const [selectedManufacturingStages, setSelectedManufacturingStages] =
     useState([manufacturingStages[0]]);
   const chartRef = useRef<any>(null);
@@ -205,30 +214,60 @@ const ReportChart = ({
 
   // h-[85%]
   return (
-    <div className="flex flex-col w-full  h-full min-h-[80%]  min-w-full  relative ">
+    <div
+      className={`flex flex-col w-full h-full min-w-full relative ${
+        indexChartFullScreen === index ? "min-h-[100%]" : "min-h-[80%]"
+      } `}
+    >
       <div className=" flex justify-between mb-4">
         {/* TITLE */}
         <h3 className="text-2xl font-bold text-secondary ">
           {economicParamKey}
         </h3>
 
-        {/* DATES BUTTON  */}
-        <div className="flex gap-2 ">
-          {dates.map((date, i) => (
-            <button
-              key={i}
-              className={`${
-                indexDate === i
-                  ? "bg-primary text-white"
-                  : "bg-white text-secondary/50 border-secondary/10"
-              }  buttonChart hover:bg-primary hover:text-white`}
-              onClick={() => {
-                setIndexDate(i);
-              }}
-            >
-              {date}
-            </button>
-          ))}
+        <div className="flex  md:gap-10">
+          {/* DATES BUTTON  */}
+          <div className="flex gap-2">
+            {dates.map((date, i) => (
+              <button
+                key={i}
+                className={`${
+                  indexDate === i
+                    ? "bg-primary text-white"
+                    : "bg-white text-secondary/50 border-secondary/10"
+                }  buttonChart hover:bg-primary hover:text-white`}
+                onClick={() => {
+                  setIndexDate(i);
+                }}
+              >
+                {date}
+              </button>
+            ))}
+          </div>
+          {/* TOGGLE SIZE BUTTON  */}
+          <button
+            className="hidden md:block"
+            onClick={() => {
+              if (
+                indexChartFullScreen !== null &&
+                indexChartFullScreen === index
+              ) {
+                setIndexChartFullScreen(null);
+              } else {
+                setIndexChartFullScreen(index);
+              }
+            }}
+          >
+            {indexChartFullScreen === index ? (
+              <div className="p-2 hover:border-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
+                <SlSizeActual className="text-secondary/50 hover:text-primary/50 " />
+              </div>
+            ) : (
+              <div className="p-2 hover:text-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
+                <SlSizeFullscreen className="text-secondary/50 hover:text-primary/50 " />
+              </div>
+            )}
+          </button>
         </div>
       </div>
 
@@ -242,7 +281,7 @@ const ReportChart = ({
                 selectedManufacturingStages.includes(stage)
                   ? "bg-tertiary text-primary"
                   : "bg-white text-secondary/50 border-secondary/10"
-              } buttonChart hover:bg-tertiary hover:text-primary`}
+              } buttonChart hover:bg-tertiary hover:text-primary text-xs`}
               onClick={() =>
                 handleToggleDataArray(stage, setSelectedManufacturingStages)
               }

@@ -35,7 +35,9 @@ const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
 
 const ReportData = ({ params }: { params: { id: string } }) => {
   const { id } = params;
-
+  const [indexChartFullScreen, setIndexChartFullScreen] = useState<
+    null | number
+  >(null);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedForecastingGroup, setSelectedForecastingGroup] =
     useState(keysForecastingGroup);
@@ -84,7 +86,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
       <div className="flex items-center justify-center h-screen ">
         <div className="relative">
           <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
-          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-blue-500 animate-spin"></div>
+          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin"></div>
         </div>
       </div>
     );
@@ -151,11 +153,14 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                   </div>
 
                   {/* each chartReport  */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2   gap-4 mb-4 w-full">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4 w-full">
                     {economicParametersKey.map((economicParamKey, index) => (
                       <div
                         key={index}
-                        className="bg-white p-4 rounded-lg shadow-lg min-h-full w-full"
+                        className={`bg-white p-4 rounded-lg shadow-lg min-h-full w-full ${
+                          indexChartFullScreen === index &&
+                          "fixed top-0 left-0 h-screen w-screen z-50 pt-10"
+                        }`}
                       >
                         <ReportChart
                           report={report}
@@ -164,6 +169,9 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                           keysForecastingGroup={keysForecastingGroup}
                           selectedForecastingGroup={selectedForecastingGroup}
                           handleToggleDataArray={handleToggleDataArray}
+                          index={index}
+                          indexChartFullScreen={indexChartFullScreen}
+                          setIndexChartFullScreen={setIndexChartFullScreen}
                         />
                       </div>
                     ))}

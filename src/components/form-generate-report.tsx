@@ -11,9 +11,6 @@ import {
 import { Checkbox } from "@nextui-org/react";
 import { Region } from "@/server/services/ts/oecd";
 import { Product } from "@/server/services/ts/msr";
-import { reportService } from "@/server/services";
-
-// import { Checkbox } from "@next@/app/generate-report/[id]/layout
 
 export type FormDataType = {
   region: "Europe" | "North America" | "Global"; // ...and more | default: Global
@@ -113,6 +110,7 @@ export default function GenerateReport() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+  console.log(pending);
 
   const setDataForm = async () => {
     const res = await getDataFormFromServer();
@@ -129,7 +127,7 @@ export default function GenerateReport() {
       setShowMenu(false);
       router.push(`/generate-report/${formState.reportId}`);
     }
-  }, [formState.reportId, router]);
+  }, [formState?.reportId, router]);
 
   return (
     <>
@@ -262,13 +260,7 @@ export default function GenerateReport() {
             </fieldset>
           </div>
           <div className="px-4">
-            <button
-              type="submit"
-              disabled={pending}
-              className="w-full py-2  bg-secondary active:scale-95 text-white font-bold rounded-lg hover:bg-primary transition duration-300"
-            >
-              {pending ? "Sending..." : "Generate"}
-            </button>
+            <SubmitButton />
           </div>
         </form>
       </div>
@@ -315,5 +307,27 @@ export default function GenerateReport() {
         )}
       </button>
     </>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      className="w-full py-2  bg-secondary active:scale-95 text-white font-bold rounded-lg hover:bg-primary transition duration-300"
+      type="submit"
+      disabled={pending}
+    >
+      {pending ? (
+        <div className="flex items-center justify-center ">
+          <div className="relative">
+            <div className="h-6 w-6 rounded-full border-t-8 border-b-8 border-gray-200"></div>
+            <div className="absolute top-0 left-0 h-6 w-6 rounded-full border-t-8 border-b-8 border-tertiary animate-spin"></div>
+          </div>
+        </div>
+      ) : (
+        "Generate"
+      )}
+    </button>
   );
 }
