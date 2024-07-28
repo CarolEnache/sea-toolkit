@@ -1,26 +1,27 @@
 // components/MyChart.js
 import React, { useEffect, useRef, useState } from "react";
-import Chart from "chart.js/auto";
+import Chart, { ChartDataset } from "chart.js/auto";
 import zoomPlugin from "chartjs-plugin-zoom";
 import { SlSizeFullscreen } from "react-icons/sl";
 import { SlSizeActual } from "react-icons/sl";
-import {
-  EconomicParameterValues,
-  ForecastingGroupKey,
-  HandleToggleDataArrayProps,
-} from "@/app/generate-report/[id]/page";
+import { HandleToggleDataArrayProps } from "@/app/generate-report/[id]/page";
 import {
   EconomicFactors,
+  EconomicFactorsValuesEnum,
+  EconomicParameterValuesEnum,
   ForecastingGroup,
+  ForecastingGroupKey,
   ManufacturingStage,
   RegionalReport,
 } from "@/server/holistic-approach/report.types";
 
+import ChartDataLabels from "chartjs-plugin-datalabels";
+Chart.register(ChartDataLabels);
 Chart.register(zoomPlugin);
-
-type chartProps = {
+type Change = { [key in keyof typeof ForecastingGroup]: number };
+type ChartProps = {
   report: RegionalReport;
-  economicParamKey: EconomicParameterValues;
+  economicParamKey: EconomicParameterValuesEnum;
   chartColors: {
     HIGH: string;
     BASE: string;
@@ -32,13 +33,7 @@ type chartProps = {
   index: number;
   setIndexChartFullScreen: (index: number | null) => void;
   indexChartFullScreen: number | null;
-};
-
-const convertStringDataToNumber = (data: string[]): number[] => {
-  return data.map((value) => {
-    if (value.includes("%")) return Number(value.replace("%", ""));
-    if (value === "") return 0;
-  }) as number[];
+  dates: string[];
 };
 
 const ReportChart = ({
@@ -51,19 +46,21 @@ const ReportChart = ({
   index,
   indexChartFullScreen,
   setIndexChartFullScreen,
-}: chartProps) => {
-  const dates = Object.keys(
-    report[economicParamKey].BASE.Change["Direct Applications"]
-  );
+  dates,
+}: ChartProps) => {
   const economicFactors = Object.keys(
     report[economicParamKey].BASE
   ) as EconomicFactors[];
-
+  const economicFactorsWithoutTotalAndChange = economicFactors.filter(
+    (factor) => factor !== "Change" && factor !== "Total"
+  );
   const manufacturingStages = Object.keys(
     report[economicParamKey].BASE[economicFactors[0]]
   ) as ManufacturingStage[];
 
   const [indexDate, setIndexDate] = useState(0);
+
+  const [changes, setChanges] = useState<Change[]>([]);
 
   const [selectedManufacturingStages, setSelectedManufacturingStages] =
     useState([manufacturingStages[0]]);
@@ -75,16 +72,14 @@ const ReportChart = ({
         selectedManufacturingStages?.includes(stage)
       );
 
-      const extractData = (forecastingGroup: ForecastingGroup): number[][] => {
-        return economicFactors.map((factor) => {
+      const extractData = (
+        forecastingGroup: ForecastingGroup,
+        economicFactorsKeys: EconomicFactorsValuesEnum[]
+      ): number[][] => {
+        return economicFactorsKeys.map((factor) => {
           const dataPoints = report[economicParamKey][forecastingGroup][factor];
           return labels.map((label) => {
             let data = Object.values(dataPoints[label]) as string[] | number[];
-
-            //if data is string convert to number
-            if (typeof data[0] === "string") {
-              data = convertStringDataToNumber(data as string[]) as number[];
-            }
 
             return data[indexDate] as number;
           });
@@ -95,11 +90,47 @@ const ReportChart = ({
         selectedForecastingGroup.includes(key)
       );
 
-      const datasets = economicFactors
+      // TO SHOW CHANGE DATA IF SECOND DATE IS CHOOSED
+      if (indexDate === 1) {
+        const changes = forecastingGroup.map((key) => {
+          const change = {
+            [key]: extractData(
+              ForecastingGroup[key],
+              economicFactors.filter((ec) => ec === "Change")
+            )[0][0],
+          } as Change;
+          return change;
+        });
+        setChanges(changes);
+      } else {
+        setChanges([]);
+      }
+
+      const labelsWithTotals = labels.map((label, index) => {
+        let formatLabel = "Totals ( ";
+        forecastingGroup.forEach((key, i) => {
+          const total = extractData(ForecastingGroup[key], economicFactors)[3][
+            index
+          ];
+          const change = extractData(
+            ForecastingGroup[key],
+            economicFactors.filter((ec) => ec === "Change")
+          )[0][0];
+          return (formatLabel += `${key}:${total}${
+            indexDate === 1 ? ` (+${change})` : ""
+          }${i !== forecastingGroup.length - 1 ? " " : ""}`);
+        });
+        return (formatLabel += " )");
+      });
+
+      const datasets = economicFactorsWithoutTotalAndChange
         .map((factor, index) => {
           return forecastingGroup.map((keyColor) => ({
-            label: `${keyColor} - ${factor} ${factor === "Change" ? "%" : ""}`,
-            data: extractData(ForecastingGroup[keyColor])[index],
+            label: `${keyColor} - ${factor}`,
+            data: extractData(
+              ForecastingGroup[keyColor],
+              economicFactorsWithoutTotalAndChange
+            )[index],
             backgroundColor: chartColors[keyColor],
             borderColor: chartColors.BASE,
             borderWidth: 1,
@@ -107,16 +138,95 @@ const ReportChart = ({
         })
         .flat();
 
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // REFACTO THIS CODE NOT PERFECT
+      const maxDataset = datasets.reduce(
+        (max: any, dataset: any) => {
+          const value = dataset.data[0];
+          return value > max.maxValue ? { dataset, maxValue: value } : max;
+        },
+        { dataset: null, maxValue: -Infinity }
+      ).dataset;
+
+      const maxValue = maxDataset.data;
+      let addValue;
+
+      if (maxValue < 1000) {
+        addValue = 100;
+      } else if (maxValue < 10000) {
+        addValue = 500;
+      } else if (maxValue < 20000) {
+        addValue = 1000;
+      } else {
+        addValue = 2000;
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
       const ctx = chartRef.current.getContext("2d");
 
       const chart = new Chart(ctx, {
         type: "bar", // ou 'line', 'pie', etc.
         data: {
-          labels: labels,
+          labels: [""],
           datasets: datasets,
         },
         options: {
           plugins: {
+            // datalabels: {
+            //   anchor: "end",
+            //   align: "end",
+            //   offset: 0,
+            //   font: {
+            //     weight: "bold",
+            //   },
+            //   color: "green",
+            // },
+
+            datalabels: {
+              labels: {
+                name: {
+                  align: "start",
+                  anchor: "start",
+
+                  padding: {
+                    top: 10,
+                  },
+                  font: { size: 12, weight: 600 },
+
+                  formatter: function (value, ctx) {
+                    return ctx.chart.data.datasets[
+                      ctx.datasetIndex
+                    ].label?.split("-")[1];
+                  },
+                  display: function (context) {
+                    let indexToShow = context.datasetIndex === 1;
+                    if (datasets.length === 6) {
+                      indexToShow =
+                        context.datasetIndex === 1 ||
+                        context.datasetIndex === 3 ||
+                        context.datasetIndex === 5;
+                    } else if (datasets.length === 9) {
+                      indexToShow =
+                        context.datasetIndex === 1 ||
+                        context.datasetIndex === 4 ||
+                        context.datasetIndex === 7;
+                    } else if (datasets.length === 0) {
+                      indexToShow = false;
+                    }
+                    return indexToShow;
+                  },
+                },
+                value: {
+                  align: "end",
+                  anchor: "end",
+                  color: "grey",
+                  font: {
+                    weight: 600,
+                  },
+                },
+              },
+            },
+
             tooltip: {
               titleFont: {
                 size: 14,
@@ -126,15 +236,13 @@ const ReportChart = ({
                 size: 12,
               },
               callbacks: {
+                label: function (tooltipItem) {
+                  return `Value: ${tooltipItem.raw}`;
+                },
                 title: function (tooltipItems) {
                   const title = tooltipItems[0].dataset.label;
-                  if (title) return title.replace("%", "");
-                },
-                label: function (tooltipItem) {
-                  const label = tooltipItem?.dataset.label;
-                  return `Value: ${tooltipItem.raw} ${
-                    label && label.includes("%") ? "%" : ""
-                  }`;
+                  // if (title) return title.replace("%", "");
+                  return title;
                 },
               },
             },
@@ -153,21 +261,24 @@ const ReportChart = ({
             legend: {
               display: false,
               position: "bottom",
-              // labels: {
-              //   // Custom filter function to show only specific datasets
-              //   filter: function (legendItem, chartData) {
-              //     // Show only the first three datasets in the legend
-              //     return legendItem.datasetIndex < 3;
-              //   },
-              // },
             },
           },
+
           interaction: {
             intersect: true,
           },
           scales: {
             x: {
-              beginAtZero: true,
+              title: {
+                display: true,
+                text: labelsWithTotals[0],
+                font: {
+                  weight: 600,
+                },
+                padding: {
+                  top: 5,
+                },
+              },
               ticks: {
                 font: {
                   weight: 600,
@@ -178,7 +289,9 @@ const ReportChart = ({
                 color: "rgba(0, 0, 0, 0.2)",
               },
             },
+
             y: {
+              max: Math.ceil(maxValue / 100) * 100 + addValue,
               ticks: {
                 font: {
                   weight: 600,
@@ -212,88 +325,129 @@ const ReportChart = ({
     selectedForecastingGroup,
   ]);
 
-  // h-[85%]
   return (
-    <div
-      className={`flex flex-col w-full h-full min-w-full relative ${
-        indexChartFullScreen === index ? "min-h-[100%]" : "min-h-[80%]"
-      } `}
-    >
-      <div className=" flex justify-between mb-4">
-        {/* TITLE */}
-        <h3 className="text-2xl font-bold text-secondary ">
-          {economicParamKey}
-        </h3>
+    <>
+      <div
+        className={`flex flex-col w-full min-w-full relative ${
+          indexChartFullScreen === index
+            ? "min-h-[80%]  max-h-[20%] h-[5/6]"
+            : "min-h-[100%] h-full "
+        } `}
+      >
+        <div className=" flex justify-between mb-3">
+          {/* TITLE */}
+          <h3 className="text-2xl font-bold text-secondary ">
+            {economicParamKey}
+          </h3>
 
-        <div className="flex  md:gap-10">
-          {/* DATES BUTTON  */}
-          <div className="flex gap-2">
-            {dates.map((date, i) => (
+          <div className="flex gap-2 md:gap-10">
+            {/* DATES BUTTON  */}
+            <div className="flex gap-1 md:gap-2">
+              {dates.map((date, i) => (
+                <button
+                  key={i}
+                  className={`${
+                    indexDate === i
+                      ? "bg-primary text-white"
+                      : "bg-white text-secondary/50 border-secondary/10"
+                  }  buttonChart hover:bg-primary hover:text-white text-sm`}
+                  onClick={() => {
+                    setIndexDate(i);
+                  }}
+                >
+                  {date}
+                </button>
+              ))}
+            </div>
+            {/* TOGGLE SIZE BUTTON  */}
+            <button
+              className=" text-xs md:text-base "
+              onClick={() => {
+                if (
+                  indexChartFullScreen !== null &&
+                  indexChartFullScreen === index
+                ) {
+                  setIndexChartFullScreen(null);
+                } else {
+                  setIndexChartFullScreen(index);
+                }
+              }}
+            >
+              {indexChartFullScreen === index ? (
+                <div className="p-2 hover:border-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
+                  <SlSizeActual className="text-secondary/50 hover:text-primary/50 " />
+                </div>
+              ) : (
+                <div className="p-2 hover:text-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
+                  <SlSizeFullscreen className="text-secondary/50 hover:text-primary/50 " />
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* ManufacturingStages TOGGLE BUTTONS  */}
+        <div className="flex justify-center ">
+          <div className="flex justify-center flex-wrap gap-2 mb-3">
+            {manufacturingStages.map((stage, i) => (
               <button
                 key={i}
                 className={`${
-                  indexDate === i
-                    ? "bg-primary text-white"
+                  selectedManufacturingStages.includes(stage)
+                    ? "bg-tertiary text-primary"
                     : "bg-white text-secondary/50 border-secondary/10"
-                }  buttonChart hover:bg-primary hover:text-white`}
+                } buttonChart hover:bg-tertiary hover:text-primary text-xs`}
                 onClick={() => {
-                  setIndexDate(i);
+                  // handleToggleDataArray(stage, setSelectedManufacturingStages)
+                  if (!selectedManufacturingStages.includes(stage))
+                    setSelectedManufacturingStages([stage]);
                 }}
               >
-                {date}
+                {stage}
               </button>
             ))}
           </div>
-          {/* TOGGLE SIZE BUTTON  */}
-          <button
-            className="hidden md:block"
-            onClick={() => {
-              if (
-                indexChartFullScreen !== null &&
-                indexChartFullScreen === index
-              ) {
-                setIndexChartFullScreen(null);
-              } else {
-                setIndexChartFullScreen(index);
-              }
-            }}
-          >
-            {indexChartFullScreen === index ? (
-              <div className="p-2 hover:border-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
-                <SlSizeActual className="text-secondary/50 hover:text-primary/50 " />
-              </div>
-            ) : (
-              <div className="p-2 hover:text-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
-                <SlSizeFullscreen className="text-secondary/50 hover:text-primary/50 " />
-              </div>
-            )}
-          </button>
         </div>
-      </div>
 
-      {/* ManufacturingStages TOGGLE BUTTONS  */}
-      <div className="flex justify-center ">
-        <div className="flex flex-wrap gap-2 mb-3">
-          {manufacturingStages.map((stage, i) => (
-            <button
-              key={i}
-              className={`${
-                selectedManufacturingStages.includes(stage)
-                  ? "bg-tertiary text-primary"
-                  : "bg-white text-secondary/50 border-secondary/10"
-              } buttonChart hover:bg-tertiary hover:text-primary text-xs`}
-              onClick={() =>
-                handleToggleDataArray(stage, setSelectedManufacturingStages)
-              }
-            >
-              {stage}
-            </button>
-          ))}
-        </div>
-      </div>
+        <canvas ref={chartRef}></canvas>
 
-      <canvas ref={chartRef}></canvas>
-    </div>
+        {/* CHANGES PERCENTAGE BETWEEN FIRST DATE AND SECOND LOW BASE HIGH  */}
+        {changes.length > 0 && (
+          <>
+            <div className="flex  justify-center  w-full gap-2  ">
+              {changes.map((change, index) => {
+                const [key, value] = Object.entries(
+                  change
+                )[0] as ForecastingGroupKey[]; // NEED TO FIX THIS TYPE
+                return (
+                  <div
+                    key={index}
+                    className="bg-white flex items-center   px-4 mt-2  border-t border-gray-100 rounded-md shadow-md  py-2"
+                  >
+                    <div
+                      className={`w-5 h-5 border rounded-full border-gray-300 mr-1`}
+                      style={{ backgroundColor: chartColors[key] }}
+                    ></div>
+
+                    <div className="flex gap-1 items-center">
+                      <div className="text-gray-700 text-xs font-semibold">
+                        {key}
+                      </div>
+
+                      <div
+                        className={` text-xs font-medium ${"text-green-500"}`}
+                      >
+                        +{value}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 };
 

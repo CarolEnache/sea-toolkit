@@ -6,15 +6,28 @@ export enum EconomicParameters {
   valueAddition = 'Value Addition',
 }
 
+export type EconomicParametersKeysWithoutRegion = Exclude<
+  keyof typeof EconomicParameters,
+  "region"
+>;
+export type EconomicParameterValuesEnum =
+  (typeof EconomicParameters)[EconomicParametersKeysWithoutRegion];
+
+
+
 export enum EconomicFactors {
   DirectEffect = "Direct Effect",
-  // FirstRound = "First Round",
-  // InternationalSupport = "International Support",
   UpstreamRequirements = "Upstream Requirements",
   IncomeEffect = "Income Effect",
   Total = "Total",
   Change = "Change",
+   // FirstRound = "First Round",
+  // InternationalSupport = "International Support",
 }
+
+
+export type EconomicFactorsKeys = keyof typeof EconomicFactors;
+export type EconomicFactorsValuesEnum = (typeof EconomicFactors)[EconomicFactorsKeys];
 
 export enum ManufacturingStage {
   Mining = "Mine Production",
@@ -24,12 +37,16 @@ export enum ManufacturingStage {
   Recycling = "Recycling",
   Total = "Total",
 }
+export type ManufacturingKeys = keyof typeof ManufacturingStage;
+export type ManufacturingValuesEnum = (typeof ManufacturingStage)[ManufacturingKeys];
 
 export enum ForecastingGroup {
   LOW = "LOW",
   BASE = "BASE",
   HIGH = "HIGH",
 }
+
+export type ForecastingGroupKey = keyof typeof ForecastingGroup;
 
 export type YearRangeString = `${string}-${string}`;
 // Properties exist

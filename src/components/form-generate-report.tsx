@@ -84,7 +84,6 @@ export const initialState: FormDataType = {
 
 export default function GenerateReport() {
   const router = useRouter();
-  const { pending, data, method, action } = useFormStatus();
   // NEED TO FIX THE TYPES
   const [formState, formAction] = useFormState(formServerAction, initialState);
 
@@ -110,7 +109,6 @@ export default function GenerateReport() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-  console.log(pending);
 
   const setDataForm = async () => {
     const res = await getDataFormFromServer();

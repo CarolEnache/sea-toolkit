@@ -10,27 +10,27 @@ import React, {
   useTransition,
 } from "react";
 import {
-  EconomicParameters,
+  EconomicFactorsValuesEnum,
+  EconomicParameterValuesEnum,
   ForecastingGroup,
+  ForecastingGroupKey,
+  ManufacturingValuesEnum,
   RegionalReport,
+  YearRangeString,
 } from "@/server/holistic-approach/report.types";
 import { getReportDataAction } from "../actions";
-
-type EconomicParametersWithoutRegion = Exclude<
-  keyof typeof EconomicParameters,
-  "region"
->;
-
-export type EconomicParameterValues =
-  (typeof EconomicParameters)[EconomicParametersWithoutRegion];
 
 export type HandleToggleDataArrayProps<T> = (
   value: T,
   setState: Dispatch<SetStateAction<T[]>>
 ) => void;
 
-const chartColors = { LOW: "#F1FAFF", BASE: "#53709D", HIGH: "#012d49" };
-export type ForecastingGroupKey = keyof typeof ForecastingGroup;
+const chartColors: { [key in keyof typeof ForecastingGroup]: string } = {
+  LOW: "#F1FAFF",
+  BASE: "#53709D",
+  HIGH: "#012d49",
+};
+
 const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
 
 const ReportData = ({ params }: { params: { id: string } }) => {
@@ -43,26 +43,55 @@ const ReportData = ({ params }: { params: { id: string } }) => {
     useState(keysForecastingGroup);
   const [reports, setReports] = useState<RegionalReport[]>([]);
   const [economicParametersKey, setEconomicParametersKey] = useState<
-    EconomicParameterValues[]
+    EconomicParameterValuesEnum[]
   >([]);
+  const [dates, setDates] = useState<YearRangeString[]>([]);
   const [isLoading, startLoading] = useTransition();
-
-  const updatereportData = async () => {
-    startLoading(async () => {
-      const res = await getReportDataAction(id);
-      const extractedKeys = Object.entries(res[0]).map(
-        ([key, _]) => key
-      ) as EconomicParameters[];
-
-      setEconomicParametersKey(extractedKeys.filter((a) => a !== "Region"));
-      setSelectedRegion(res[0].Region);
-      setReports(res);
-    });
-  };
+  const [manufacturingStagesKey, setManufacturingStagesKey] = useState<
+    ManufacturingValuesEnum[]
+  >([]);
 
   useEffect(() => {
-    updatereportData();
-  }, []);
+    const updateReportData = async () => {
+      startLoading(async () => {
+        const res = await getReportDataAction(id);
+
+        const firstReport = res[0];
+        const filteredFirstReport = Object.entries(firstReport).filter(
+          ([key, value]) => key !== "Region"
+        ) as [EconomicParameterValuesEnum, RegionalReport["Employment"]][];
+
+        const extractedKeys = filteredFirstReport.map(
+          ([key, _]) => key
+        ) as EconomicParameterValuesEnum[];
+
+        setEconomicParametersKey(extractedKeys);
+        setSelectedRegion(firstReport.Region);
+        setReports(res);
+
+        // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
+        const economicFactors = Object.entries(
+          filteredFirstReport[0][1]
+        )[0][1] as unknown as RegionalReport["Employment"];
+
+        const manufacturingStages = Object.entries(
+          economicFactors
+        )[0][1] as RegionalReport["Employment"]["BASE"];
+
+        const data = Object.entries(
+          manufacturingStages
+        )[0][1] as RegionalReport["Employment"]["BASE"]["Change"];
+        const dates = Object.keys(data) as YearRangeString[];
+        setDates(dates);
+
+        const manufacturingStageValuesEnum = Object.keys(
+          manufacturingStages
+        ) as ManufacturingValuesEnum[];
+        setManufacturingStagesKey(manufacturingStageValuesEnum);
+      });
+    };
+    updateReportData();
+  }, [id]);
 
   const handleToggleDataArray: HandleToggleDataArrayProps<any> = (
     value,
@@ -79,6 +108,17 @@ const ReportData = ({ params }: { params: { id: string } }) => {
 
   const handleSelectedRegion = (region: string) => {
     setSelectedRegion(region);
+  };
+
+  const returnEconomicFactorsValues = (
+    report: RegionalReport,
+    economicParamKey: EconomicParameterValuesEnum,
+    level: ForecastingGroupKey
+  ): EconomicFactorsValuesEnum[] => {
+    const economicFactorsValues = Object.keys(
+      report[economicParamKey][level]
+    ) as EconomicFactorsValuesEnum[];
+    return economicFactorsValues;
   };
 
   if (isLoading) {
@@ -121,9 +161,9 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                         </button>
                       ))}
                     </div>
-                    {/* LEGENDS  */}
-                    <div className="flex items-center justify-center  border-2 border-tertiary gap-4 bg-white px-6 py-3 h-[52px] rounded-lg shadow-md">
-                      {Object.entries(chartColors).map(([key, color], i) => (
+                    {/* LEGENDS TOGGLE BUTTON  */}
+                    <div className="flex items-center md:z-[60] justify-center  border-2 border-tertiary gap-4 bg-white px-6 py-3 h-[52px] rounded-lg shadow-md">
+                      {Object.entries(chartColors).map(([key, color]) => (
                         <button
                           onClick={() =>
                             handleToggleDataArray(
@@ -131,7 +171,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                               setSelectedForecastingGroup
                             )
                           }
-                          key={i}
+                          key={color}
                           className="flex items-center gap-1"
                         >
                           <div
@@ -152,29 +192,153 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                     </div>
                   </div>
 
-                  {/* each chartReport  */}
+                  {/* each ChartReport and Table */}
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4 w-full">
-                    {economicParametersKey.map((economicParamKey, index) => (
-                      <div
-                        key={index}
-                        className={`bg-white p-4 rounded-lg shadow-lg min-h-full w-full ${
-                          indexChartFullScreen === index &&
-                          "fixed top-0 left-0 h-screen w-screen z-50 pt-10"
-                        }`}
-                      >
-                        <ReportChart
-                          report={report}
-                          economicParamKey={economicParamKey}
-                          chartColors={chartColors}
-                          keysForecastingGroup={keysForecastingGroup}
-                          selectedForecastingGroup={selectedForecastingGroup}
-                          handleToggleDataArray={handleToggleDataArray}
-                          index={index}
-                          indexChartFullScreen={indexChartFullScreen}
-                          setIndexChartFullScreen={setIndexChartFullScreen}
-                        />
-                      </div>
-                    ))}
+                    {economicParametersKey.map(
+                      (economicParamKey, chartIndex) => (
+                        <div key={chartIndex}>
+                          <div
+                            className={`bg-white p-4 rounded-lg shadow-lg min-h-full w-full ${
+                              indexChartFullScreen === chartIndex &&
+                              "fixed top-0 left-0 h-full w-screen z-50 pt-24 overflow-y-auto"
+                            }`}
+                          >
+                            <ReportChart
+                              report={report}
+                              economicParamKey={economicParamKey}
+                              chartColors={chartColors}
+                              keysForecastingGroup={keysForecastingGroup}
+                              selectedForecastingGroup={
+                                selectedForecastingGroup
+                              }
+                              handleToggleDataArray={handleToggleDataArray}
+                              index={chartIndex}
+                              indexChartFullScreen={indexChartFullScreen}
+                              setIndexChartFullScreen={setIndexChartFullScreen}
+                              dates={dates}
+                            />
+
+                            {/* TABLES  */}
+                            <div
+                              className={`${
+                                indexChartFullScreen === chartIndex
+                                  ? "flex flex-col gap-6 w-full text-xs mt-36"
+                                  : "hidden"
+                              }`}
+                            >
+                              {keysForecastingGroup.map((level) => (
+                                <div
+                                  className="flex overflow-x-auto customScrollbar rounded-lg  "
+                                  key={level}
+                                >
+                                  <div className="flex flex-col  items-center justify-center shadow-lg ">
+                                    <div
+                                      style={{
+                                        backgroundColor: chartColors[level],
+                                      }}
+                                      className="w-full  h-full font-semibold px-2 flex justify-center items-center"
+                                    >
+                                      <span className="p-2 py-3 w-12 border shadow-md rounded-full bg-white text-grey-700">
+                                        {level}
+                                      </span>
+                                    </div>
+                                    <ul
+                                      key={i}
+                                      className="flex bg-white flex-col   min-w-[150px]  justify-end text-start h-full "
+                                    >
+                                      {Object.keys(
+                                        report[economicParamKey][level]
+                                      ).map((category) => (
+                                        <li
+                                          className="py-2 font-semibold border-y pl-2"
+                                          key={category}
+                                        >
+                                          {category}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  {/* TABLES */}
+                                  <div className="flex bg-white shadow-lg ">
+                                    {manufacturingStagesKey.map(
+                                      (manufactoryStage) => (
+                                        <table
+                                          key={manufactoryStage}
+                                          className=" min-w-[200px] border-collapse"
+                                        >
+                                          <thead>
+                                            <tr className="bg-gray-100">
+                                              <th className="border px-4 py-2">
+                                                {manufactoryStage}
+                                              </th>
+                                            </tr>
+                                          </thead>
+
+                                          <tbody>
+                                            <tr>
+                                              <td className="border px-4 py-2 flex">
+                                                {dates.map((date, i) => (
+                                                  <span
+                                                    key={date}
+                                                    className="w-1/2 underline text-center font-semibold"
+                                                  >
+                                                    {date} {i === 0 && " - "}
+                                                  </span>
+                                                ))}
+                                              </td>
+                                            </tr>
+
+                                            {returnEconomicFactorsValues(
+                                              report,
+                                              economicParamKey,
+                                              level
+                                            ).map((category) => (
+                                              <tr key={category}>
+                                                <td className="border px-4 py-2   flex">
+                                                  {dates.map(
+                                                    (date, dateIndex) => (
+                                                      <div key={date}>
+                                                        <span
+                                                          className={`w-1/2 text-center ${
+                                                            category ===
+                                                              "Change" &&
+                                                            dateIndex !== 0 &&
+                                                            "text-green-400"
+                                                          } `}
+                                                        >
+                                                          {category ===
+                                                            "Change" &&
+                                                            dateIndex !== 0 &&
+                                                            "+"}
+                                                          {
+                                                            report[
+                                                              economicParamKey
+                                                            ][level][category][
+                                                              manufactoryStage
+                                                            ][date]
+                                                          }
+                                                        </span>
+                                                        {dateIndex === 0 &&
+                                                          " - "}
+                                                      </div>
+                                                    )
+                                                  )}
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               ))}
