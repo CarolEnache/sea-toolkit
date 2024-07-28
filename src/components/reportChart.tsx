@@ -148,18 +148,18 @@ const ReportChart = ({
         { dataset: null, maxValue: -Infinity }
       ).dataset;
 
-      const maxValue = maxDataset.data;
-      let addValue;
-
-      if (maxValue < 1000) {
-        addValue = 100;
-      } else if (maxValue < 10000) {
-        addValue = 500;
-      } else if (maxValue < 20000) {
-        addValue = 1000;
-      } else {
-        addValue = 2000;
-      }
+      const maxValue = maxDataset?.data;
+      let addValue = 0;
+      if (maxValue)
+        if (maxValue < 1000) {
+          addValue = 100;
+        } else if (maxValue < 10000) {
+          addValue = 500;
+        } else if (maxValue < 20000) {
+          addValue = 1000;
+        } else {
+          addValue = 2000;
+        }
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
       const ctx = chartRef.current.getContext("2d");
@@ -422,7 +422,7 @@ const ReportChart = ({
                 return (
                   <div
                     key={index}
-                    className="bg-white flex items-center   px-4 mt-2  border-t border-gray-100 rounded-md shadow-md  py-2"
+                    className="bg-white flex items-center  px-4 mt-2 border-t border-gray-100 rounded-md shadow-md  py-2"
                   >
                     <div
                       className={`w-5 h-5 border rounded-full border-gray-300 mr-1`}
