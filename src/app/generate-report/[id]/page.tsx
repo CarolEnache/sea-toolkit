@@ -298,7 +298,9 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                                                 <td className="border px-4 py-2   flex">
                                                   {dates.map(
                                                     (date, dateIndex) => (
-                                                      <div key={date}>
+                                                      <React.Fragment
+                                                        key={dateIndex}
+                                                      >
                                                         <span
                                                           className={`w-1/2 text-center ${
                                                             category ===
@@ -321,7 +323,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                                                         </span>
                                                         {dateIndex === 0 &&
                                                           " - "}
-                                                      </div>
+                                                      </React.Fragment>
                                                     )
                                                   )}
                                                 </td>
