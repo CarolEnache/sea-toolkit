@@ -279,12 +279,15 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                                             <tr>
                                               <td className="border px-4 py-2 flex">
                                                 {dates.map((date, i) => (
-                                                  <span
-                                                    key={date}
-                                                    className="w-1/2 underline text-center font-semibold"
-                                                  >
-                                                    {date} {i === 0 && " - "}
-                                                  </span>
+                                                  <>
+                                                    <span
+                                                      key={date}
+                                                      className="w-1/2 underline text-center font-semibold"
+                                                    >
+                                                      {date}
+                                                    </span>{" "}
+                                                    {i === 0 && " - "}
+                                                  </>
                                                 ))}
                                               </td>
                                             </tr>
@@ -306,7 +309,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                                                             category ===
                                                               "Change" &&
                                                             dateIndex !== 0 &&
-                                                            "text-green-400"
+                                                            "text-green-400 font-semibold"
                                                           } `}
                                                         >
                                                           {category ===
