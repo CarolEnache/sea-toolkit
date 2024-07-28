@@ -145,117 +145,119 @@ export default function GenerateReport() {
             !isReportDetailPage && "md:max-w-2xl"
           }  `}
         >
-          <h2 className="text-2xl font-bold  text-gray-700 px-4">
-            Generate report
-          </h2>
+          <div className="flex flex-col gap-10">
+            <h2 className="text-2xl font-bold  text-gray-700 px-4">
+              Generate report
+            </h2>
 
-          <div className="max-h-full customScrollbar overflow-y-auto px-4">
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold  mb-1">
-                Region
-              </label>
+            <div className="max-h-full customScrollbar overflow-y-auto px-4">
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold  mb-1">
+                  Region
+                </label>
 
-              {!regions.length ? (
-                <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
-              ) : (
-                <select name="region" className="selectForm">
-                  {regions.map((region) => (
-                    <option key={region}>{region}</option>
-                  ))}
-                </select>
-              )}
+                {!regions.length ? (
+                  <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
+                ) : (
+                  <select name="region" className="selectForm">
+                    {regions.map((region) => (
+                      <option key={region}>{region}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold  mb-1">
+                  Product
+                </label>
+
+                {!products.length ? (
+                  <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
+                ) : (
+                  <select name="product" className="selectForm">
+                    {products.map((product) => (
+                      <option key={product}>{product}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <fieldset className="mb-4">
+                <legend className="text-gray-700 font-semibold">
+                  Value Chain Stage
+                </legend>
+
+                {valuesChainStage.map((stage) => (
+                  <div key={stage} className="flex items-center mt-2">
+                    <Checkbox
+                      color="secondary"
+                      name={stage}
+                      size="sm"
+                      key={stage}
+                      defaultSelected
+                    >
+                      <p className="text-gray-700 capitalize text-base">
+                        {stage}
+                      </p>
+                    </Checkbox>
+                  </div>
+                ))}
+              </fieldset>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold  mb-1">
+                  First Use Mode
+                </label>
+
+                {!firstUseModes.length ? (
+                  <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
+                ) : (
+                  <select name="firstUseMode" className="selectForm">
+                    {firstUseModes.map((mode) => (
+                      <option key={mode}>{mode}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <fieldset className="mb-4">
+                <legend className="text-gray-700 font-semibold">Effect</legend>
+
+                {["input", "valueAdded"].map((stage) => (
+                  <div key={stage} className="flex items-center mt-2">
+                    <Checkbox
+                      color="secondary"
+                      name={stage}
+                      size="sm"
+                      key={stage}
+                      defaultSelected
+                    >
+                      <p className="text-gray-700 capitalize text-base">
+                        {stage}
+                      </p>
+                    </Checkbox>
+                  </div>
+                ))}
+              </fieldset>
+
+              <fieldset className="mb-4">
+                <legend className="text-gray-700 font-semibold">Effect</legend>
+                {economicFactors.map((stage) => (
+                  <div key={stage} className="flex items-center mt-2">
+                    <Checkbox
+                      color="secondary"
+                      name={stage}
+                      size="sm"
+                      key={stage}
+                      defaultSelected
+                    >
+                      <p className="text-gray-700 capitalize text-base">
+                        {stage}
+                      </p>
+                    </Checkbox>
+                  </div>
+                ))}
+              </fieldset>
             </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold  mb-1">
-                Product
-              </label>
-
-              {!products.length ? (
-                <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
-              ) : (
-                <select name="product" className="selectForm">
-                  {products.map((product) => (
-                    <option key={product}>{product}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <fieldset className="mb-4">
-              <legend className="text-gray-700 font-semibold">
-                Value Chain Stage
-              </legend>
-
-              {valuesChainStage.map((stage) => (
-                <div key={stage} className="flex items-center mt-2">
-                  <Checkbox
-                    color="secondary"
-                    name={stage}
-                    size="sm"
-                    key={stage}
-                    defaultSelected
-                  >
-                    <p className="text-gray-700 capitalize text-base">
-                      {stage}
-                    </p>
-                  </Checkbox>
-                </div>
-              ))}
-            </fieldset>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold  mb-1">
-                First Use Mode
-              </label>
-
-              {!firstUseModes.length ? (
-                <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
-              ) : (
-                <select name="firstUseMode" className="selectForm">
-                  {firstUseModes.map((mode) => (
-                    <option key={mode}>{mode}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <fieldset className="mb-4">
-              <legend className="text-gray-700 font-semibold">Effect</legend>
-
-              {["input", "valueAdded"].map((stage) => (
-                <div key={stage} className="flex items-center mt-2">
-                  <Checkbox
-                    color="secondary"
-                    name={stage}
-                    size="sm"
-                    key={stage}
-                    defaultSelected
-                  >
-                    <p className="text-gray-700 capitalize text-base">
-                      {stage}
-                    </p>
-                  </Checkbox>
-                </div>
-              ))}
-            </fieldset>
-
-            <fieldset className="mb-4">
-              <legend className="text-gray-700 font-semibold">Effect</legend>
-              {economicFactors.map((stage) => (
-                <div key={stage} className="flex items-center mt-2">
-                  <Checkbox
-                    color="secondary"
-                    name={stage}
-                    size="sm"
-                    key={stage}
-                    defaultSelected
-                  >
-                    <p className="text-gray-700 capitalize text-base">
-                      {stage}
-                    </p>
-                  </Checkbox>
-                </div>
-              ))}
-            </fieldset>
           </div>
           <div className="px-4">
             <SubmitButton />
