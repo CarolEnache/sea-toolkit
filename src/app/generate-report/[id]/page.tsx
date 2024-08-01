@@ -68,7 +68,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
         setEconomicParametersKey(extractedKeys);
         setSelectedRegion(firstReport.Region);
         setReports(res);
-
+        console.log(filteredFirstReport);
         // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
         const economicFactors = Object.entries(
           filteredFirstReport[0][1]
@@ -279,15 +279,12 @@ const ReportData = ({ params }: { params: { id: string } }) => {
                                             <tr>
                                               <td className="border px-4 py-2 flex">
                                                 {dates.map((date, i) => (
-                                                  <>
-                                                    <span
-                                                      key={date}
-                                                      className="w-1/2 underline text-center font-semibold"
-                                                    >
+                                                  <React.Fragment key={date}>
+                                                    <span className="w-1/2 underline text-center font-semibold">
                                                       {date}
                                                     </span>{" "}
                                                     {i === 0 && " - "}
-                                                  </>
+                                                  </React.Fragment>
                                                 ))}
                                               </td>
                                             </tr>
