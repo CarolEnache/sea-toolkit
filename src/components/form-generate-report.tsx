@@ -92,7 +92,7 @@ type UseActionState<State, ReturnState> = (
 export default function GenerateReport() {
   const router = useRouter();
   // NEED TO FIX THE TYPES
-  const [formState, formAction] = (useFormState as UseActionState<FormDataType, ReportData>)(formServerAction, initialState);
+  const [formState, formAction] = (useFormState as any as UseActionState<FormDataType, ReportData>)(formServerAction, initialState);
 
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);
