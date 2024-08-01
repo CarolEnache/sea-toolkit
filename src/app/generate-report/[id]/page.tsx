@@ -12,6 +12,7 @@ import React, {
 import {
   EconomicFactorsValuesEnum,
   EconomicParameterValuesEnum,
+  FactorsByStageReport,
   ForecastingGroup,
   ForecastingGroupKey,
   ManufacturingValuesEnum,
@@ -59,8 +60,7 @@ const ReportData = ({ params }: { params: { id: string } }) => {
         const firstReport = res[0];
         const filteredFirstReport = Object.entries(firstReport).filter(
           ([key, value]) => key !== "Region"
-        ) as [EconomicParameterValuesEnum, RegionalReport["Employment"]][];
-
+        ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
         const extractedKeys = filteredFirstReport.map(
           ([key, _]) => key
         ) as EconomicParameterValuesEnum[];
@@ -68,20 +68,20 @@ const ReportData = ({ params }: { params: { id: string } }) => {
         setEconomicParametersKey(extractedKeys);
         setSelectedRegion(firstReport.Region);
         setReports(res);
-        console.log(filteredFirstReport);
+
         // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
-        const economicFactors = Object.entries(
+        const economicFactors = Object.values(
           filteredFirstReport[0][1]
-        )[0][1] as unknown as RegionalReport["Employment"];
-
-        const manufacturingStages = Object.entries(
+        )[0] as RegionalReport["Employment"]["BASE"];
+        const manufacturingStages = Object.values(
           economicFactors
-        )[0][1] as RegionalReport["Employment"]["BASE"];
-
-        const data = Object.entries(
+        )[0] as RegionalReport["Employment"]["BASE"]["Change"];
+        const data = Object.values(
           manufacturingStages
-        )[0][1] as RegionalReport["Employment"]["BASE"]["Change"];
+        )[0] as RegionalReport["Employment"]["BASE"]["Change"]["Direct Applications"];
+
         const dates = Object.keys(data) as YearRangeString[];
+
         setDates(dates);
 
         const manufacturingStageValuesEnum = Object.keys(
