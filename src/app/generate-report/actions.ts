@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { FormDataType } from "@/components/form-generate-report";
 
-type ReportData = {
+export type ReportData = {
   reportId: string | null;
   message?: string;
 };
@@ -30,7 +30,6 @@ export async function getDataFormFromServer() {
 }
 
 export async function formServerAction(
-  prevState: FormDataType,
   formData: FormDataType
 ): Promise<ReportData> {
   const schema = z.object({
@@ -65,32 +64,10 @@ export async function formServerAction(
       .optional(),
   });
 
-  const formattedData = {
-    region: formData.get("region"),
-    product: formData.get("product"),
-    valueChainStage: {
-      mining: formData.get("mining") === "",
-      refining: formData.get("refining") === "",
-      firstUse: formData.get("firstUse") === "",
-      endUse: formData.get("endUse") === "",
-      recycling: formData.get("recycling") === "",
-    },
-    firstUseMode: formData.get("firstUseMode"),
-    contribution: {
-      input: formData.get("input") === "",
-      valueAdded: formData.get("valueAdded") === "",
-    },
-    effect: {
-      directEffect: formData.get("directEffect") === "",
-      firstRound: formData.get("firstRound") === "",
-      industrialSupport: formData.get("industrialSupport") === "",
-      incomeEffect: formData.get("incomeEffect") === "",
-    },
-  };
-  const parse = schema.safeParse(formattedData);
+  const parse = schema.safeParse(formData);
 
   if (!parse.success) {
-    return { report: null, message: "Failed to submit the form" };
+    return { reportId: null, message: "Failed to submit the form" };
   }
 
   const data = parse.data;

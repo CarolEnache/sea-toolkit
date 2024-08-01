@@ -12,7 +12,7 @@ import { EconomicParameters, ForecastingGroup, EconomicFactors, ManufacturingSta
 import { generateRegionalData } from './report-data';
 import { FormulaComputer } from "./utils/FormulaComputer";
 import { PromiseMap } from "./utils/PromiseMap";
-import { type Region, oecdService } from "../services";
+import { oecdService } from "../services";
 
 export const generateFactorsByStage = async (
   formData: FormData,
@@ -80,7 +80,7 @@ export const generateFactorsByStage = async (
 export const generateReport = async (formData: FormData): Promise<Report> => {
   const regions = await oecdService.getRegions(formData.source.industryMatrix[0].id);
 
-  const getRegionalData = async (region: Region) => {
+  const getRegionalData = async (region: oecdService.Region) => {
     const regionalData = await generateRegionalData(region);
 
     const result = await PromiseMap<RegionalReport, EconomicParameters, string | FactorsByStageReport>({

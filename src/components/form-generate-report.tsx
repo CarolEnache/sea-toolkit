@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
 import {
+  type ReportData,
   formServerAction,
   getDataFormFromServer,
 } from "@/app/generate-report/actions";
@@ -82,10 +83,16 @@ export const initialState: FormDataType = {
   },
 };
 
+type UseActionState<State, ReturnState> = (
+  action: (state: Awaited<State>) => Promise<ReturnState>,
+  initialState: Awaited<State>,
+  permalink?: string,
+) => [state: Awaited<ReturnState>, dispatch: () => void];
+
 export default function GenerateReport() {
   const router = useRouter();
   // NEED TO FIX THE TYPES
-  const [formState, formAction] = useFormState(formServerAction, initialState);
+  const [formState, formAction] = (useFormState as UseActionState<FormDataType, ReportData>)(formServerAction, initialState);
 
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);

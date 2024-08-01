@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node ./tools/js/update-server-types.js",
+    "prebuild": "node ./tools/js/update-server-types.js && ./tools/sh/prebuild.sh",
     "build": "next build",
+    "postbuild": "./tools/sh/postbuild.sh",
     "start": "next start",
     "lint": "next lint"
   },

@@ -74,8 +74,8 @@ export async function getIndustries() {
 
     // Manual link found
     if (linkDef) {
-      oecdDef = CodeMatcher.oecd.find(b => `${linkDef.OECD}` === `${b.oecd}`);
-      isicDef = CodeMatcher.isic.find(b => `${linkDef.ISIC}` === `${b.isic}`);
+      oecdDef = CodeMatcher.oecd.find(b => `${linkDef?.OECD}` === `${b.oecd}`);
+      isicDef = CodeMatcher.isic.find(b => `${linkDef?.ISIC}` === `${b.isic}`);
     }
 
     // Then for the generic
