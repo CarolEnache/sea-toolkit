@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "app/**/*": {
+      "maxDuration": 60
+    },
+    "generate-report": {
+      "maxDuration": 60
+    }
+  }
+}

@@ -13,6 +13,8 @@ import { Checkbox } from "@nextui-org/react";
 import { Region } from "@/server/services/ts/oecd";
 import { Product } from "@/server/services/ts/msr";
 
+export const maxDuration = 60;
+
 export type FormDataType = {
   region: "Europe" | "North America" | "Global"; // ...and more | default: Global
   product: "All products" | "Fine powder"; // ...and more | default: All products
