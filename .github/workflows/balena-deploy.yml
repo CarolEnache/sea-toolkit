@@ -1,0 +1,18 @@
+on:
+  pull_request:
+     types: [closed]
+     branches:
+       - main
+
+jobs:
+  balena_deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: balena-io/deploy-to-balena-action@master
+      id: build
+      with:
+        balena_token: ${{ secrets.BALENA_TOKEN }}
+        fleet: g_weareour_tech/genericaarch64
+    - name: Log release ID built
+      run: echo "Built release ID ${{ steps.build.outputs.release_id }}"
