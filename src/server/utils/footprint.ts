@@ -1,4 +1,4 @@
-import { type Unido, unidoService } from "@/server/services";
+import { unidoService } from "@/server/services";
 import { COBALT_HARDCODED_MODEL, FORM_DATA } from "../constants";
 import { REGIONS } from "./auxiliary";
 import { msr } from "./msr";
@@ -9,7 +9,7 @@ export const getOECDData = () => {
   return footprint;
 };
 
-const gapFillingKey = (current: Unido) =>
+const gapFillingKey = (current: unidoService.Unido) =>
   `${current["Table Description"]}-${current.Region}-${current.ISIC}`;
 
 /*
@@ -19,7 +19,7 @@ original: [8866, 9116, 9526, 9598, 10102, 10506, 9832, 0, 0, 0, 0, 0, 0, 264, 26
 filled: [8866, 9116, 9526, 9598, 10102, 10506, 9832, 9832, 9832, 9832, 9832, 9832, 9832, 264, 267, 261]
 We can see that a trend between 9832 and 264 would be a better predictor than keeping the same value.
 */
-const gapFilling = (unidoArray: Unido[]) => {
+const gapFilling = (unidoArray: unidoService.Unido[]) => {
   let lastKnownValue: Record<string, number> = {};
 
   return unidoArray.map((current) => {
@@ -45,7 +45,7 @@ export const getUnidoData: getUnidoDataFn = async ({
   selectedEconomyUnidoStart = FORM_DATA.selectedEconomyUnidoStart,
   selectedEconomyUnidoEnd = FORM_DATA.selectedEconomyUnidoEnd,
 } = {}) => {
-  const unidoData = await unidoService.getUnido();
+  const unidoData = await unidoService.getUnido('unido.wiebe_2008-2015');
   const numberOfYears = selectedEconomyUnidoEnd - selectedEconomyUnidoStart + 1;
 
   return COBALT_HARDCODED_MODEL.flatMap((curr) => {
@@ -77,7 +77,7 @@ export const getUnidoData: getUnidoDataFn = async ({
         }
 
         return acc;
-      }, {} as Record<string, Unido>);
+      }, {} as Record<string, unidoService.Unido>);
 
     // x['Value Added'] = x['Value Added'].map(b => {b.Value =b.Value / x['Output'].find(wher is equal b).Value); return b; })
 

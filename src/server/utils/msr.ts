@@ -41,7 +41,7 @@ const getEndUseDistribution = () => {
     Products.add(ceva.Product);
     ConsumerApplications.add(ceva.Application);
     // All the applications
-    commodityApplications.forEach((commodityApplication) => {
+    (commodityApplications as string[]).forEach((commodityApplication) => {
       const key = toAccumulatorKey(
         ceva.Application,
         ceva.Year,
@@ -49,6 +49,7 @@ const getEndUseDistribution = () => {
       );
       accumulator[key] = accumulator[key] || 0;
       const value =
+      /* @ts-ignore-next-line */
         Number(row[CoEndUseDistributionTitles[commodityApplication]]) || 0;
       accumulator[key] += value;
     });
@@ -79,6 +80,7 @@ const getEndUseDistribution = () => {
         const total = totalByApplicationsAndYear[totalKey];
 
         const value =
+        /* @ts-ignore-next-line */
           Number(row[CoEndUseDistributionTitles[commodityApplication]]) || 0;
         accumulator[key] = accumulator[key] || ceva;
         const normalisedValue = value / total;
@@ -134,10 +136,11 @@ const getFirstUseDistribution = () => {
     };
     Products.add(ceva.Product);
     // All the applications
-    consumerApplications.forEach((consumerApplication) => {
+    (consumerApplications as string[]).forEach((consumerApplication) => {
       const key = toAccumulatorKey(ceva.Year, consumerApplication);
       accumulator[key] = accumulator[key] || 0;
       const value =
+      /* @ts-ignore-next-line */
         Number(row[CoFirstUseDistributionTitles[consumerApplication]]) || 0;
       accumulator[key] += value;
     });
@@ -160,6 +163,7 @@ const getFirstUseDistribution = () => {
         const total = totalByApplicationsAndYear[totalKey];
 
         const value =
+        /* @ts-ignore-next-line */
           Number(row[CoFirstUseDistributionTitles[consumerApplication]]) || 0;
         accumulator[key] = accumulator[key] || ceva;
         const normalisedValue = value / total;

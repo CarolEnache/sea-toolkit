@@ -1,4 +1,4 @@
-import { type Product, type Region } from "@/server/services";
+import { type msrService, type oecdService } from "@/server/services";
 
 export type ComoditiesListType = {
   commodityList: string[] | null;
@@ -6,10 +6,10 @@ export type ComoditiesListType = {
   message: string | null;
 };
 export type RegionsListType = {
-  regionList: Region[] | null;
+  regionList: oecdService.Region[] | null;
   message: string | null;
 };
 export type ProductsListType = {
-  productsList: Product[] | null;
+  productsList: msrService.Product[] | null;
   message: string | null;
 };

@@ -4,7 +4,6 @@ import {
   JSXElementConstructor,
   ReactNode,
   ReactPortal,
-  PromiseLikeOfReactNode,
   Key,
 } from "react";
 
@@ -47,7 +46,6 @@ export default function PageSection({
               | ReactElement<any, string | JSXElementConstructor<any>>
               | Iterable<ReactNode>
               | ReactPortal
-              | PromiseLikeOfReactNode
               | null
               | undefined;
           },
