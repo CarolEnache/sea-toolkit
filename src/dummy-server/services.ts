@@ -23,6 +23,7 @@ export const oecdService: typeof OecdService = {
       {Region:"Africa"},{Region:"Asia, ex-China"},{Region:"North America"},
       {Region:"Oceania"},{Region:"Europe"}];
   },
+  //@ts-ignore 
   async getEmployment() { return {}; },
   async getIndustries() { return [{}]; },
   async getIndustryData() { return []; },
