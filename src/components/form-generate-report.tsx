@@ -90,6 +90,7 @@ export default function GenerateReport() {
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);
   const [showMenu, setShowMenu] = useState(false);
+  const [heigtFormInputs, setHeightFormInputs] = useState(0);
   const isReportDetailPage = usePathname().includes("generate-report/");
   const formRef = useRef(null);
 
@@ -98,6 +99,13 @@ export default function GenerateReport() {
     const handleResize = () => {
       if (window.innerWidth > mdScreen) {
         setShowMenu(false);
+      }
+
+      if (window.innerHeight) {
+        let pourcent = 79;
+        if (window.innerHeight < 740) pourcent = 60;
+
+        setHeightFormInputs((window.innerHeight * pourcent) / 100);
       }
     };
 
@@ -130,10 +138,10 @@ export default function GenerateReport() {
   return (
     <>
       <div
-        className={`md:min-h-screen flex justify-center items-center bg-white ${
+        className={`md:max-h-screen flex justify-center items-center sticky top-0 bg-white ${
           isReportDetailPage
             ? `md:w-[250px] lg:w-[300px] xl:w-[350px] min-w-[250px] w-auto md:block ${
-                showMenu ? "fixed top-0 left-0 w-full h-full z-30 " : "hidden"
+                showMenu ? "fixed top-0 left-0 w-full h-screen z-30 " : "hidden"
               } `
             : "w-screen min-w-screen"
         }  `}
@@ -141,16 +149,21 @@ export default function GenerateReport() {
         <form
           ref={formRef}
           action={formAction}
-          className={`flex flex-col justify-between gap-8 py-6   h-screen  shadow-lg  sticky top-0 w-full ${
+          className={`flex flex-col justify-between gap-8 py-6   h-full   shadow-lg   w-full ${
             !isReportDetailPage && "md:max-w-2xl"
           }  `}
         >
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-10 ">
             <h2 className="text-2xl font-bold  text-gray-700 px-4">
               Generate report
             </h2>
 
-            <div className="max-h-full customScrollbar overflow-y-auto px-4">
+            <div
+              style={{
+                height: `${heigtFormInputs}px`,
+              }}
+              className="customScrollbar overflow-y-auto px-4"
+            >
               <div className="mb-4">
                 <label className="block text-gray-700 font-semibold  mb-1">
                   Region
