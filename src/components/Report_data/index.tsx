@@ -19,7 +19,8 @@ import {
   RegionalReport,
   YearRangeString,
 } from "@/server/holistic-approach/report.types";
-import { getReportDataAction } from "../actions";
+import { getReportDataAction } from "./actions";
+import { useGenerateReportContext } from "../../app/Context/GenerateReportContext";
 
 export type HandleToggleDataArrayProps<T> = (
   value: T,
@@ -34,8 +35,8 @@ const chartColors: { [key in keyof typeof ForecastingGroup]: string } = {
 
 const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
 
-const ReportData = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const ReportData = () => {
+  const { reportId } = useGenerateReportContext();
   const [indexChartFullScreen, setIndexChartFullScreen] = useState<
     null | number
   >(null);
@@ -53,45 +54,47 @@ const ReportData = ({ params }: { params: { id: string } }) => {
   >([]);
 
   useEffect(() => {
-    const updateReportData = async () => {
-      startLoading(async () => {
-        const res = await getReportDataAction(id);
+    if (reportId) {
+      const updateReportData = async () => {
+        startLoading(async () => {
+          const res = await getReportDataAction(reportId);
 
-        const firstReport = res[0];
-        const filteredFirstReport = Object.entries(firstReport).filter(
-          ([key, value]) => key !== "Region"
-        ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
-        const extractedKeys = filteredFirstReport.map(
-          ([key, _]) => key
-        ) as EconomicParameterValuesEnum[];
+          const firstReport = res[0];
+          const filteredFirstReport = Object.entries(firstReport).filter(
+            ([key, value]) => key !== "Region"
+          ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
+          const extractedKeys = filteredFirstReport.map(
+            ([key, _]) => key
+          ) as EconomicParameterValuesEnum[];
 
-        setEconomicParametersKey(extractedKeys);
-        setSelectedRegion(firstReport.Region);
-        setReports(res);
+          setEconomicParametersKey(extractedKeys);
+          setSelectedRegion(firstReport.Region);
+          setReports(res);
 
-        // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
-        const economicFactors = Object.values(
-          filteredFirstReport[0][1]
-        )[0] as RegionalReport["Employment"]["BASE"];
-        const manufacturingStages = Object.values(
-          economicFactors
-        )[0] as RegionalReport["Employment"]["BASE"]["Change"];
-        const data = Object.values(
-          manufacturingStages
-        )[0] as RegionalReport["Employment"]["BASE"]["Change"]["Direct Applications"];
+          // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
+          const economicFactors = Object.values(
+            filteredFirstReport[0][1]
+          )[0] as RegionalReport["Employment"]["BASE"];
+          const manufacturingStages = Object.values(
+            economicFactors
+          )[0] as RegionalReport["Employment"]["BASE"]["Change"];
+          const data = Object.values(
+            manufacturingStages
+          )[0] as RegionalReport["Employment"]["BASE"]["Change"]["Direct Applications"];
 
-        const dates = Object.keys(data) as YearRangeString[];
+          const dates = Object.keys(data) as YearRangeString[];
 
-        setDates(dates);
+          setDates(dates);
 
-        const manufacturingStageValuesEnum = Object.keys(
-          manufacturingStages
-        ) as ManufacturingValuesEnum[];
-        setManufacturingStagesKey(manufacturingStageValuesEnum);
-      });
-    };
-    updateReportData();
-  }, [id]);
+          const manufacturingStageValuesEnum = Object.keys(
+            manufacturingStages
+          ) as ManufacturingValuesEnum[];
+          setManufacturingStagesKey(manufacturingStageValuesEnum);
+        });
+      };
+      updateReportData();
+    }
+  }, [reportId]);
 
   const handleToggleDataArray: HandleToggleDataArrayProps<any> = (
     value,
@@ -123,10 +126,10 @@ const ReportData = ({ params }: { params: { id: string } }) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen ">
+      <div className="flex items-center justify-center h-screen w-full ">
         <div className="relative">
-          <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
-          <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-primary animate-spin"></div>
+          <div className="h-28 w-28 rounded-full border-t-8 border-b-8 border-gray-200"></div>
+          <div className="absolute top-0 left-0 h-28 w-28 rounded-full border-t-8 border-b-8 border-primary animate-spin"></div>
         </div>
       </div>
     );

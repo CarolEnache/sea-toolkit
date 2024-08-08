@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useRouter, usePathname } from "next/navigation";
 
 import { FormEvent, useEffect, useState } from "react";
 import {
@@ -11,7 +10,7 @@ import {
 import { Checkbox } from "@nextui-org/react";
 import { Region } from "@/server/services/ts/oecd";
 import { Product } from "@/server/services/ts/msr";
-import { boolean } from "zod";
+import { useGenerateReportContext } from "../../app/Context/GenerateReportContext";
 
 export const maxDuration = 60;
 
@@ -86,12 +85,11 @@ export const initialState: FormDataType = {
 };
 
 export default function GenerateReport() {
+  const { reportId, setReportId } = useGenerateReportContext();
   const [regions, setRegions] = useState<Region["Region"][]>([]);
   const [products, setProducts] = useState<Product["Product"][]>([]);
   const [showMenu, setShowMenu] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const isReportDetailPage = usePathname().includes("generate-report/");
-  const router = useRouter();
 
   const handleFormData = async () => {
     const res = await getDataFormFromServer();
@@ -106,7 +104,7 @@ export default function GenerateReport() {
     if (reportId) {
       if (errorMessage) setErrorMessage("");
       if (showMenu) setShowMenu(false);
-      router.push(`/generate-report/${reportId}`);
+      setReportId(reportId);
     } else {
       setErrorMessage(message);
     }
@@ -126,6 +124,7 @@ export default function GenerateReport() {
 
     return () => {
       window?.removeEventListener("resize", handleResize);
+      window.localStorage.removeItem("reportId");
     };
   }, []);
 
@@ -133,7 +132,7 @@ export default function GenerateReport() {
     <>
       <div
         className={`md:max-h-screen min-h-screen flex justify-center items-center sticky top-0 bg-tertiary/50 ${
-          isReportDetailPage
+          reportId
             ? `md:w-[250px] lg:w-[300px] xl:w-[350px] min-w-[250px] w-auto md:block ${
                 showMenu ? "fixed top-0 left-0 w-full h-screen z-30 " : "hidden"
               } `
@@ -143,7 +142,7 @@ export default function GenerateReport() {
         <form
           onSubmit={handleSubmit}
           className={`flex flex-col justify-between gap-6 py-6   h-full bg-white  shadow-lg   w-full ${
-            !isReportDetailPage && "md:max-w-2xl"
+            !reportId && "md:max-w-2xl"
           }  `}
         >
           <h2 className="text-2xl font-bold  text-gray-700 px-4">
@@ -271,9 +270,7 @@ export default function GenerateReport() {
       {/* mobile toggle button show menu */}
       <button
         className={`${
-          isReportDetailPage
-            ? "fixed top-8 right-8 md:hidden block z-50 "
-            : "hidden"
+          reportId ? "fixed top-8 right-8 md:hidden block z-50 " : "hidden"
         }`}
         onClick={() => setShowMenu(!showMenu)}
       >
