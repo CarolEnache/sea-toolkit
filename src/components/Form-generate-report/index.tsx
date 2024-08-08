@@ -146,13 +146,13 @@ export default function GenerateReport() {
             !isReportDetailPage && "md:max-w-2xl"
           }  `}
         >
-          <h2 className="text-2xl font-bold  text-gray-700 px-4 ">
+          <h2 className="text-2xl font-bold  text-gray-700 px-4">
             Generate report
           </h2>
 
           <div className="customScrollbar overflow-y-auto px-4">
-            <div className="mb-2">
-              <label className="block text-gray-700 font-semibold  mb-1">
+            <div className="mb-2.5">
+              <label className="block text-gray-700 font-semibold mb-1">
                 Region
               </label>
 
@@ -166,8 +166,8 @@ export default function GenerateReport() {
                 </select>
               )}
             </div>
-            <div className="mb-2">
-              <label className="block text-gray-700 font-semibold  mb-1">
+            <div className="mb-2.5">
+              <label className="block text-gray-700 font-semibold mb-1">
                 Product
               </label>
 
@@ -182,7 +182,7 @@ export default function GenerateReport() {
               )}
             </div>
 
-            <fieldset className="mb-2">
+            <fieldset className="mb-2.5">
               <legend className="text-gray-700 font-semibold">
                 Value Chain Stage
               </legend>
@@ -203,8 +203,8 @@ export default function GenerateReport() {
                 </div>
               ))}
             </fieldset>
-            <div className="mb-2">
-              <label className="block text-gray-700 font-semibold  mb-1">
+            <div className="mb-2.5">
+              <label className="block text-gray-700 font-semibold mb-1">
                 First Use Mode
               </label>
 
@@ -219,7 +219,7 @@ export default function GenerateReport() {
               )}
             </div>
 
-            <fieldset className="mb-2">
+            <fieldset className="mb-2.5">
               <legend className="text-gray-700 font-semibold">Effect</legend>
 
               {["input", "valueAdded"].map((stage) => (
@@ -239,7 +239,7 @@ export default function GenerateReport() {
               ))}
             </fieldset>
 
-            <fieldset className="mb-2">
+            <fieldset className="mb-2.5">
               <legend className="text-gray-700 font-semibold">Effect</legend>
               {economicFactors.map((stage) => (
                 <div key={stage} className="flex items-center mt-1">
