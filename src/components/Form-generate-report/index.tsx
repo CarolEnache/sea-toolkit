@@ -132,12 +132,12 @@ export default function GenerateReport() {
   return (
     <>
       <div
-        className={`md:max-h-screen flex justify-center items-center sticky top-0 bg-tertiary/50 ${
+        className={`md:max-h-screen min-h-screen flex justify-center items-center sticky top-0 bg-tertiary/50 ${
           isReportDetailPage
             ? `md:w-[250px] lg:w-[300px] xl:w-[350px] min-w-[250px] w-auto md:block ${
                 showMenu ? "fixed top-0 left-0 w-full h-screen z-30 " : "hidden"
               } `
-            : "w-screen min-w-screen"
+            : "w-screen min-w-screen h-screen"
         }  `}
       >
         <form
