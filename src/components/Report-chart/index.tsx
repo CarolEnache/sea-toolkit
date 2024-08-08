@@ -1,7 +1,7 @@
 // components/MyChart.js
 import React, { useEffect, useRef, useState } from "react";
-import Chart, { ChartDataset } from "chart.js/auto";
-import zoomPlugin from "chartjs-plugin-zoom";
+import Chart from "chart.js/auto";
+
 import { SlSizeFullscreen } from "react-icons/sl";
 import { SlSizeActual } from "react-icons/sl";
 import { HandleToggleDataArrayProps } from "@/app/generate-report/[id]/page";
@@ -16,8 +16,7 @@ import {
 } from "@/server/holistic-approach/report.types";
 
 import ChartDataLabels from "chartjs-plugin-datalabels";
-Chart.register(ChartDataLabels);
-Chart.register(zoomPlugin);
+
 type Change = { [key in keyof typeof ForecastingGroup]: number };
 type ChartProps = {
   report: RegionalReport;
@@ -170,6 +169,7 @@ const ReportChart = ({
           labels: [""],
           datasets: datasets,
         },
+        plugins: [ChartDataLabels],
         options: {
           plugins: {
             // datalabels: {
