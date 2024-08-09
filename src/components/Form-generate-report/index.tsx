@@ -1,16 +1,12 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-
 import { FormEvent, useEffect, useState } from "react";
-import {
-  formServerAction,
-  getDataFormFromServer,
-} from "@/app/generate-report/actions";
 import { Checkbox } from "@nextui-org/react";
 import { Region } from "@/server/services/ts/oecd";
 import { Product } from "@/server/services/ts/msr";
 import { useGenerateReportContext } from "../../app/Context/GenerateReportContext";
+import { formServerAction, getDataFormFromServer } from "./actions";
 
 export const maxDuration = 60;
 
