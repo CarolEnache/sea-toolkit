@@ -1,9 +1,10 @@
 "use client";
 
 import GenerateReport from "@/components/Form-generate-report";
-import { GenerateReportContextProvider } from "@/app/Context/GenerateReportContext";
+
 import React from "react";
 import ReportData from "@/components/Report_data";
+import { GenerateReportContextProvider } from "@/contexts/GenerateReport";
 
 function FormPage() {
   return (

@@ -20,12 +20,8 @@ import {
   YearRangeString,
 } from "@/server/holistic-approach/report.types";
 import { getReportDataAction } from "./actions";
-import { useGenerateReportContext } from "../../app/Context/GenerateReportContext";
-
-export type HandleToggleDataArrayProps<T> = (
-  value: T,
-  setState: Dispatch<SetStateAction<T[]>>
-) => void;
+import { useGenerateReportContext } from "@/contexts/GenerateReport";
+import { HandleToggleDataArrayProps } from "@/types/front/report";
 
 const chartColors: { [key in keyof typeof ForecastingGroup]: string } = {
   LOW: "#F1FAFF",

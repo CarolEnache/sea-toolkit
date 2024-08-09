@@ -5,50 +5,11 @@ import { FormEvent, useEffect, useState } from "react";
 import { Checkbox } from "@nextui-org/react";
 import { Region } from "@/server/services/ts/oecd";
 import { Product } from "@/server/services/ts/msr";
-import { useGenerateReportContext } from "../../app/Context/GenerateReportContext";
+
 import { formServerAction, getDataFormFromServer } from "./actions";
+import { FormDataType } from "@/types/front/report";
+import { useGenerateReportContext } from "@/contexts/GenerateReport";
 
-export const maxDuration = 60;
-
-export type FormDataType = {
-  region: "Europe" | "North America" | "Global"; // ...and more | default: Global
-  product: "All products" | "Fine powder"; // ...and more | default: All products
-  valueChainStage?: {
-    mining: boolean; // default: true
-    refining: boolean; // default: true
-    firstUse: boolean; // default: true
-    endUse: boolean; // default: true
-    recycling: boolean; // default: true
-  };
-  firstUseMode?:
-    | "ISIC sectorial analysis"
-    | "Representative Companies"
-    | "Average"; // default: ISIC sectorial analysis
-  contribution?: {
-    input: boolean; // default: true
-    valueAdded: boolean; // default: true
-  };
-  effect?: {
-    directEffect: boolean; // default: true
-    firstRound: boolean; // default: true
-    industrialSupport: boolean; // default: true
-    incomeEffect: boolean; // default: true
-  };
-};
-
-const economicFactors = [
-  "directEffect",
-  "firstRound",
-  "industrialSupport",
-  "incomeEffect",
-];
-const valuesChainStage = [
-  "mining",
-  "refining",
-  "firstUse",
-  "endUse",
-  "recycling",
-];
 const firstUseModes = [
   "ISIC sectorial analysis",
   "Representative Companies",
@@ -57,7 +18,7 @@ const firstUseModes = [
 
 const mdScreen = 768;
 
-export const initialState: FormDataType = {
+const initialState: FormDataType = {
   region: "Global",
   product: "All products",
   valueChainStage: {
@@ -154,7 +115,11 @@ export default function GenerateReport() {
               {!regions.length ? (
                 <div className="w-full animate-pulse bg-primary/5 border h-10 rounded-lg" />
               ) : (
-                <select name="region" className="selectForm">
+                <select
+                  defaultValue={initialState.region}
+                  name="region"
+                  className="selectForm"
+                >
                   {regions.map((region) => (
                     <option key={region}>{region}</option>
                   ))}
@@ -171,33 +136,39 @@ export default function GenerateReport() {
               ) : (
                 <select name="product" className="selectForm">
                   {products.map((product) => (
-                    <option key={product}>{product}</option>
+                    <option defaultValue={initialState.product} key={product}>
+                      {product}
+                    </option>
                   ))}
                 </select>
               )}
             </div>
 
-            <fieldset className="mb-2.5">
-              <legend className="text-gray-700 font-semibold">
-                Value Chain Stage
-              </legend>
+            {initialState.valueChainStage && (
+              <fieldset className="mb-2.5">
+                <legend className="text-gray-700 font-semibold">
+                  Value Chain Stage
+                </legend>
 
-              {valuesChainStage.map((stage) => (
-                <div key={stage} className="flex items-center mt-1">
-                  <Checkbox
-                    color="secondary"
-                    name={stage}
-                    size="sm"
-                    key={stage}
-                    defaultSelected
-                  >
-                    <p className="text-gray-700 capitalize text-base">
-                      {stage}
-                    </p>
-                  </Checkbox>
-                </div>
-              ))}
-            </fieldset>
+                {Object.entries(initialState.valueChainStage).map(
+                  ([key, value]) => (
+                    <div key={key} className="flex items-center mt-1">
+                      <Checkbox
+                        color="secondary"
+                        name={key}
+                        size="sm"
+                        key={key}
+                        defaultSelected={value}
+                      >
+                        <p className="text-gray-700 capitalize text-base">
+                          {key}
+                        </p>
+                      </Checkbox>
+                    </div>
+                  )
+                )}
+              </fieldset>
+            )}
             <div className="mb-2.5">
               <label className="block text-gray-700 font-semibold mb-1">
                 First Use Mode
@@ -213,45 +184,49 @@ export default function GenerateReport() {
                 </select>
               )}
             </div>
+            {initialState.contribution && (
+              <fieldset className="mb-2.5">
+                <legend className="text-gray-700 font-semibold">Effect</legend>
 
-            <fieldset className="mb-2.5">
-              <legend className="text-gray-700 font-semibold">Effect</legend>
-
-              {["input", "valueAdded"].map((stage) => (
-                <div key={stage} className="flex items-center mt-1">
-                  <Checkbox
-                    color="secondary"
-                    name={stage}
-                    size="sm"
-                    key={stage}
-                    defaultSelected
-                  >
-                    <p className="text-gray-700 capitalize text-base">
-                      {stage}
-                    </p>
-                  </Checkbox>
-                </div>
-              ))}
-            </fieldset>
-
-            <fieldset className="mb-2.5">
-              <legend className="text-gray-700 font-semibold">Effect</legend>
-              {economicFactors.map((stage) => (
-                <div key={stage} className="flex items-center mt-1">
-                  <Checkbox
-                    color="secondary"
-                    name={stage}
-                    size="sm"
-                    key={stage}
-                    defaultSelected
-                  >
-                    <p className="text-gray-700 capitalize text-base">
-                      {stage}
-                    </p>
-                  </Checkbox>
-                </div>
-              ))}
-            </fieldset>
+                {Object.entries(initialState.contribution).map(
+                  ([key, value]) => (
+                    <div key={key} className="flex items-center mt-1">
+                      <Checkbox
+                        color="secondary"
+                        name={key}
+                        size="sm"
+                        key={key}
+                        defaultSelected={value}
+                      >
+                        <p className="text-gray-700 capitalize text-base">
+                          {key}
+                        </p>
+                      </Checkbox>
+                    </div>
+                  )
+                )}
+              </fieldset>
+            )}
+            {initialState.effect && (
+              <fieldset className="mb-2.5">
+                <legend className="text-gray-700 font-semibold">Effect</legend>
+                {Object.entries(initialState.effect).map(([key, value]) => (
+                  <div key={key} className="flex items-center mt-1">
+                    <Checkbox
+                      color="secondary"
+                      name={key}
+                      size="sm"
+                      key={key}
+                      defaultSelected={value}
+                    >
+                      <p className="text-gray-700 capitalize text-base">
+                        {key}
+                      </p>
+                    </Checkbox>
+                  </div>
+                ))}
+              </fieldset>
+            )}
           </div>
 
           <div className="px-4">
@@ -270,37 +245,29 @@ export default function GenerateReport() {
         }`}
         onClick={() => setShowMenu(!showMenu)}
       >
-        {showMenu ? (
-          <svg
-            className="w-8 h-8 text-gray-800"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+        <svg
+          className="w-8 h-8 text-gray-800"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          {showMenu ? (
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
               d="M6 18L18 6M6 6l12 12"
             />
-          </svg>
-        ) : (
-          <svg
-            className="w-8 h-8 text-gray-800"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+          ) : (
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
               d="M4 6h16M4 12h16m-7 6h7"
             />
-          </svg>
-        )}
+          )}
+        </svg>
       </button>
     </>
   );

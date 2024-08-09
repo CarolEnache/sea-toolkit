@@ -4,36 +4,18 @@ import Chart from "chart.js/auto";
 
 import { SlSizeFullscreen } from "react-icons/sl";
 import { SlSizeActual } from "react-icons/sl";
-import { HandleToggleDataArrayProps } from "@/app/generate-report/[id]/page";
+
 import {
+  Change,
   EconomicFactors,
   EconomicFactorsValuesEnum,
-  EconomicParameterValuesEnum,
   ForecastingGroup,
   ForecastingGroupKey,
   ManufacturingStage,
-  RegionalReport,
 } from "@/server/holistic-approach/report.types";
 
 import ChartDataLabels from "chartjs-plugin-datalabels";
-
-type Change = { [key in keyof typeof ForecastingGroup]: number };
-type ChartProps = {
-  report: RegionalReport;
-  economicParamKey: EconomicParameterValuesEnum;
-  chartColors: {
-    HIGH: string;
-    BASE: string;
-    LOW: string;
-  };
-  keysForecastingGroup: ForecastingGroupKey[];
-  selectedForecastingGroup: ForecastingGroupKey[];
-  handleToggleDataArray: HandleToggleDataArrayProps<any>;
-  index: number;
-  setIndexChartFullScreen: (index: number | null) => void;
-  indexChartFullScreen: number | null;
-  dates: string[];
-};
+import { ChartProps } from "@/types/front/report";
 
 const ReportChart = ({
   report,

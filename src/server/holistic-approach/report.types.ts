@@ -76,3 +76,6 @@ export interface RegionalReport {
   [EconomicParameters.valueAddition]: FactorsByStageReport;
 }
 export type Report = RegionalReport[];
+
+
+export type Change = { [key in keyof typeof ForecastingGroup]: number };
