@@ -2,8 +2,8 @@
 
 import GenerateReport from "@/components/Form-generate-report";
 import { GenerateReportContextProvider } from "@/app/Context/GenerateReportContext";
-import ReportData from "@/components/Report_data";
 import React from "react";
+import ReportData from "@/components/Report_data";
 
 function FormPage() {
   return (

@@ -35,8 +35,7 @@ const chartColors: { [key in keyof typeof ForecastingGroup]: string } = {
 
 const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
 
-const ReportData = () => {
-  const { reportId } = useGenerateReportContext();
+function ReportData({ reportId }: { reportId: string }) {
   const [indexChartFullScreen, setIndexChartFullScreen] = useState<
     null | number
   >(null);
@@ -54,46 +53,44 @@ const ReportData = () => {
   >([]);
 
   useEffect(() => {
-    if (reportId) {
-      const updateReportData = async () => {
-        startLoading(async () => {
-          const res = await getReportDataAction(reportId);
+    const updateReportData = async () => {
+      startLoading(async () => {
+        const res = await getReportDataAction(reportId);
 
-          const firstReport = res[0];
-          const filteredFirstReport = Object.entries(firstReport).filter(
-            ([key, value]) => key !== "Region"
-          ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
-          const extractedKeys = filteredFirstReport.map(
-            ([key, _]) => key
-          ) as EconomicParameterValuesEnum[];
+        const firstReport = res[0];
+        const filteredFirstReport = Object.entries(firstReport).filter(
+          ([key, value]) => key !== "Region"
+        ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
+        const extractedKeys = filteredFirstReport.map(
+          ([key, _]) => key
+        ) as EconomicParameterValuesEnum[];
 
-          setEconomicParametersKey(extractedKeys);
-          setSelectedRegion(firstReport.Region);
-          setReports(res);
+        setEconomicParametersKey(extractedKeys);
+        setSelectedRegion(firstReport.Region);
+        setReports(res);
 
-          // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
-          const economicFactors = Object.values(
-            filteredFirstReport[0][1]
-          )[0] as RegionalReport["Employment"]["BASE"];
-          const manufacturingStages = Object.values(
-            economicFactors
-          )[0] as RegionalReport["Employment"]["BASE"]["Change"];
-          const data = Object.values(
-            manufacturingStages
-          )[0] as RegionalReport["Employment"]["BASE"]["Change"]["Direct Applications"];
+        // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
+        const economicFactors = Object.values(
+          filteredFirstReport[0][1]
+        )[0] as RegionalReport["Employment"]["BASE"];
+        const manufacturingStages = Object.values(
+          economicFactors
+        )[0] as RegionalReport["Employment"]["BASE"]["Change"];
+        const data = Object.values(
+          manufacturingStages
+        )[0] as RegionalReport["Employment"]["BASE"]["Change"]["Direct Applications"];
 
-          const dates = Object.keys(data) as YearRangeString[];
+        const dates = Object.keys(data) as YearRangeString[];
 
-          setDates(dates);
+        setDates(dates);
 
-          const manufacturingStageValuesEnum = Object.keys(
-            manufacturingStages
-          ) as ManufacturingValuesEnum[];
-          setManufacturingStagesKey(manufacturingStageValuesEnum);
-        });
-      };
-      updateReportData();
-    }
+        const manufacturingStageValuesEnum = Object.keys(
+          manufacturingStages
+        ) as ManufacturingValuesEnum[];
+        setManufacturingStagesKey(manufacturingStageValuesEnum);
+      });
+    };
+    updateReportData();
   }, [reportId]);
 
   const handleToggleDataArray: HandleToggleDataArrayProps<any> = (
@@ -352,6 +349,10 @@ const ReportData = () => {
       </div>
     </div>
   );
-};
+}
 
-export default ReportData;
+export default function ReportDataRender() {
+  const { reportId } = useGenerateReportContext();
+
+  if (reportId) return <ReportData reportId={reportId} />;
+}
