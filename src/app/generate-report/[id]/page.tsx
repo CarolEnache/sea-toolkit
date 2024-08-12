@@ -1,6 +1,6 @@
 "use client";
 
-import ReportChart from "@/components/reportChart";
+import ReportChart from "@/components/Report-chart";
 
 import React, {
   useState,

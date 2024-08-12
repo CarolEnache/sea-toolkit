@@ -4,11 +4,11 @@ import { msrService, oecdService, reportService } from "@/dummy-server/services"
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { FormDataType } from "@/components/form-generate-report";
+
 
 export type ReportData = {
   reportId: string | null;
-  message?: string;
+  message: string;
 };
 
 export async function getReportDataAction(id: string) {
@@ -29,7 +29,7 @@ export async function getDataFormFromServer() {
 }
 
 export async function formServerAction(
-  formData: FormDataType
+  formData: FormData
 ): Promise<ReportData> {
   const schema = z.object({
     region: z.enum(["Europe", "North America", "Global"]).default("Global"),
@@ -63,24 +63,30 @@ export async function formServerAction(
       .optional(),
   });
 
-  const parse = schema.safeParse(formData);
+  const resultParse = schema.safeParse(formData);
 
-  if (!parse.success) {
-    return { reportId: null, message: "Failed to submit the form" };
+  if (!resultParse.success) {
+    return { reportId: null, message: `Failed to submit the form ${resultParse.error}` };
   }
 
-  const data = parse.data;
+  const data = resultParse.data;
+
+  let error
   try {
     const reportId = await reportService.requestReport(data);
     revalidatePath("/");
     if (reportId)
       return {
         reportId,
-        message: "",
+        message: "success",
       };
-  } catch {}
+  } catch (err) {
+    error=err
+  }
+
   return {
     reportId: null,
-    message: "Failed to submit the form",
+    message: `Failed to submit the form ${error}`,
   };
+ 
 }

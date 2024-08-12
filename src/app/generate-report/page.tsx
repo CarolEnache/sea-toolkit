@@ -1,10 +1,10 @@
 "use client";
 
-import GenerateReport from "@/components/form-generate-report";
+import GenerateReport from "@/components/Form-generate-report";
 import React from "react";
 
-function page() {
-  return  <GenerateReport />;
+function FormPage() {
+  return <GenerateReport />;
 }
 
-export default page;
+export default FormPage;

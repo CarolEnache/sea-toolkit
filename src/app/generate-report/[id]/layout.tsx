@@ -1,6 +1,6 @@
 "use client";
 
-import GenerateReport from "@/components/form-generate-report";
+import GenerateReport from "@/components/Form-generate-report";
 
 export default function GenerateReportLayout({
   children,
