@@ -11,9 +11,6 @@ export type ReportData = {
   message: string;
 };
 
-export async function getReportDataAction(id: string) {
-  return reportService.generateReport(id);
-}
 
 export async function getDataFormFromServer() {
   const res = await Promise.all([

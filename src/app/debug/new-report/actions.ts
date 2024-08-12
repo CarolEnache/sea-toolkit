@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { reportService } from '@/server/services'
 import { runDbQuery } from '@/server/services/db';
 
-// type FormDataType = reportService.FormDataType;
+
 
 export const requestReport = async () => {
   await reportService.requestReport();
