@@ -2,7 +2,8 @@ import { runDbQuery } from "../db";
 import { generateReport as old_generateReport } from '../../holistic-approach/report-output';
 import { formData as mockedFormData } from '../../holistic-approach/hardcoded-mocks';
 import { type FormData } from '../../holistic-approach/io.types';
-import { FormDataType } from "@/types/report";
+import { FormDataType } from "@/types/front/report";
+// import { FormDataType } from "@/types/report";
 
 
 const LAST_YEAR = 2022; // TODO: This should be the last year available in the data from the supplier
