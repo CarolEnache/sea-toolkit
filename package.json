@@ -2,14 +2,11 @@
   "name": "sea-toolkit",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": ">=20"
-  },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node ./tools/js/update-server-types.js && ./tools/sh/prebuild.sh",
+    "dev:be": "cp -r ./docs/be-docs ./src/app/be-docs && yarn dev",
+    "prebuild": "node ./tools/js/update-server-types.js",
     "build": "next build",
-    "postbuild": "./tools/sh/postbuild.sh || true",
     "start": "next start",
     "lint": "next lint"
   },

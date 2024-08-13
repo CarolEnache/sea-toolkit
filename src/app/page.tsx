@@ -5,7 +5,7 @@ import Image from "next/image";
 import { NextUIProvider, Spacer } from "@nextui-org/react";
 // import Navbar from "@/components/Navbar";
 import PageSection from "@/components/section";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 
 const featuresList = [
   {

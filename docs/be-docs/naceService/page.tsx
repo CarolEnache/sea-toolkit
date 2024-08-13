@@ -1,4 +1,6 @@
-import '../debug.css';
+import React from 'react';
+
+import '../be-docs.css';
 import { Navigation } from '../page';
 
 import getLoaderData, { preload } from "./loader";

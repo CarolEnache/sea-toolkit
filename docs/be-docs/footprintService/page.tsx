@@ -1,9 +1,9 @@
-import { useState } from "react";
-import "../debug.css";
-import { Navigation } from "../page";
-import { deleteAnalystIndustries, setAnalystIndustries } from "./actions";
+import React, { useState } from 'react';
+import '../be-docs.css';
+import { Navigation } from '../page';
+import { deleteAnalystIndustries, setAnalystIndustries } from './actions';
 
-import getLoaderData, { preload } from "./loader";
+import getLoaderData, { preload } from './loader';
 
 export default async function DebugPage() {
   preload();

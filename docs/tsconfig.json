@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["../src/*"]
+    }
+  },
+  "include": ["./be-docs/**/*.ts", "./be-docs/**/*.tsx"],
+  "exclude": []
+}

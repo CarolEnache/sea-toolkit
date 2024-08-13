@@ -1,8 +1,10 @@
-import "../debug.css";
-import { Navigation } from "../page";
-import { requestReport, deleteReportRequest } from "./actions";
+import React from 'react';
 
-import getLoaderData from "./loader";
+import '../be-docs.css';
+import { Navigation } from '../page';
+import { requestReport, deleteReportRequest } from './actions';
+
+import getLoaderData from './loader';
 
 export default async function DebugPage() {
   // preload();
