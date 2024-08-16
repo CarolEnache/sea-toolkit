@@ -9,7 +9,7 @@ import { runDbQuery } from '@/server/services/db';
 export const requestReport = async () => {
   await reportService.requestReport();
 
-  redirect('/debug/new-report');
+  redirect('/be-docs/new-report');
   // return await footprintService.getAnalystIndustries();
 }
 
@@ -18,5 +18,5 @@ export const deleteReportRequest = async (formData: FormData) => {
 
   await runDbQuery('generic.del', 'report.requests', { where: { report_id } });
 
-  redirect('/debug/new-report');
+  redirect('/be-docs/new-report');
 }

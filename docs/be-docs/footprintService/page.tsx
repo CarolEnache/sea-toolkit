@@ -5,7 +5,7 @@ import { deleteAnalystIndustries, setAnalystIndustries } from './actions';
 
 import getLoaderData, { preload } from './loader';
 
-export default async function DebugPage() {
+export default async function BeDocsPage() {
   preload();
   const { industries, analystIndustries } = await getLoaderData();
 

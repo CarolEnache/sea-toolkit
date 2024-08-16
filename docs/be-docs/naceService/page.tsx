@@ -5,7 +5,7 @@ import { Navigation } from '../page';
 
 import getLoaderData, { preload } from "./loader";
 
-export default async function DebugPage() {
+export default async function BeDocsPage() {
   preload();
   const { industries } = await getLoaderData();
 

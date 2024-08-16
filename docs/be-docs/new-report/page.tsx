@@ -6,7 +6,7 @@ import { requestReport, deleteReportRequest } from './actions';
 
 import getLoaderData from './loader';
 
-export default async function DebugPage() {
+export default async function BeDocsPage() {
   // preload();
   const { requests, report, report_id } = await getLoaderData();
 

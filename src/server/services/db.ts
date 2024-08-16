@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Database } from 'duckdb';
+// import { Database } from 'duckdb';
 
 import { ParquetFiles, SqlFiles } from './db-types';
 
@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Initialise the database
-const db = new Database(':memory:');
+const db = {}; // new Database(':memory:');
 
 // File string builder
 const raw_parquet = (file_name: string) => `'${join(__dirname, 'parquet', `${file_name}.parquet`)}'`;
@@ -75,11 +75,11 @@ export const runDbQuery = <T>(sqlFile: SqlFiles, parquetFileName: ParquetFiles, 
     query = query.replaceAll('PARQUET_TABLE', raw_parquet(parquetFileName));
   }
 
-  db.all(query, (error, response) => {
-    if (error) reject(error);
+  // db.all(query, (error, response) => {
+  //   if (error) reject(error);
 
-    resolve(response as T);
-  });
+  //   resolve(response as T);
+  // });
 });
 
 type TableSchema = { [key: string]: 'INT' | 'FLOAT' | 'VARCHAR' | 'BOOLEAN' };
@@ -102,11 +102,11 @@ export const createDbTable = async (
 
   const query = `CREATE TEMPORARY TABLE TempTable (${modifiers.join(', ')});COPY TempTable TO ${filePath};DROP TABLE TempTable;`;
 
-  db.all(query, (error) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve();
-    }
-  });
+  // db.all(query, (error) => {
+  //   if (error) {
+  //     reject(error);
+  //   } else {
+  //     resolve();
+  //   }
+  // });
 });
