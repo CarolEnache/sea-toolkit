@@ -27,8 +27,7 @@ jobs:
       run: npm install
       if: steps.npm-cache.outputs.cache-hit != 'true'
     - name: Build with Next.js
-      run: |
-        NEXT_IGNORE_TYPE_CHECKS=true NEXT_LINT=false npm run build
+      run: npm run build
     - name: Prepare to publish
       run: ./tools/sh/postbuild.sh
     - name: Balena Deploy
