@@ -17,10 +17,12 @@ jobs:
       run: npm i
     - name: Build with Next.js
       run: npm build
-    - uses: balena-io/deploy-to-balena-action@master
-      id: build
+    - name: Prepare to publish
+      run: ./tools/sh/postbuild.sh
+    - name: Balena Deploy
+      uses: bekriebel/balena-cli-action@v1
+      if: success()
       with:
-        balena_token: ${{ secrets.BALENA_TOKEN }}
-        fleet: g_weareour_tech/genericaarch64
-    - name: Log release ID built
-      run: echo "Built release ID ${{ steps.build.outputs.release_id }}"
+        balena_api_token: ${{ secrets.BALENA_TOKEN }}
+        balena_command: "deploy g_weareour_tech/pi-2 --logs"
+        application_path: "./.next/standalone"
