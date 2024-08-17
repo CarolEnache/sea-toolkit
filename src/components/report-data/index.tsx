@@ -20,7 +20,7 @@ import {
   YearRangeString,
 } from "@/server/holistic-approach/report.types";
 import { getReportDataAction } from "./actions";
-import { useGenerateReportContext } from "@/contexts/GenerateReport";
+import { useGenerateReportContext } from "@/contexts/generate-report";
 import { HandleToggleDataArrayProps } from "@/types/front/report";
 
 const chartColors: { [key in keyof typeof ForecastingGroup]: string } = {
