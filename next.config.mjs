@@ -5,7 +5,7 @@ const nextConfig = {
   webpack: (config) => {
     config.externals = [...config.externals, 'duckdb'];
     config.resolve = { ...config.resolve, alias: { ...config.resolve.alias,
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }}
     return config;
   },
