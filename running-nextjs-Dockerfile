@@ -1,17 +1,19 @@
 # Get the latest node alpine for the raspi architecture
-FROM --platform=linux/arm/v7 node:20-alpine
+FROM node:20
 # Set up working directory
 WORKDIR /app
 # Set up environment
 ENV CI="true"
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 # Expose port 80 for https://f64023546b5402fffd076af7e3499996.balena-devices.com/
 ENV PORT=80
 EXPOSE 80
 
-# Copy next standalone https://nextjs.org/docs/pages/api-reference/next-config-js/output
 COPY . .
+RUN yarn --verbose --frozen-lockfile
 
-CMD ["node", "./server.js"]
+# CMD ["node", "./server.js"]
+# CMD sleep infinity
+CMD yarn dev

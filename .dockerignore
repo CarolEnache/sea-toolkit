@@ -1,0 +1,41 @@
+.github
+.next
+.pnpm-store
+.vscode
+docs
+node_modules
+# public
+# src
+src/app/be-docs
+# tools
+.dockerignore
+
+.DS_Store
+.dockerignore
+# .eslintrc.json
+.git
+.github
+.gitignore
+.next
+# .npmrc
+# .nvmrc
+.pnpm-store
+.vscode
+README.md
+balena-deploy-Dockerfile
+balena-deploy-docker-compose.yml
+compose-dev.yaml
+docs
+next-env.d.ts
+# next.config.mjs
+node_modules
+# package.json
+# postcss.config.js
+# public
+running-nextjs-Dockerfile
+# src
+src/app/be-docs
+# tailwind.config.ts
+# tools
+# tsconfig.json
+yarn.lock

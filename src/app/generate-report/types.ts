@@ -1,4 +1,4 @@
-import { type msrService, type oecdService } from "@/server/services";
+import type { msrService, oecdService } from "@/server/services";
 
 export type ComoditiesListType = {
   commodityList: string[] | null;

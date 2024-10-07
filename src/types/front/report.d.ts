@@ -1,4 +1,4 @@
-import { EconomicParameterValuesEnum, ForecastingGroup, ForecastingGroupKey, RegionalReport } from "@/server/holistic-approach/report.types";
+import type { EconomicParameterValuesEnum, ForecastingGroup, ForecastingGroupKey, RegionalReport } from "@/server/holistic-approach/report.types";
 import { Dispatch, SetStateAction } from "react";
 
 // Johan's Proposal

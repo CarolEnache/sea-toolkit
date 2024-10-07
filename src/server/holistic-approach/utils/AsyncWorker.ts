@@ -1,5 +1,5 @@
-import type { WorkerOptions } from "worker_threads";
-import { Worker as WorkerThread } from "worker_threads";
+import type { WorkerOptions } from "node:worker_threads";
+import { Worker as WorkerThread } from "node:worker_threads";
 
 export class Worker<T> {
   private worker: WorkerThread;
