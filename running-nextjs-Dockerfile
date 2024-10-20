@@ -1,5 +1,5 @@
 # Get the latest node alpine for the raspi architecture
-FROM node:20
+FROM --platform=linux/arm/v7 node:20-alpine
 # Set up working directory
 WORKDIR /app
 # Set up environment

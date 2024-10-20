@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS "2015_2008_oecd" (
+    "variable_code" TEXT,
+    "variable" TEXT,
+    "country_code" TEXT,
+    "country" TEXT,
+    "region" TEXT,
+    "row" TEXT,
+    "from" TEXT,
+    "col" TEXT,
+    "to" TEXT,
+    "time" TEXT,
+    "year" TEXT,
+    "unit_code" TEXT,
+    "unit" TEXT,
+    "powercode_code" TEXT,
+    "powercode" TEXT,
+    "reference_period_code" REAL,
+    "reference_period" REAL,
+    "value" REAL,
+    "flag_codes" REAL,
+    "flags" REAL
+);
