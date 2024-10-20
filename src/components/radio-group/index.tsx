@@ -1,3 +1,5 @@
+"use client";
+
 import { RadioGroup as NextRadioGroup } from "@nextui-org/react";
 import { CustomRadio } from "./CustomRadio";
 import { RadioGroupType } from "./types";

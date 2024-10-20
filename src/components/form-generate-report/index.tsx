@@ -3,8 +3,8 @@
 import { useFormStatus } from "react-dom";
 import { FormEvent, useEffect, useState } from "react";
 import { Checkbox } from "@nextui-org/react";
-import { Region } from "@/server/services/ts/oecd";
-import { Product } from "@/server/services/ts/msr";
+import type { Region } from "@/server/services/ts/oecd";
+import type { Product } from "@/server/services/ts/msr";
 
 import { formServerAction, getDataFormFromServer } from "./actions";
 import { FormDataType } from "@/types/front/report";
