@@ -1,7 +1,7 @@
 "use server";
 
-import { reportService } from "@/server/services";
+import { reportService } from "@/dummy-server/services";
 
 export async function getReportDataAction(id: string) {
-    return reportService.generateReport(id);
-  }
+  return reportService.generateReport(id);
+}
