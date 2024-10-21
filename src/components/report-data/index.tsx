@@ -9,7 +9,7 @@ import React, {
   Dispatch,
   useTransition,
 } from "react";
-import {
+import type {
   EconomicFactorsValuesEnum,
   EconomicParameterValuesEnum,
   FactorsByStageReport,

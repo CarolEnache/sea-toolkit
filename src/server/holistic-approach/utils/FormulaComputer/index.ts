@@ -19,7 +19,7 @@ export class FormulaComputer<T> {
   async compute(workerData: T): Promise<T> {
     return new Worker<T>(
       `
-const { parentPort, workerData } = require('worker_threads');
+const { parentPort, workerData } = require('node:worker_threads');
 ${utils.toString()};
 
 parentPort.postMessage(
