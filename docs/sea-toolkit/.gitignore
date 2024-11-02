@@ -1,0 +1,6 @@
+# modules
+node_modules
+# lockfiles
+bun.lockb
+# dist
+result.pdf

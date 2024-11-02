@@ -1,0 +1,16 @@
+{
+  "name": "sea-toolkit",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.tsx",
+  "scripts": {
+    "start": "bun --watch index.tsx"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@react-pdf/renderer": "^4.0.0"
+  }
+}

@@ -1,4 +1,4 @@
-# Data
+# Tech stack
 
 The data was originally provided as a collection of excel files with macros.
 
