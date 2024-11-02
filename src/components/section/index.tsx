@@ -20,7 +20,7 @@ export default function PageSection({
 }: any) {
   return (
     <section
-      className={`grid grid-cols-4 gap-4 my-4 pt-15 p-4 pb-0 ${
+      className={`max-w-screen-lg  grid grid-cols-4 gap-4 my-4 pt-15 p-4 pb-0${
         className?.length ? className : ""
       }`}
     >

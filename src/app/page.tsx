@@ -45,7 +45,7 @@ export default function Home() {
     <NextUIProvider>
       <>
         <Navbar />
-        <div className="w-screen h-screen">
+        <div className="w-screen h-screen flex flex-col items-center">
           <PageSection
             preHeader="Impact Assessment Modelling"
             header="Dynamic Socio-Economic Analysis Platform
@@ -78,7 +78,7 @@ export default function Home() {
           >
             {featuresList.map(({ description, header, svg }) => (
               <div
-                className="col-span-4 text-secondary translate-wider font-extralight text-center"
+                className="flex flex-col items-center col-span-4 text-secondary translate-wider font-extralight text-center"
                 key={header}
               >
                 <Image
@@ -88,7 +88,7 @@ export default function Home() {
                   height={100}
                   className="col-span-4"
                   style={{
-                    width: "100vw",
+                    width: "200px",
                     height: "auto",
                   }}
                 />
