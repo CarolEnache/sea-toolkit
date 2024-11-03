@@ -80,7 +80,7 @@ const ReportChart = ({
             [key]: extractData(
               ForecastingGroup[key],
               economicFactors.filter((ec) => ec === "Change")
-            )[0][0],
+            )?.[0]?.[0],
           } as Change;
           return change;
         });
@@ -98,7 +98,7 @@ const ReportChart = ({
           const change = extractData(
             ForecastingGroup[key],
             economicFactors.filter((ec) => ec === "Change")
-          )[0][0];
+          )?.[0]?.[0];
           return (formatLabel += `${key}:${total}${
             indexDate === 1 ? ` (+${change})` : ""
           }${i !== forecastingGroup.length - 1 ? " " : ""}`);

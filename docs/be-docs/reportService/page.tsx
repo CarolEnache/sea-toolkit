@@ -19,12 +19,12 @@ export default async function BeDocsPage() {
       </form>
       <form action={deleteReportRequest}>
         <label>
-          Report ID: <input type="text" name="report_id" />
+          Report ID: <input type="text" name="report_id" defaultValue={report_id} />
         </label>
         <button type="submit">Delete Report</button>
       </form>
       <pre>Showing the last 4 entries:<br/>{JSON.stringify(requests, null, 2)}</pre>
-      <pre className="code">{`reportService.generateReport('${report_id}')`}</pre>
+      <pre className="code">{`reportService.getReport('${report_id}')`}</pre>
       <pre>{JSON.stringify(report, null, 2)}</pre>
       <Navigation />
     </div>

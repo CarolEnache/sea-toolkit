@@ -1,7 +1,9 @@
 "use server";
 
-import { reportService } from "@/dummy-server/services";
+import { reportService } from "@/server/services";
 
 export async function getReportDataAction(id: string) {
-  return reportService.generateReport(id);
+  // If the report exists it will be created immediately, otherwise it will wait
+  await reportService.setReport(id);
+  return reportService.getReport(id);
 }

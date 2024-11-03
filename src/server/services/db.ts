@@ -39,6 +39,25 @@ const getInsertClause = (data: Shape | Shape[]) => {
   return `(${columns}) VALUES ${values}`;
 }
 
+const getUpdateClause = (data: Partial<Shape>): string => {
+  const entries = Object.entries(data);
+  
+  const setClauses = entries.map(([key, value]) => {
+    // Handle different types of values
+    if (typeof value === 'string') {
+      return `${key} = '${value.replace(/'/g, "''")}'`; // Escape single quotes
+    } else if (value === null) {
+      return `${key} = NULL`;
+    } else if (typeof value === 'boolean') {
+      return `${key} = ${value ? 'TRUE' : 'FALSE'}`;
+    } else {
+      return `${key} = ${value}`;
+    }
+  });
+
+  return `SET ${setClauses.join(', ')}`;
+};
+
 const getWhereClause = (data: Shape | Shape[]) => {
   const rows = Array.isArray(data) ? data : [data];
 
@@ -50,26 +69,34 @@ const getWhereClause = (data: Shape | Shape[]) => {
 type Shape = Record<string, string | number | boolean>;
 type QueryOptions = {
   insert?: Shape | Shape[],
+  update?: Partial<Shape>,
   where?: Shape | Shape[],
   start_row?: number,
   page_size?: number,
 };
 
-export const runDbQuery = <T>(sqlFile: SqlFiles, parquetFileName: ParquetFiles, options?: QueryOptions) => new Promise<T>((resolve, reject) => {
-  let query = readFileSync(join(__dirname, 'sql', `${sqlFile}.sql`), 'utf8');
-  
+export const runDynamicDbQuery = <T>(query: string, parquetFileName: ParquetFiles, options?: QueryOptions) => new Promise<T>((resolve, reject) => {
+  if (query.includes('TempTable')) {
+    query = query.replaceAll('TempTable', `${parquetFileName.replaceAll(/[^a-z]/g, '')}TempTable`);
+  }
+
   if (query.includes('WHERE_CLAUSE') && options?.where) {
     const whereClause = getWhereClause(options.where);
     query = query.replaceAll('WHERE_CLAUSE', whereClause);
   }
 
-  if (query.includes('INSERT_CLAUSE') && options?.insert) {
+  if (query.includes('UPDATE_CLAUSE') && options?.update) {
+    const updateClause = getUpdateClause(options.update);
+    query = query.replaceAll('UPDATE_CLAUSE', updateClause);
+  } else if (query.includes('INSERT_CLAUSE') && options?.insert) {
     // Write operations need the raw path
     query = query.replaceAll('PARQUET_TABLE', raw_parquet(parquetFileName));
 
     const insertClause = getInsertClause(options.insert);
     query = query.replaceAll('INSERT_CLAUSE', insertClause);
-  } else if (options?.start_row || options?.page_size) {
+  }
+  
+  if (options?.start_row || options?.page_size) {
     // The read_parquet is only needed for pagination
     query = query.replaceAll('PARQUET_TABLE', read_parquet(parquetFileName, options?.start_row, options?.page_size));
   } else {
@@ -83,6 +110,11 @@ export const runDbQuery = <T>(sqlFile: SqlFiles, parquetFileName: ParquetFiles, 
     resolve(response as T);
   });
 });
+export const runDbQuery = async <T>(sqlFile: SqlFiles, parquetFileName: ParquetFiles, options?: QueryOptions): Promise<T> => {
+  let query = readFileSync(join(__dirname, 'sql', `${sqlFile}.sql`), 'utf8');
+
+  return await runDynamicDbQuery(query, parquetFileName, options);
+};
 
 type TableSchema = { [key: string]: 'INT' | 'FLOAT' | 'VARCHAR' | 'BOOLEAN' };
 type Options = { primaryKey?: string };

@@ -7,13 +7,10 @@ export const Navigation = () => (
     <h2>Other doc pages</h2>
     <ul>
       <li>
-        <a href="/be-docs/old-report">Old Report</a>
+        <a href="/be-docs/reportService">Report (mocked)</a>
       </li>
       <li>
-        <a href="/be-docs/new-report">New Report</a>
-      </li>
-      <li>
-        <a href="/be-docs/footprintService">Footprint</a>
+        <a href="/be-docs/footprintService">Footprint (WIP)</a>
       </li>
       <li>
         <a href="/be-docs/msrService">MSR</a>

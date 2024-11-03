@@ -71,6 +71,8 @@ export async function formServerAction(
   let error
   try {
     const reportId = await reportService.requestReport(data);
+    // This is the event that starts the report generation
+    reportService.setReport(reportId);
     revalidatePath("/");
     if (reportId)
       return {

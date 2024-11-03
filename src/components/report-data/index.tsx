@@ -53,37 +53,17 @@ function ReportData({ reportId }: { reportId: string }) {
       startLoading(async () => {
         const res = await getReportDataAction(reportId);
 
-        const firstReport = res[0];
+        const firstReport = res;
         const filteredFirstReport = Object.entries(firstReport).filter(
           ([key, value]) => key !== "Region"
         ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
-        const extractedKeys = filteredFirstReport.map(
-          ([key, _]) => key
-        ) as EconomicParameterValuesEnum[];
 
-        setEconomicParametersKey(extractedKeys);
-        setSelectedRegion(firstReport.Region);
-        setReports(res);
-
+        setEconomicParametersKey(res.meta.economic_parameters);
+        setSelectedRegion(res.meta.regions[0]);
+        setReports(res.reports as RegionalReport[]);
         // GET DATES && manufacturingStageKeys DYNAMICLY (VERY STRANGE)
-        const economicFactors = Object.values(
-          filteredFirstReport[0][1]
-        )[0] as RegionalReport["Employment"]["BASE"];
-        const manufacturingStages = Object.values(
-          economicFactors
-        )[0] as RegionalReport["Employment"]["BASE"]["Change"];
-        const data = Object.values(
-          manufacturingStages
-        )[0] as RegionalReport["Employment"]["BASE"]["Change"]["Direct Applications"];
-
-        const dates = Object.keys(data) as YearRangeString[];
-
-        setDates(dates);
-
-        const manufacturingStageValuesEnum = Object.keys(
-          manufacturingStages
-        ) as ManufacturingValuesEnum[];
-        setManufacturingStagesKey(manufacturingStageValuesEnum);
+        setDates(res.meta.periods as YearRangeString[]);
+        setManufacturingStagesKey(res.meta.manufacturing_stages);
       });
     };
     updateReportData();
@@ -134,7 +114,7 @@ function ReportData({ reportId }: { reportId: string }) {
         {reports.length > 0 && Array.isArray(reports) && (
           <>
             {reports
-              .filter((report) => report.Region === selectedRegion)
+              .filter((report) => report.region === selectedRegion)
               .map((report, i) => (
                 <div key={i}>
                   {/* TOP CONTENT  */}
@@ -146,14 +126,14 @@ function ReportData({ reportId }: { reportId: string }) {
                       {reports.map((report, i) => (
                         <button
                           key={i}
-                          onClick={() => handleSelectedRegion(report.Region)}
+                          onClick={() => handleSelectedRegion(report.region)}
                           className={`px-6 py-3 font-medium transition duration-300 ease-out border-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 hover:bg-secondary hover:text-tertiary hover:border-secondary/70 ${
-                            selectedRegion === report.Region
+                            selectedRegion === report.region
                               ? "bg-secondary text-tertiary border-secondary/70 ring-2 ring-primary ring-opacity-50"
                               : "bg-white text-primary border-tertiary active:scale-95"
                           } `}
                         >
-                          {report.Region}
+                          {report.region}
                         </button>
                       ))}
                     </div>
