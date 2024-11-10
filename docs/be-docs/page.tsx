@@ -1,32 +1,34 @@
-import React from "react";
+import React from 'react';
 
-import "./be-docs.css";
+import './be-docs.css';
 
-export const Navigation = () => (
-  <section className="navigation">
-    <h2>Other doc pages</h2>
-    <ul>
-      <li>
-        <a href="/be-docs/reportService">Report (mocked)</a>
-      </li>
-      <li>
-        <a href="/be-docs/footprintService">Footprint (WIP)</a>
-      </li>
-      <li>
-        <a href="/be-docs/msrService">MSR</a>
-      </li>
-      <li>
-        <a href="/be-docs/oecdService">OECD</a>
-      </li>
-      <li>
-        <a href="/be-docs/unidoService">UNIDO</a>
-      </li>
-      <li>
-        <a href="/be-docs/naceService">NACE</a>
-      </li>
-    </ul>
-  </section>
-);
+export function Navigation() {
+  return (
+    <section className="navigation">
+      <h2>Other doc pages</h2>
+      <ul>
+        <li>
+          <a href="/be-docs/reportService">Report (mocked)</a>
+        </li>
+        <li>
+          <a href="/be-docs/footprintService">Footprint (WIP)</a>
+        </li>
+        <li>
+          <a href="/be-docs/msrService">MSR</a>
+        </li>
+        <li>
+          <a href="/be-docs/oecdService">OECD</a>
+        </li>
+        <li>
+          <a href="/be-docs/unidoService">UNIDO</a>
+        </li>
+        <li>
+          <a href="/be-docs/naceService">NACE</a>
+        </li>
+      </ul>
+    </section>
+  );
+}
 
 export default async function BeDocsPage() {
   return (

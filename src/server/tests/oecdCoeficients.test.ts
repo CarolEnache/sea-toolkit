@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { describe, it } from 'vitest';
 
 import { oecdCoeficients } from '../utils/oecdCoeficients';
 import { OECDRawVariables } from '../utils/types';
@@ -13,42 +13,42 @@ describe('oecdCoefficients util', () => {
       it('has total rows equal to domestic rows', () => {
         assert.strictEqual(
           DirectRequirements[OECDRawVariables.TOTAL]?.rows?.length,
-          DirectRequirements[OECDRawVariables.DOMESTIC]?.rows?.length
+          DirectRequirements[OECDRawVariables.DOMESTIC]?.rows?.length,
         );
       });
       it('has the right value for Domestic intermediaries', () => {
         assert.strictEqual(
-          parseFloat(
+          Number.parseFloat(
             `${
               DirectRequirements[OECDRawVariables.VALUE_ADDED]?.getValueByName(
                 'Domestic intermediates',
-                'D01T03'
+                'D01T03',
               ) || 0
-            }`
+            }`,
           ).toFixed(7),
-          '0.4177632'
+          '0.4177632',
         );
         assert.strictEqual(
-          parseFloat(
+          Number.parseFloat(
             `${
               DirectRequirements[OECDRawVariables.VALUE_ADDED]?.getValueByName(
                 'Domestic intermediates',
-                'D07T08'
+                'D07T08',
               ) || 0
-            }`
+            }`,
           ).toFixed(7),
-          '0.4545871'
+          '0.4545871',
         );
         assert.strictEqual(
-          parseFloat(
+          Number.parseFloat(
             `${
               DirectRequirements[OECDRawVariables.VALUE_ADDED]?.getValueByName(
                 'Domestic intermediates',
-                'D13T15'
+                'D13T15',
               ) || 0
-            }`
+            }`,
           ).toFixed(7),
-          '0.6058234'
+          '0.6058234',
         );
       });
       // {
@@ -98,236 +98,236 @@ describe('oecdCoefficients util', () => {
   }
 
   if (
-    typeof coefficients.typeI !== 'undefined' &&
-    typeof coefficients.typeI.TOTAL !== 'undefined'
+    typeof coefficients.typeI !== 'undefined'
+    && typeof coefficients.typeI.TOTAL !== 'undefined'
   ) {
     describe('when type I TOTAL is returned', () => {
       const { typeI } = coefficients;
       it('matches industry 01T03', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D01T03') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D01T03') || 0}`,
           ).toFixed(7),
-          '1.2404530'
+          '1.2404530',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D05T06') || 0}`,
           ).toFixed(7),
-          '0.0108793'
+          '0.0108793',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D07T08') || 0}`,
           ).toFixed(7),
-          '0.0132650'
+          '0.0132650',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_01T03', 'D09') || 0}`,
           ).toFixed(7),
-          '0.0073205'
+          '0.0073205',
         );
       });
       it('matches industry 05T06', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_05T06', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_05T06', 'D05T06') || 0}`,
           ).toFixed(7),
-          '1.1079934'
+          '1.1079934',
         );
       });
       it('matches industry 07T08', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_07T08', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_07T08', 'D07T08') || 0}`,
           ).toFixed(7),
-          '1.0734258'
+          '1.0734258',
         );
       });
       it('matches industry 09', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.TOTAL.getValueByName('TTL_09', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeI.TOTAL.getValueByName('TTL_09', 'D09') || 0}`,
           ).toFixed(7),
-          '1.1587433'
+          '1.1587433',
         );
       });
     });
   }
 
   if (
-    typeof coefficients.typeI !== 'undefined' &&
-    typeof coefficients.typeI.DOMESTIC !== 'undefined'
+    typeof coefficients.typeI !== 'undefined'
+    && typeof coefficients.typeI.DOMESTIC !== 'undefined'
   ) {
     describe('when type I DOMESTIC is returned', () => {
       const { typeI } = coefficients;
       it('matches industry 01T03', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D01T03') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D01T03') || 0}`,
           ).toFixed(7),
-          '1.2158749'
+          '1.2158749',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D05T06') || 0}`,
           ).toFixed(7),
-          '0.0084752'
+          '0.0084752',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D07T08') || 0}`,
           ).toFixed(7),
-          '0.0096855'
+          '0.0096855',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_01T03', 'D09') || 0}`,
           ).toFixed(7),
-          '0.0049571'
+          '0.0049571',
         );
       });
       it('matches industry 05T06', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_05T06', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_05T06', 'D05T06') || 0}`,
           ).toFixed(7),
-          '1.0769222'
+          '1.0769222',
         );
       });
       it('matches industry 07T08', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_07T08', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_07T08', 'D07T08') || 0}`,
           ).toFixed(7),
-          '1.0595438'
+          '1.0595438',
         );
       });
       it('matches industry 09', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeI.DOMESTIC.getValueByName('DOM_09', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeI.DOMESTIC.getValueByName('DOM_09', 'D09') || 0}`,
           ).toFixed(7),
-          '1.1521602'
+          '1.1521602',
         );
       });
     });
   }
 
   if (
-    typeof coefficients.typeII !== 'undefined' &&
-    typeof coefficients.typeII.TOTAL !== 'undefined'
+    typeof coefficients.typeII !== 'undefined'
+    && typeof coefficients.typeII.TOTAL !== 'undefined'
   ) {
     describe('when type II TOTAL is returned', () => {
       const { typeII } = coefficients;
       it('matches industry 01T03', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D01T03') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D01T03') || 0}`,
           ).toFixed(7),
-          '1.3197538'
+          '1.3197538',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D05T06') || 0}`,
           ).toFixed(7),
-          '0.0544819'
+          '0.0544819',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D07T08') || 0}`,
           ).toFixed(7),
-          '0.0696857'
+          '0.0696857',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_01T03', 'D09') || 0}`,
           ).toFixed(7),
-          '0.0746848'
+          '0.0746848',
         );
       });
       it('matches industry 05T06', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_05T06', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_05T06', 'D05T06') || 0}`,
           ).toFixed(7),
-          '1.1235844'
+          '1.1235844',
         );
       });
       it('matches industry 07T08', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_07T08', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_07T08', 'D07T08') || 0}`,
           ).toFixed(7),
-          '1.0768230'
+          '1.0768230',
         );
       });
       it('matches industry 09', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.TOTAL.getValueByName('TTL_09', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeII.TOTAL.getValueByName('TTL_09', 'D09') || 0}`,
           ).toFixed(7),
-          '1.1609358'
+          '1.1609358',
         );
       });
     });
   }
 
   if (
-    typeof coefficients.typeII !== 'undefined' &&
-    typeof coefficients.typeII.DOMESTIC !== 'undefined'
+    typeof coefficients.typeII !== 'undefined'
+    && typeof coefficients.typeII.DOMESTIC !== 'undefined'
   ) {
     describe('when type II DOMESTIC is returned', () => {
       const { typeII } = coefficients;
       it('matches industry 01T03', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D01T03') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D01T03') || 0}`,
           ).toFixed(7),
-          '1.2700237'
+          '1.2700237',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D05T06') || 0}`,
           ).toFixed(7),
-          '0.0371807'
+          '0.0371807',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D07T08') || 0}`,
           ).toFixed(7),
-          '0.0461345'
+          '0.0461345',
         );
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_01T03', 'D09') || 0}`,
           ).toFixed(7),
-          '0.0506527'
+          '0.0506527',
         );
       });
       it('matches industry 05T06', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_05T06', 'D05T06') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_05T06', 'D05T06') || 0}`,
           ).toFixed(7),
-          '1.0813368'
+          '1.0813368',
         );
       });
       it('matches industry 07T08', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_07T08', 'D07T08') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_07T08', 'D07T08') || 0}`,
           ).toFixed(7),
-          '1.0606439'
+          '1.0606439',
         );
       });
       it('matches industry 09', () => {
         assert.strictEqual(
-          parseFloat(
-            `${typeII.DOMESTIC.getValueByName('DOM_09', 'D09') || 0}`
+          Number.parseFloat(
+            `${typeII.DOMESTIC.getValueByName('DOM_09', 'D09') || 0}`,
           ).toFixed(7),
-          '1.1530426'
+          '1.1530426',
         );
       });
     });

@@ -1,7 +1,7 @@
 'use server';
-import { oecdService } from '@/server/services'
+import { oecdService } from '@/server/services';
 
-export const preload = () => {
+export async function preload() {
   void oecdService.getRegions('oecd.wiebe_2008-2015');
   void oecdService.getIndustries('oecd.wiebe_2008-2015');
 }

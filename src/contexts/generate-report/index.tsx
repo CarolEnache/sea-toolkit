@@ -1,10 +1,12 @@
+import type {
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import React, {
   createContext,
-  useState,
   useContext,
-  SetStateAction,
-  Dispatch,
-} from "react";
+  useState,
+} from 'react';
 
 type GenerateReportContextType = {
   reportId: string;
@@ -12,24 +14,24 @@ type GenerateReportContextType = {
 };
 
 const GenerateReportContext = createContext<GenerateReportContextType>({
-  reportId: "",
-  setReportId: () => "",
+  reportId: '',
+  setReportId: () => '',
 });
 
-export const GenerateReportContextProvider = ({
+export function GenerateReportContextProvider({
   children,
 }: {
   children: React.ReactNode;
-}) => {
-  const [reportId, setReportId] = useState("");
+}) {
+  const [reportId, setReportId] = useState('');
 
   return (
     <GenerateReportContext.Provider value={{ reportId, setReportId }}>
       {children}
     </GenerateReportContext.Provider>
   );
-};
+}
 
-export const useGenerateReportContext = () => {
+export function useGenerateReportContext() {
   return useContext(GenerateReportContext);
-};
+}

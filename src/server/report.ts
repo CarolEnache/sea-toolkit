@@ -5,7 +5,7 @@ import { oecdCoeficients } from './utils/oecdCoeficients';
 
 /**
  *  Tables in the spreadsheet 🏀
- * 
+ *
 🏀 AlloySt_FU ❌ Unused / Hidden
 🏀 Batt_FU ❌ Unused / Hidden
 🏀 Chemicals_FU ❌ Unused / Hidden
@@ -18,7 +18,7 @@ import { oecdCoeficients } from './utils/oecdCoeficients';
 🏀 STST_FU ❌ Unused / Hidden
 🏀 Scrap_Ratios ❌ Unused / Hidden
 🏀 Roskill_IOModel ❌ Clone, unneeded
-
+ 
 🏀 ❌ Co_MSR_Raw_Data 📓
 🏀 ❌ Co_MSR ✅ Columns are renamed from Co_MSR_Raw_Data; Summed then  filtered
       # of companies                                = Establishments
@@ -34,15 +34,15 @@ import { oecdCoeficients } from './utils/oecdCoeficients';
   ❌     Calcs the cobalt price * multiplier for End Uses
 🏀 ❌ Co_First_Use_Distribution 📓✅ Takes (product, year) data, calcs %per year, plans forecast (tons of usage)
 🏀 ❌ Co_First_Use 📓✅ Takes (country, year) data, matches with Co_First_Use_Distribution; Average per year per region; Calculates cobalt price (3 scenarios)
-🏀 ❌ Co_Recycling 🧧 
+🏀 ❌ Co_Recycling 🧧
 🏀 ❌ ❌ (1) ✅ Pivot from Establishments
 🏀 ❌ ❌ (11) ✅ Pivot from Employees
 🏀 ❌ ❌ (3) ✅ Pivot from value added
 🏀 ❌ ❌ (5) ✅ Pivot from wages and salaries
 🏀 ❌ ❌ (9) ✅ Pivot from Output
-
+ 
 🏀 Cobalt prices 📓
-
+ 
 🏀 UNIDO_MINSTAT_REV_4 📓
 🏀 UNIDO - RECYCLING REV 3.1 📓
 🏀 UNIDO 📓
@@ -51,13 +51,13 @@ import { oecdCoeficients } from './utils/oecdCoeficients';
 🏀 ❌ UNIDO 2 - Output ✅ Pivot from UNIDO
 🏀 ❌ UNIDO 2 - Value added ✅ Pivot from UNIDO
 🏀 ❌ UNIDO 2 - Wages and salaries ✅ Pivot from UNIDO
-
+ 
 🏀 Footprint - Sectoral analysis 🔥
-
+ 
 🏀 Roskill_IOModel_PIVOT 🔥
-
+ 
 🏀 Report 👀 End User Report
-*/
+ */
 
 // ✅ Cover 👀: This is the data that will come from the form
 export const formData = {
@@ -86,7 +86,7 @@ export const formData = {
 // And we have a utils that calculates the OECD stuff
 // ✅ OECD Employment 📓
 //  OECD Income 📓 ❌ Unused ?
-// ✅ OECD Raw IO 📓 
+// ✅ OECD Raw IO 📓
 // ✅ OECD pivot: Pivot from OECD Raw IO
 // ✅ OECD inputs: Filter & aggregate from OECD pivot
 // ✅ OECD Direct Requirements: Normalising OECD inputs
@@ -100,11 +100,10 @@ const OECD = oecdCoeficients({
   selectedRegion: formData.economy_region,
 //   source: formData.economy_oecd,
 });
-//// Breakdown of the OECD: Raw data, Convert Rows to Table (PIVOT), Filter & aggregate (INPUT), Normalise (Direct Requirements)
-//// At direct requirements, build coeficients stuff which are the values / totals, then a matrix multiplication 
-//// Apply leontief, using the type I and II build the coeficients page
+/// / Breakdown of the OECD: Raw data, Convert Rows to Table (PIVOT), Filter & aggregate (INPUT), Normalise (Direct Requirements)
+/// / At direct requirements, build coeficients stuff which are the values / totals, then a matrix multiplication
+/// / Apply leontief, using the type I and II build the coeficients page
 // TODO: Run here the oecd.mjs move it to ts, export all the internal steps
-
 
 // We need to calculate some pivot tables,
 // so probably worth writing a util for that... is basically a reduce
@@ -137,7 +136,6 @@ const OECD = oecdCoeficients({
 // CO_MSR provides costing
 
 // And that's how far I got going from Z to A.
-
 
 /*
 

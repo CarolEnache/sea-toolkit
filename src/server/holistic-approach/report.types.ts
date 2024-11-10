@@ -8,42 +8,39 @@ export enum EconomicParameters {
 
 export type EconomicParametersKeysWithoutRegion = Exclude<
   keyof typeof EconomicParameters,
-  "region"
+  'region'
 >;
 export type EconomicParameterValuesEnum =
   (typeof EconomicParameters)[EconomicParametersKeysWithoutRegion];
 
-
-
 export enum EconomicFactors {
-  DirectEffect = "Direct Effect",
-  UpstreamRequirements = "Upstream Requirements",
-  IncomeEffect = "Income Effect",
-  Total = "Total",
-  Change = "Change",
-   // FirstRound = "First Round",
+  DirectEffect = 'Direct Effect',
+  UpstreamRequirements = 'Upstream Requirements',
+  IncomeEffect = 'Income Effect',
+  Total = 'Total',
+  Change = 'Change',
+  // FirstRound = "First Round",
   // InternationalSupport = "International Support",
 }
-
 
 export type EconomicFactorsKeys = keyof typeof EconomicFactors;
 export type EconomicFactorsValuesEnum = (typeof EconomicFactors)[EconomicFactorsKeys];
 
 export enum ManufacturingStage {
-  Mining = "Mine Production",
-  Refining = "Refined Production",
-  FirstUse = "Direct Applications",
-  EndUse = "End Manufactoring",
-  Recycling = "Recycling",
-  Total = "Total",
+  Mining = 'Mine Production',
+  Refining = 'Refined Production',
+  FirstUse = 'Direct Applications',
+  EndUse = 'End Manufactoring',
+  Recycling = 'Recycling',
+  Total = 'Total',
 }
 export type ManufacturingKeys = keyof typeof ManufacturingStage;
 export type ManufacturingValuesEnum = (typeof ManufacturingStage)[ManufacturingKeys];
 
 export enum ForecastingGroup {
-  LOW = "LOW",
-  BASE = "BASE",
-  HIGH = "HIGH",
+  LOW = 'LOW',
+  BASE = 'BASE',
+  HIGH = 'HIGH',
 }
 
 export type ForecastingGroupKey = keyof typeof ForecastingGroup;
@@ -68,14 +65,13 @@ export type FactorsByStageReportBuilder = {
   };
 };
 
-export interface RegionalReport {
+export type RegionalReport = {
   [EconomicParameters.region]: string;
   [EconomicParameters.employment]: FactorsByStageReport;
   [EconomicParameters.labourIncome]: FactorsByStageReport;
   [EconomicParameters.taxContribution]: FactorsByStageReport;
   [EconomicParameters.valueAddition]: FactorsByStageReport;
-}
+};
 export type Report = RegionalReport[];
-
 
 export type Change = { [key in keyof typeof ForecastingGroup]: number };

@@ -1,5 +1,5 @@
 -- Recover the previous data
-CREATE TABLE TempTable AS SELECT * FROM PARQUET_TABLE;
+CREATE TABLE IF NOT EXISTS TempTable AS SELECT * FROM PARQUET_TABLE;
 -- Delete the data
 DELETE FROM TempTable WHERE_CLAUSE;
 -- Save changes

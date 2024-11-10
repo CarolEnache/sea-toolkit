@@ -1,7 +1,7 @@
 'use server';
 import { msrService } from '@/server/services';
 
-export const preload = () => {
+export async function preload() {
   void msrService.getProducts('msr.cobalt-insitute_2019');
 }
 

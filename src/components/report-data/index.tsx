@@ -1,32 +1,29 @@
-"use client";
+'use client';
 
-import ReportChart from "@/components/report-chart";
-
-import React, {
-  useState,
-  useEffect,
-  SetStateAction,
-  Dispatch,
-  useTransition,
-} from "react";
 import type {
   EconomicFactorsValuesEnum,
   EconomicParameterValuesEnum,
-  FactorsByStageReport,
   ForecastingGroup,
   ForecastingGroupKey,
   ManufacturingValuesEnum,
   RegionalReport,
   YearRangeString,
-} from "@/server/holistic-approach/report.types";
-import { getReportDataAction } from "./actions";
-import { useGenerateReportContext } from "@/contexts/generate-report";
-import { HandleToggleDataArrayProps } from "@/types/front/report";
+} from '@/server/holistic-approach/report.types';
+
+import type { HandleToggleDataArrayProps } from '@/types/front/report';
+import ReportChart from '@/components/report-chart';
+import { useGenerateReportContext } from '@/contexts/generate-report';
+import React, {
+  useEffect,
+  useState,
+  useTransition,
+} from 'react';
+import { getReportDataAction } from './actions';
 
 const chartColors: { [key in keyof typeof ForecastingGroup]: string } = {
-  LOW: "#F1FAFF",
-  BASE: "#53709D",
-  HIGH: "#012d49",
+  LOW: '#F1FAFF',
+  BASE: '#53709D',
+  HIGH: '#012d49',
 };
 
 const keysForecastingGroup = Object.keys(chartColors) as ForecastingGroupKey[];
@@ -35,9 +32,9 @@ function ReportData({ reportId }: { reportId: string }) {
   const [indexChartFullScreen, setIndexChartFullScreen] = useState<
     null | number
   >(null);
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedForecastingGroup, setSelectedForecastingGroup] =
-    useState(keysForecastingGroup);
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedForecastingGroup, setSelectedForecastingGroup]
+    = useState(keysForecastingGroup);
   const [reports, setReports] = useState<RegionalReport[]>([]);
   const [economicParametersKey, setEconomicParametersKey] = useState<
     EconomicParameterValuesEnum[]
@@ -53,11 +50,6 @@ function ReportData({ reportId }: { reportId: string }) {
       startLoading(async () => {
         const res = await getReportDataAction(reportId);
 
-        const firstReport = res;
-        const filteredFirstReport = Object.entries(firstReport).filter(
-          ([key, value]) => key !== "Region"
-        ) as [EconomicParameterValuesEnum, FactorsByStageReport][];
-
         setEconomicParametersKey(res.meta.economic_parameters);
         setSelectedRegion(res.meta.regions[0]);
         setReports(res.reports as RegionalReport[]);
@@ -71,13 +63,14 @@ function ReportData({ reportId }: { reportId: string }) {
 
   const handleToggleDataArray: HandleToggleDataArrayProps<any> = (
     value,
-    setState
+    setState,
   ) => {
     setState((prevStages) => {
       if (!prevStages.includes(value)) {
         return [...prevStages, value];
-      } else {
-        return prevStages.filter((va) => va !== value);
+      }
+      else {
+        return prevStages.filter(va => va !== value);
       }
     });
   };
@@ -89,10 +82,10 @@ function ReportData({ reportId }: { reportId: string }) {
   const returnEconomicFactorsValues = (
     report: RegionalReport,
     economicParamKey: EconomicParameterValuesEnum,
-    level: ForecastingGroupKey
+    level: ForecastingGroupKey,
   ): EconomicFactorsValuesEnum[] => {
     const economicFactorsValues = Object.keys(
-      report[economicParamKey][level]
+      report[economicParamKey][level],
     ) as EconomicFactorsValuesEnum[];
     return economicFactorsValues;
   };
@@ -114,23 +107,24 @@ function ReportData({ reportId }: { reportId: string }) {
         {reports.length > 0 && Array.isArray(reports) && (
           <>
             {reports
-              .filter((report) => report.region === selectedRegion)
+              .filter(report => report.region === selectedRegion)
               .map((report, i) => (
                 <div key={i}>
                   {/* TOP CONTENT  */}
                   <div
-                    className={`flex flex-col md:flex-row justify-between gap-3 w-full mb-6 z-10`}
+                    className="flex flex-col md:flex-row justify-between gap-3 w-full mb-6 z-10"
                   >
                     <div className="flex items-center flex-wrap gap-3 max-w-[90%] md:max-w-full">
                       {/* BUTTON TAB REGION  */}
                       {reports.map((report, i) => (
                         <button
                           key={i}
+                          type="button"
                           onClick={() => handleSelectedRegion(report.region)}
                           className={`px-6 py-3 font-medium transition duration-300 ease-out border-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 hover:bg-secondary hover:text-tertiary hover:border-secondary/70 ${
                             selectedRegion === report.region
-                              ? "bg-secondary text-tertiary border-secondary/70 ring-2 ring-primary ring-opacity-50"
-                              : "bg-white text-primary border-tertiary active:scale-95"
+                              ? 'bg-secondary text-tertiary border-secondary/70 ring-2 ring-primary ring-opacity-50'
+                              : 'bg-white text-primary border-tertiary active:scale-95'
                           } `}
                         >
                           {report.region}
@@ -141,24 +135,25 @@ function ReportData({ reportId }: { reportId: string }) {
                     <div className="flex items-center md:z-[60] justify-center  border-2 border-tertiary gap-4 bg-white px-6 py-3 h-[52px] rounded-lg shadow-md">
                       {Object.entries(chartColors).map(([key, color]) => (
                         <button
+                          key={color}
+                          type="button"
                           onClick={() =>
                             handleToggleDataArray(
                               key,
-                              setSelectedForecastingGroup
-                            )
-                          }
-                          key={color}
+                              setSelectedForecastingGroup,
+                            )}
                           className="flex items-center gap-1"
                         >
                           <div
                             className={`w-6 h-6 border rounded-full border-gray-300 `}
                             style={{ backgroundColor: color }}
-                          ></div>
+                          >
+                          </div>
                           <span
                             className={`${
                               !selectedForecastingGroup.includes(
-                                key as ForecastingGroupKey
-                              ) && "line-through text-gray-400"
+                                key as ForecastingGroupKey,
+                              ) && 'line-through text-gray-400'
                             } font-medium text-gray-700`}
                           >
                             {key}
@@ -175,8 +170,8 @@ function ReportData({ reportId }: { reportId: string }) {
                         <div key={chartIndex}>
                           <div
                             className={`bg-white p-4 rounded-lg shadow-lg min-h-full w-full ${
-                              indexChartFullScreen === chartIndex &&
-                              "fixed top-0 left-0 h-full w-screen z-50 pt-24 overflow-y-auto"
+                              indexChartFullScreen === chartIndex
+                              && 'fixed top-0 left-0 h-full w-screen z-50 pt-24 overflow-y-auto'
                             }`}
                           >
                             <ReportChart
@@ -198,11 +193,11 @@ function ReportData({ reportId }: { reportId: string }) {
                             <div
                               className={`${
                                 indexChartFullScreen === chartIndex
-                                  ? "flex flex-col gap-6 w-full text-xs mt-36"
-                                  : "hidden"
+                                  ? 'flex flex-col gap-6 w-full text-xs mt-36'
+                                  : 'hidden'
                               }`}
                             >
-                              {keysForecastingGroup.map((level) => (
+                              {keysForecastingGroup.map(level => (
                                 <div
                                   className="flex overflow-x-auto customScrollbar rounded-lg  "
                                   key={level}
@@ -220,11 +215,11 @@ function ReportData({ reportId }: { reportId: string }) {
                                     </div>
                                     <ul
                                       key={i}
-                                      className="flex bg-white flex-col   min-w-[150px]  justify-end text-start h-full "
+                                      className="flex bg-white flex-col min-w-[170px] justify-end text-start h-full "
                                     >
                                       {Object.keys(
-                                        report[economicParamKey][level]
-                                      ).map((category) => (
+                                        report[economicParamKey][level],
+                                      ).map(category => (
                                         <li
                                           className="py-2 font-semibold border-y pl-2"
                                           key={category}
@@ -238,10 +233,10 @@ function ReportData({ reportId }: { reportId: string }) {
                                   {/* TABLES */}
                                   <div className="flex bg-white shadow-lg ">
                                     {manufacturingStagesKey.map(
-                                      (manufactoryStage) => (
+                                      manufactoryStage => (
                                         <table
                                           key={manufactoryStage}
-                                          className=" min-w-[200px] border-collapse"
+                                          className="min-w-[210px] border-collapse"
                                         >
                                           <thead>
                                             <tr className="bg-gray-100">
@@ -258,8 +253,9 @@ function ReportData({ reportId }: { reportId: string }) {
                                                   <React.Fragment key={date}>
                                                     <span className="w-1/2 underline text-center font-semibold">
                                                       {date}
-                                                    </span>{" "}
-                                                    {i === 0 && " - "}
+                                                    </span>
+                                                    {' '}
+                                                    {i === 0 && ' - '}
                                                   </React.Fragment>
                                                 ))}
                                               </td>
@@ -268,8 +264,8 @@ function ReportData({ reportId }: { reportId: string }) {
                                             {returnEconomicFactorsValues(
                                               report,
                                               economicParamKey,
-                                              level
-                                            ).map((category) => (
+                                              level,
+                                            ).map(category => (
                                               <tr key={category}>
                                                 <td className="border px-4 py-2   flex">
                                                   {dates.map(
@@ -279,35 +275,35 @@ function ReportData({ reportId }: { reportId: string }) {
                                                       >
                                                         <span
                                                           className={`w-1/2 text-center ${
-                                                            category ===
-                                                              "Change" &&
-                                                            dateIndex !== 0 &&
-                                                            "text-green-400 font-semibold"
+                                                            category
+                                                            === 'Change'
+                                                            && dateIndex !== 0
+                                                            && 'text-green-400 font-semibold'
                                                           } `}
                                                         >
-                                                          {category ===
-                                                            "Change" &&
-                                                            dateIndex !== 0 &&
-                                                            "+"}
+                                                          {category
+                                                          === 'Change'
+                                                          && dateIndex !== 0
+                                                          && '+'}
                                                           {
                                                             report[
                                                               economicParamKey
-                                                            ][level][category][
+                                                            ][dateIndex === 0 ? 'BASE' : level][category][
                                                               manufactoryStage
                                                             ][date]
                                                           }
                                                         </span>
-                                                        {dateIndex === 0 &&
-                                                          " - "}
+                                                        {dateIndex === 0
+                                                        && ' - '}
                                                       </React.Fragment>
-                                                    )
+                                                    ),
                                                   )}
                                                 </td>
                                               </tr>
                                             ))}
                                           </tbody>
                                         </table>
-                                      )
+                                      ),
                                     )}
                                   </div>
                                 </div>
@@ -315,7 +311,7 @@ function ReportData({ reportId }: { reportId: string }) {
                             </div>
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -330,5 +326,6 @@ function ReportData({ reportId }: { reportId: string }) {
 export default function ReportDataRender() {
   const { reportId } = useGenerateReportContext();
 
-  if (reportId) return <ReportData reportId={reportId} />;
+  if (reportId)
+    return <ReportData reportId={reportId} />;
 }

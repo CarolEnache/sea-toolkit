@@ -1,11 +1,11 @@
-import { ArgValue, ColumnName, MatrixIndex, RowName, Table, Row, CellValue } from "./types";
+import type { ArgValue, CellValue, ColumnName, MatrixIndex, Row, RowName, Table } from './types';
 
 class Matrix {
   cols: ColumnName[]; // Column labels, for searching/debugging | A,B,C,D
   rows: RowName[]; // Row labels, for searching/debugging | 1,2,3,4
   matrix: Table; // This is an array of arrays to be used in mathjs
 
-  constructor(matrix ?: Matrix) {
+  constructor(matrix?: Matrix) {
     this.cols = matrix?.cols ? structuredClone(matrix.cols) as ColumnName[] : [];
     this.rows = matrix?.rows ? structuredClone(matrix.rows) as RowName[] : [];
     this.matrix = matrix?.matrix ? structuredClone(matrix.matrix) as Table : [[]];
@@ -37,7 +37,7 @@ class Matrix {
     return index;
   }
 
-  setValue(rowIndex: MatrixIndex, colIndex: MatrixIndex, value: ArgValue) { 
+  setValue(rowIndex: MatrixIndex, colIndex: MatrixIndex, value: ArgValue) {
     const outputMatrix = this.matrix;
     if (!outputMatrix[rowIndex]) {
       outputMatrix[rowIndex] = [];
@@ -74,7 +74,6 @@ class Matrix {
   }
 }
 
-
 // export function mmult(matrix1: number[][], matrix2: number[][]): number[][] {
 //   const result: number[][] = [];
 //   for (let i = 0; i < matrix1.length; i++) { // iterates the rows of 1
@@ -89,9 +88,6 @@ class Matrix {
 //   }
 //   return result;
 // }
-
-
-
 
 // Assuming you have a Matrix class defined with the following properties and methods:
 // - rows: string[]
@@ -126,17 +122,17 @@ class Matrix {
 
 export function mmult(matrix1: Matrix, matrix2: Matrix): Matrix {
   const result = new Matrix();
-  for (let row1 of matrix1.rows) { // i // iterates the rows of 1 // LABR
+  for (const row1 of matrix1.rows) { // i // iterates the rows of 1 // LABR
     // result[i] = [];
-    for (let col2 of matrix2.cols) { // j // iterates the columns of 2 // I2 // I2
+    for (const col2 of matrix2.cols) { // j // iterates the columns of 2 // I2 // I2
       // let sum = 0;
-      for (let col1 of matrix2.cols) { // k // iterates the columns of 1 // I2 // I1
+      for (const col1 of matrix2.cols) { // k // iterates the columns of 1 // I2 // I1
         // x2*y1 + x1*z1
         // x2*y1 + x1*z1
-        const rowIndex = matrix2.getColIndex(col1); // 0 // 1 
+        const rowIndex = matrix2.getColIndex(col1); // 0 // 1
         const colIndex = matrix2.getColIndex(col2); // 0 // 0
         const each = Number(matrix1.getValueByName(row1, col1)) * Number(matrix2.getValue(rowIndex, colIndex));
-        result.setValueByName(row1, col2, previous => Number(previous) + each)
+        result.setValueByName(row1, col2, previous => Number(previous) + each);
         // sum += matrix1[row1][col1] * matrix2[col1][col2];
         // sum += matrix1[i][k] * matrix2[k][j];
       }
@@ -145,9 +141,6 @@ export function mmult(matrix1: Matrix, matrix2: Matrix): Matrix {
   }
   return result;
 }
-
-
-
 
 // export function mmult(matrix1: Matrix, matrix2: Matrix): number[][] {
 //   const result = new Matrix();
@@ -166,6 +159,5 @@ export function mmult(matrix1: Matrix, matrix2: Matrix): Matrix {
 //   }
 //   return result;
 // }
-
 
 export default Matrix;

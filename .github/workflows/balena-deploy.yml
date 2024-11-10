@@ -1,39 +1,39 @@
 on:
   push:
-     branches:
-       - main
+    branches:
+      - main
 
 jobs:
   balena_deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version-file: ".nvmrc"
-    - name: Cache Node.js modules
-      id: npm-cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          **/node_modules
-          .next/cache
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    - name: Install dependencies
-      run: npm install
-      if: steps.npm-cache.outputs.cache-hit != 'true'
-    - name: Build with Next.js
-      run: npm run build
-    - name: Prepare to publish
-      run: ./tools/sh/postbuild.sh
-    - name: Balena Deploy
-      uses: bekriebel/balena-cli-action@v1
-      if: success()
-      with:
-        balena_api_token: ${{ secrets.BALENA_TOKEN }}
-        balena_command: "deploy g_weareour_tech/pi-2 --logs"
-        application_path: "./.next/standalone"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Cache Node.js modules
+        id: npm-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            .next/cache
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: npm install
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - name: Build with Next.js
+        run: npm run build
+      - name: Prepare to publish
+        run: ./tools/sh/postbuild.sh
+      - name: Balena Deploy
+        uses: bekriebel/balena-cli-action@v1
+        if: success()
+        with:
+          balena_api_token: ${{ secrets.BALENA_TOKEN }}
+          balena_command: deploy g_weareour_tech/pi-2 --logs
+          application_path: ./.next/standalone

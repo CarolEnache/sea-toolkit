@@ -1,25 +1,26 @@
-"use client";
+'use client';
 
-// components/MyChart.js
-import React, { useEffect, useRef, useState } from "react";
-import Chart from "chart.js/auto";
-
-import { SlSizeFullscreen } from "react-icons/sl";
-import { SlSizeActual } from "react-icons/sl";
-
-import {
+import type {
   Change,
   EconomicFactors,
   EconomicFactorsValuesEnum,
-  ForecastingGroup,
   ForecastingGroupKey,
   ManufacturingStage,
-} from "@/server/holistic-approach/report.types";
+} from '@/server/holistic-approach/report.types';
+import type { ChartProps } from '@/types/front/report';
+import {
+  ForecastingGroup,
+} from '@/server/holistic-approach/report.types';
 
-import ChartDataLabels from "chartjs-plugin-datalabels";
-import { ChartProps } from "@/types/front/report";
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-const ReportChart = ({
+// components/MyChart.js
+import React, { useEffect, useRef, useState } from 'react';
+
+import { SlSizeActual, SlSizeFullscreen } from 'react-icons/sl';
+
+function ReportChart({
   report,
   economicParamKey,
   chartColors,
@@ -30,89 +31,98 @@ const ReportChart = ({
   indexChartFullScreen,
   setIndexChartFullScreen,
   dates,
-}: ChartProps) => {
+}: ChartProps) {
   const economicFactors = Object.keys(
-    report[economicParamKey].BASE
+    report[economicParamKey].BASE,
   ) as EconomicFactors[];
   const economicFactorsWithoutTotalAndChange = economicFactors.filter(
-    (factor) => factor !== "Change" && factor !== "Total"
+    factor => factor !== 'Change' && factor !== 'Total',
   );
   const manufacturingStages = Object.keys(
-    report[economicParamKey].BASE[economicFactors[0]]
+    report[economicParamKey].BASE[economicFactors[0]],
   ) as ManufacturingStage[];
+  const periods = Object.keys(
+    report[economicParamKey].BASE[economicFactors[0]][manufacturingStages[0]],
+  ) as `${string}-${string}`[];
 
   const [indexDate, setIndexDate] = useState(0);
 
   const [changes, setChanges] = useState<Change[]>([]);
 
-  const [selectedManufacturingStages, setSelectedManufacturingStages] =
-    useState([manufacturingStages[0]]);
+  const [selectedManufacturingStages, setSelectedManufacturingStages]
+    = useState([manufacturingStages[0]]);
   const chartRef = useRef<any>(null);
 
   useEffect(() => {
     if (chartRef.current) {
-      const labels = manufacturingStages.filter((stage) =>
-        selectedManufacturingStages?.includes(stage)
+      const labels = manufacturingStages.filter(stage =>
+        selectedManufacturingStages?.includes(stage),
       );
 
       const extractData = (
         forecastingGroup: ForecastingGroup,
-        economicFactorsKeys: EconomicFactorsValuesEnum[]
+        economicFactorsKeys: EconomicFactorsValuesEnum[],
       ): number[][] => {
         return economicFactorsKeys.map((factor) => {
           const dataPoints = report[economicParamKey][forecastingGroup][factor];
           return labels.map((label) => {
-            let data = Object.values(dataPoints[label]) as string[] | number[];
-
-            return data[indexDate] as number;
+            const period = periods[indexDate];
+            return dataPoints[label][period] as number;
           });
         });
       };
 
-      const forecastingGroup = keysForecastingGroup.filter((key) =>
-        selectedForecastingGroup.includes(key)
+      const forecastingGroup = keysForecastingGroup.filter(key =>
+        selectedForecastingGroup.includes(key),
       );
 
       // TO SHOW CHANGE DATA IF SECOND DATE IS CHOOSED
       if (indexDate === 1) {
-        const changes = forecastingGroup.map((key) => {
-          const change = {
-            [key]: extractData(
-              ForecastingGroup[key],
-              economicFactors.filter((ec) => ec === "Change")
-            )?.[0]?.[0],
-          } as Change;
-          return change;
+        const changes = labels.map((label) => {
+          const [pastPeriod, futurePeriod] = periods;
+
+          const pastBase = report[economicParamKey][ForecastingGroup.BASE].Total[label][pastPeriod];
+
+          return {
+            [ForecastingGroup.LOW]: (report[economicParamKey][ForecastingGroup.LOW].Total[label][futurePeriod] * 100 / pastBase).toFixed(0) - 100,
+            [ForecastingGroup.BASE]: (report[economicParamKey][ForecastingGroup.BASE].Total[label][futurePeriod] * 100 / pastBase).toFixed(0) - 100,
+            [ForecastingGroup.HIGH]: (report[economicParamKey][ForecastingGroup.HIGH].Total[label][futurePeriod] * 100 / pastBase).toFixed(0) - 100,
+          };
         });
+
         setChanges(changes);
-      } else {
+      }
+      else {
         setChanges([]);
       }
 
-      const labelsWithTotals = labels.map((label, index) => {
-        let formatLabel = "Totals ( ";
+      const labelsWithTotals = labels.map((label) => {
+        let formatLabel = 'Totals ( ';
         forecastingGroup.forEach((key, i) => {
-          const total = extractData(ForecastingGroup[key], economicFactors)[3][
-            index
-          ];
-          const change = extractData(
-            ForecastingGroup[key],
-            economicFactors.filter((ec) => ec === "Change")
-          )?.[0]?.[0];
+          const total = extractData(ForecastingGroup[key], economicFactors).pop()?.[0];
+
+          if (!total)
+            return '';
+
+          const [pastPeriod, futurePeriod] = periods;
+
+          const pastBase = report[economicParamKey][ForecastingGroup.BASE].Total[label][pastPeriod];
+          const change = report[economicParamKey][ForecastingGroup[key]].Total[label][futurePeriod] - pastBase;
+
           return (formatLabel += `${key}:${total}${
-            indexDate === 1 ? ` (+${change})` : ""
-          }${i !== forecastingGroup.length - 1 ? " " : ""}`);
+            indexDate === 1 ? ` (${change > 0 ? '+' : ''}${change})` : ''
+          }${i !== forecastingGroup.length - 1 ? ' ' : ''}`);
         });
-        return (formatLabel += " )");
+        return (formatLabel += ' )');
       });
 
       const datasets = economicFactorsWithoutTotalAndChange
         .map((factor, index) => {
-          return forecastingGroup.map((keyColor) => ({
+          return forecastingGroup.map(keyColor => ({
             label: `${keyColor} - ${factor}`,
             data: extractData(
               ForecastingGroup[keyColor],
-              economicFactorsWithoutTotalAndChange
+              economicFactorsWithoutTotalAndChange,
             )[index],
             backgroundColor: chartColors[keyColor],
             borderColor: chartColors.BASE,
@@ -121,37 +131,41 @@ const ReportChart = ({
         })
         .flat();
 
-      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // REFACTO THIS CODE NOT PERFECT
       const maxDataset = datasets.reduce(
         (max: any, dataset: any) => {
           const value = dataset.data[0];
           return value > max.maxValue ? { dataset, maxValue: value } : max;
         },
-        { dataset: null, maxValue: -Infinity }
+        { dataset: null, maxValue: -Infinity },
       ).dataset;
 
       const maxValue = maxDataset?.data;
       let addValue = 0;
-      if (maxValue)
+      if (maxValue) {
         if (maxValue < 1000) {
           addValue = 100;
-        } else if (maxValue < 10000) {
+        }
+        else if (maxValue < 10000) {
           addValue = 500;
-        } else if (maxValue < 20000) {
+        }
+        else if (maxValue < 20000) {
           addValue = 1000;
-        } else {
+        }
+        else {
           addValue = 2000;
         }
-      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      }
+      // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-      const ctx = chartRef.current.getContext("2d");
+      const ctx = chartRef.current.getContext('2d');
 
       const chart = new Chart(ctx, {
-        type: "bar", // ou 'line', 'pie', etc.
+        type: 'bar', // ou 'line', 'pie', etc.
         data: {
-          labels: [""],
-          datasets: datasets,
+          labels: [''],
+          datasets,
         },
         plugins: [ChartDataLabels],
         options: {
@@ -169,41 +183,27 @@ const ReportChart = ({
             datalabels: {
               labels: {
                 name: {
-                  align: "start",
-                  anchor: "start",
+                  align: 'start',
+                  anchor: 'start',
 
                   padding: {
                     top: 10,
                   },
                   font: { size: 12, weight: 600 },
 
-                  formatter: function (value, ctx) {
+                  formatter(value, ctx) {
                     return ctx.chart.data.datasets[
                       ctx.datasetIndex
-                    ].label?.split("-")[1];
+                    ].label?.split(' - ')[1];
                   },
-                  display: function (context) {
-                    let indexToShow = context.datasetIndex === 1;
-                    if (datasets.length === 6) {
-                      indexToShow =
-                        context.datasetIndex === 1 ||
-                        context.datasetIndex === 3 ||
-                        context.datasetIndex === 5;
-                    } else if (datasets.length === 9) {
-                      indexToShow =
-                        context.datasetIndex === 1 ||
-                        context.datasetIndex === 4 ||
-                        context.datasetIndex === 7;
-                    } else if (datasets.length === 0) {
-                      indexToShow = false;
-                    }
-                    return indexToShow;
+                  display(context) {
+                    return context.datasetIndex % 3 === 1;
                   },
                 },
                 value: {
-                  align: "end",
-                  anchor: "end",
-                  color: "grey",
+                  align: 'end',
+                  anchor: 'end',
+                  color: 'grey',
                   font: {
                     weight: 600,
                   },
@@ -214,16 +214,16 @@ const ReportChart = ({
             tooltip: {
               titleFont: {
                 size: 14,
-                weight: "bold",
+                weight: 'bold',
               },
               bodyFont: {
                 size: 12,
               },
               callbacks: {
-                label: function (tooltipItem) {
+                label(tooltipItem) {
                   return `Value: ${tooltipItem.raw}`;
                 },
-                title: function (tooltipItems) {
+                title(tooltipItems) {
                   const title = tooltipItems[0].dataset.label;
                   // if (title) return title.replace("%", "");
                   return title;
@@ -244,7 +244,7 @@ const ReportChart = ({
             // },
             legend: {
               display: false,
-              position: "bottom",
+              position: 'bottom',
             },
           },
 
@@ -270,7 +270,7 @@ const ReportChart = ({
               },
               grid: {
                 display: true,
-                color: "rgba(0, 0, 0, 0.2)",
+                color: 'rgba(0, 0, 0, 0.2)',
               },
             },
 
@@ -290,7 +290,7 @@ const ReportChart = ({
               },
               grid: {
                 display: true,
-                color: "rgba(0, 0, 0, 0.1)",
+                color: 'rgba(0, 0, 0, 0.1)',
               },
               beginAtZero: true,
             },
@@ -310,129 +310,135 @@ const ReportChart = ({
   ]);
 
   return (
-    <>
-      <div
-        className={`flex flex-col w-full min-w-full relative ${
-          indexChartFullScreen === index
-            ? "min-h-[80%]  max-h-[20%] h-[5/6]"
-            : "min-h-[100%] h-full "
-        } `}
-      >
-        <div className=" flex justify-between mb-3">
-          {/* TITLE */}
-          <h3 className="text-2xl font-bold text-secondary ">
-            {economicParamKey}
-          </h3>
 
-          <div className="flex gap-2 md:gap-10">
-            {/* DATES BUTTON  */}
-            <div className="flex gap-1 md:gap-2">
-              {dates.map((date, i) => (
-                <button
-                  key={i}
-                  className={`${
-                    indexDate === i
-                      ? "bg-primary text-white"
-                      : "bg-white text-secondary/50 border-secondary/10"
-                  }  buttonChart hover:bg-primary hover:text-white text-sm`}
-                  onClick={() => {
-                    setIndexDate(i);
-                  }}
-                >
-                  {date}
-                </button>
-              ))}
-            </div>
-            {/* TOGGLE SIZE BUTTON  */}
-            <button
-              className=" text-xs md:text-base "
-              onClick={() => {
-                if (
-                  indexChartFullScreen !== null &&
-                  indexChartFullScreen === index
-                ) {
-                  setIndexChartFullScreen(null);
-                } else {
-                  setIndexChartFullScreen(index);
-                }
-              }}
-            >
-              {indexChartFullScreen === index ? (
-                <div className="p-2 hover:border-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
-                  <SlSizeActual className="text-secondary/50 hover:text-primary/50 " />
-                </div>
-              ) : (
-                <div className="p-2 hover:text-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
-                  <SlSizeFullscreen className="text-secondary/50 hover:text-primary/50 " />
-                </div>
-              )}
-            </button>
-          </div>
-        </div>
+    <div
+      className={`flex flex-col w-full min-w-full relative ${
+        indexChartFullScreen === index
+          ? 'min-h-[80%]  max-h-[20%] h-[5/6]'
+          : 'min-h-[100%] h-full '
+      } `}
+    >
+      <div className=" flex justify-between mb-3">
+        {/* TITLE */}
+        <h3 className="text-2xl font-bold text-secondary ">
+          {economicParamKey}
+        </h3>
 
-        {/* ManufacturingStages TOGGLE BUTTONS  */}
-        <div className="flex justify-center ">
-          <div className="flex justify-center flex-wrap gap-2 mb-3">
-            {manufacturingStages.map((stage, i) => (
+        <div className="flex gap-2 md:gap-10">
+          {/* DATES BUTTON  */}
+          <div className="flex gap-1 md:gap-2">
+            {dates.map((date, i) => (
               <button
                 key={i}
+                type="button"
                 className={`${
-                  selectedManufacturingStages.includes(stage)
-                    ? "bg-tertiary text-primary"
-                    : "bg-white text-secondary/50 border-secondary/10"
-                } buttonChart hover:bg-tertiary hover:text-primary text-xs`}
+                  indexDate === i
+                    ? 'bg-primary text-white'
+                    : 'bg-white text-secondary/50 border-secondary/10'
+                }  buttonChart hover:bg-primary hover:text-white text-sm`}
                 onClick={() => {
-                  // handleToggleDataArray(stage, setSelectedManufacturingStages)
-                  if (!selectedManufacturingStages.includes(stage))
-                    setSelectedManufacturingStages([stage]);
+                  setIndexDate(i);
                 }}
               >
-                {stage}
+                {date}
               </button>
             ))}
           </div>
-        </div>
-
-        <canvas ref={chartRef}></canvas>
-
-        {/* CHANGES PERCENTAGE BETWEEN FIRST DATE AND SECOND LOW BASE HIGH  */}
-        {changes.length > 0 && (
-          <>
-            <div className="flex  justify-center  w-full gap-2  ">
-              {changes.map((change, index) => {
-                const [key, value] = Object.entries(
-                  change
-                )[0] as ForecastingGroupKey[]; // NEED TO FIX THIS TYPE
-                return (
-                  <div
-                    key={index}
-                    className="bg-white flex items-center  px-4 mt-2 border-t border-gray-100 rounded-md shadow-md  py-2"
-                  >
-                    <div
-                      className={`w-5 h-5 border rounded-full border-gray-300 mr-1`}
-                      style={{ backgroundColor: chartColors[key] }}
-                    ></div>
-
-                    <div className="flex gap-1 items-center">
-                      <div className="text-gray-700 text-xs font-semibold">
-                        {key}
-                      </div>
-
-                      <div
-                        className={` text-xs font-medium ${"text-green-500"}`}
-                      >
-                        +{value}
-                      </div>
-                    </div>
+          {/* TOGGLE SIZE BUTTON  */}
+          <button
+            type="button"
+            className=" text-xs md:text-base "
+            onClick={() => {
+              if (
+                indexChartFullScreen !== null
+                && indexChartFullScreen === index
+              ) {
+                setIndexChartFullScreen(null);
+              }
+              else {
+                setIndexChartFullScreen(index);
+              }
+            }}
+          >
+            {indexChartFullScreen === index
+              ? (
+                  <div className="p-2 hover:border-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
+                    <SlSizeActual className="text-secondary/50 hover:text-primary/50 " />
                   </div>
-                );
-              })}
-            </div>
-          </>
-        )}
+                )
+              : (
+                  <div className="p-2 hover:text-primary/50 border rounded-md border-secondary/50 active:scale-95 hover:bg-gray-50 transition duration-200 ">
+                    <SlSizeFullscreen className="text-secondary/50 hover:text-primary/50 " />
+                  </div>
+                )}
+          </button>
+        </div>
       </div>
-    </>
+
+      {/* ManufacturingStages TOGGLE BUTTONS  */}
+      <div className="flex justify-center ">
+        <div className="flex justify-center flex-wrap gap-2 mb-3">
+          {manufacturingStages.map((stage, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${
+                selectedManufacturingStages.includes(stage)
+                  ? 'bg-tertiary text-primary'
+                  : 'bg-white text-secondary/50 border-secondary/10'
+              } buttonChart hover:bg-tertiary hover:text-primary text-xs`}
+              onClick={() => {
+                // handleToggleDataArray(stage, setSelectedManufacturingStages)
+                if (!selectedManufacturingStages.includes(stage))
+                  setSelectedManufacturingStages([stage]);
+              }}
+            >
+              {stage}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <canvas ref={chartRef}></canvas>
+
+      {/* CHANGES PERCENTAGE BETWEEN FIRST DATE AND SECOND LOW BASE HIGH  */}
+      {changes.length > 0 && (
+        <div className="flex  justify-center  w-full gap-2  ">
+          {changes.flatMap((change, index) => Object.keys(change).map((changeKey) => {
+            const key = changeKey as ForecastingGroupKey;
+            const value = change[key] as number;
+
+            return (
+              <div
+                key={index}
+                className="bg-white flex items-center  px-4 mt-2 border-t border-gray-100 rounded-md shadow-md  py-2"
+              >
+                <div
+                  className="w-5 h-5 border rounded-full border-gray-300 mr-1"
+                  style={{ backgroundColor: chartColors[key] }}
+                >
+                </div>
+
+                <div className="flex gap-1 items-center">
+                  <div className="text-gray-700 text-xs font-semibold">
+                    {key}
+                  </div>
+
+                  <div
+                    className={` text-xs font-medium ${value > 0 ? 'text-green-500' : 'text-red-500'}`}
+                  >
+                    {value > 0 ? '+' : ''}
+                    {value}
+                    %
+                  </div>
+                </div>
+              </div>
+            );
+          }))}
+        </div>
+      )}
+    </div>
   );
-};
+}
 
 export default ReportChart;

@@ -2,7 +2,7 @@
 import { reportService } from '@/server/services';
 import { runDbQuery } from '@/server/services/db';
 
-export const preload = () => {
+export async function preload() {
   // void reportService.getReport(report_id);
 }
 

@@ -1,36 +1,32 @@
+import { FORM_DATA } from '../constants';
 import {
   CoEndUse,
-  CoFirstUse,
   CoEndUseDistribution,
+  CoFirstUse,
   CoFirstUseDistribution,
-  MSRRawData,
   CoPrices,
-} from "./dataStorage";
+} from './dataStorage';
 import {
   CoEndUseDistributionTitles,
-  CoEndUseTitles,
   CoFirstUseDistributionTitles,
-  CoFirstUseTitles,
-} from "./types";
-import { REGIONS, SETTINGS } from "./auxiliary";
-import { HARDCODED_ValueAdditionAtFirstUse } from "./unido-dardcoded-footprint";
-import { FORM_DATA } from "../constants";
+} from './types';
+import { HARDCODED_ValueAdditionAtFirstUse } from './unido-dardcoded-footprint';
 
-const MAX_FORECASTING_YEAR = new Date("2030-01-01").getFullYear();
+const MAX_FORECASTING_YEAR = new Date('2030-01-01').getFullYear();
 
 // TODO - Reach out to Johann to share the RAWdata for the CoEndUse, CoFirstUse
 // TODO revisit this file to make the code DRY - essspecially - getEndUseDistribution and getFirstUseDistribution
 
-const toAccumulatorKey = (...args: string[]) => args.join("-");
+const toAccumulatorKey = (...args: string[]) => args.join('-');
 
 // TODO - investigate the memory licks
-const getEndUseDistribution = () => {
+function getEndUseDistribution() {
   const commodityApplications = CoEndUseDistribution[0].slice(3); // TODO - replce slice with a way to map to the correct data in a more dynamic way
   const rows = CoEndUseDistribution.slice(1);
   const Products = new Set<string>();
   const ConsumerApplications = new Set<string>();
   const latestYearInAvailableData = Number(
-    rows[rows.length - 1][CoFirstUseDistributionTitles.Year]
+    rows[rows.length - 1][CoFirstUseDistributionTitles.Year],
   );
   const totalByApplicationsAndYear = rows.reduce((accumulator, row) => {
     const ceva = {
@@ -45,12 +41,12 @@ const getEndUseDistribution = () => {
       const key = toAccumulatorKey(
         ceva.Application,
         ceva.Year,
-        commodityApplication
+        commodityApplication,
       );
       accumulator[key] = accumulator[key] || 0;
-      const value =
+      const value
       /* @ts-ignore-next-line */
-        Number(row[CoEndUseDistributionTitles[commodityApplication]]) || 0;
+        = Number(row[CoEndUseDistributionTitles[commodityApplication]]) || 0;
       accumulator[key] += value;
     });
 
@@ -70,27 +66,27 @@ const getEndUseDistribution = () => {
         const key = toAccumulatorKey(
           ceva.CommodityApplication,
           year,
-          ceva.Product
+          ceva.Product,
         );
         const totalKey = toAccumulatorKey(
           ceva.CommodityApplication,
           year,
-          commodityApplication
+          commodityApplication,
         );
         const total = totalByApplicationsAndYear[totalKey];
 
-        const value =
+        const value
         /* @ts-ignore-next-line */
-          Number(row[CoEndUseDistributionTitles[commodityApplication]]) || 0;
+          = Number(row[CoEndUseDistributionTitles[commodityApplication]]) || 0;
         accumulator[key] = accumulator[key] || ceva;
         const normalisedValue = value / total;
-        accumulator[key][commodityApplication] =
-          (accumulator[key][commodityApplication] || 0) +
-          (normalisedValue || 0);
+        accumulator[key][commodityApplication]
+          = (accumulator[key][commodityApplication] || 0)
+          + (normalisedValue || 0);
       });
       return accumulator;
     },
-    {} as Record<string, Record<string, number>>
+    {} as Record<string, Record<string, number>>,
   );
 
   Products.forEach((product) => {
@@ -98,7 +94,7 @@ const getEndUseDistribution = () => {
       const referenceKey = toAccumulatorKey(
         application,
         `${latestYearInAvailableData}`,
-        product
+        product,
       );
       new Array(MAX_FORECASTING_YEAR - latestYearInAvailableData)
         .fill(1)
@@ -107,27 +103,27 @@ const getEndUseDistribution = () => {
           const key = toAccumulatorKey(
             application,
             `${forecastedYear}`,
-            product
+            product,
           );
 
           productDistributionNormalisedByYearAndProduct[key] = structuredClone(
-            productDistributionNormalisedByYearAndProduct[referenceKey]
+            productDistributionNormalisedByYearAndProduct[referenceKey],
           );
-          productDistributionNormalisedByYearAndProduct[key].Year =
-            forecastedYear;
+          productDistributionNormalisedByYearAndProduct[key].Year
+            = forecastedYear;
         });
     });
   });
 
   return productDistributionNormalisedByYearAndProduct;
-};
+}
 
-const getFirstUseDistribution = () => {
+function getFirstUseDistribution() {
   const consumerApplications = CoFirstUseDistribution[0].slice(2);
   const rows = CoFirstUseDistribution.slice(1);
   const Products = new Set<string>();
   const latestYearInAvailableData = Number(
-    rows[rows.length - 1][CoFirstUseDistributionTitles.Year]
+    rows[rows.length - 1][CoFirstUseDistributionTitles.Year],
   );
   const totalByApplicationsAndYear = rows.reduce((accumulator, row) => {
     const ceva = {
@@ -139,9 +135,9 @@ const getFirstUseDistribution = () => {
     (consumerApplications as string[]).forEach((consumerApplication) => {
       const key = toAccumulatorKey(ceva.Year, consumerApplication);
       accumulator[key] = accumulator[key] || 0;
-      const value =
+      const value
       /* @ts-ignore-next-line */
-        Number(row[CoFirstUseDistributionTitles[consumerApplication]]) || 0;
+        = Number(row[CoFirstUseDistributionTitles[consumerApplication]]) || 0;
       accumulator[key] += value;
     });
 
@@ -158,29 +154,29 @@ const getFirstUseDistribution = () => {
         const key = toAccumulatorKey(`${ceva.Year}`, ceva.Product);
         const totalKey = toAccumulatorKey(
           `${ceva.Year}`,
-          `${consumerApplication}`
+          `${consumerApplication}`,
         );
         const total = totalByApplicationsAndYear[totalKey];
 
-        const value =
+        const value
         /* @ts-ignore-next-line */
-          Number(row[CoFirstUseDistributionTitles[consumerApplication]]) || 0;
+          = Number(row[CoFirstUseDistributionTitles[consumerApplication]]) || 0;
         accumulator[key] = accumulator[key] || ceva;
         const normalisedValue = value / total;
-        accumulator[key][`${consumerApplication}`] =
-          (accumulator[key][`${consumerApplication}`] || 0) +
-          (normalisedValue || 0);
+        accumulator[key][`${consumerApplication}`]
+          = (accumulator[key][`${consumerApplication}`] || 0)
+          + (normalisedValue || 0);
       });
       return accumulator;
     },
-    {} as Record<string, Record<string, number>>
+    {} as Record<string, Record<string, number>>,
   );
 
   // TODO: Improve forecast, more or less they look good with this approach, we assume the same value as in 2021 for the rest of the years until 2030
   Products.forEach((product) => {
     const referenceKey = toAccumulatorKey(
       `${latestYearInAvailableData}`,
-      product
+      product,
     );
     new Array(MAX_FORECASTING_YEAR - latestYearInAvailableData)
       .fill(1)
@@ -189,20 +185,20 @@ const getFirstUseDistribution = () => {
         const key = toAccumulatorKey(`${forecastedYear}`, product);
 
         productDistributionNormalisedByYearAndProduct[key] = structuredClone(
-          productDistributionNormalisedByYearAndProduct[referenceKey]
+          productDistributionNormalisedByYearAndProduct[referenceKey],
         );
-        productDistributionNormalisedByYearAndProduct[key].Year =
-          forecastedYear;
+        productDistributionNormalisedByYearAndProduct[key].Year
+          = forecastedYear;
       });
   });
 
   return productDistributionNormalisedByYearAndProduct;
-};
+}
 
-const getPricingAndForecast = (): Record<string, any> => {
+function getPricingAndForecast(): Record<string, any> {
   const years = CoPrices[0].slice(1);
   const rows = CoPrices;
-  const CURRENT_YEAR = new Date("2021-01-01").getFullYear();
+  const CURRENT_YEAR = new Date('2021-01-01').getFullYear();
 
   return years.map((year, index) => {
     const isForecast = Number(year) > CURRENT_YEAR;
@@ -229,8 +225,8 @@ const getPricingAndForecast = (): Record<string, any> => {
     const oxides = (D9 + D10) / 2; // avg D9,D10
     const carboxylates = (D6 + D7 + D8 + D9 + D10 + D11 + D12 + D13) / 8; // avg D6,D13
     const scrap = metal - D14; // D20 - D16
-    const chemicals =
-      (D4 + D5 + D6 + D7 + D8 + D9 + D10 + D11 + D12 + D13) / 10; // avg D4,D13
+    const chemicals
+      = (D4 + D5 + D6 + D7 + D8 + D9 + D10 + D11 + D12 + D13) / 10; // avg D4,D13
 
     const base = {
       metal,
@@ -260,7 +256,8 @@ const getPricingAndForecast = (): Record<string, any> => {
         scrap: base.scrap * 1.2,
         chemicals: base.chemicals * 1.2,
       };
-    } else {
+    }
+    else {
       low = base;
       high = base;
     }
@@ -272,9 +269,9 @@ const getPricingAndForecast = (): Record<string, any> => {
       high,
     };
   });
-};
+}
 
-const getFirstUse = ({
+function getFirstUse({
   selectedRegion,
   selectedAssetMsrStart,
   selectedAssetMsrEnd,
@@ -282,7 +279,7 @@ const getFirstUse = ({
   selectedRegion: string;
   selectedAssetMsrStart: number;
   selectedAssetMsrEnd: number;
-}) => {
+}) {
   const headerOffset = 2;
   const commodityApplications = CoFirstUse[0].slice(headerOffset) as string[];
   const rows = CoFirstUse.slice(1) as (string[] | number[])[];
@@ -293,13 +290,13 @@ const getFirstUse = ({
     const year = row[1];
 
     return firstUseDistribution
-      .filter((distribution) => distribution.Year === year)
+      .filter(distribution => distribution.Year === year)
       .map((distribution) => {
         const firstUseCombined = commodityApplications.reduce<
           Record<string, number | string>
         >((acc, header, index) => {
-          acc[header] =
-            Number(row[index + headerOffset]) * distribution[header];
+          acc[header]
+            = Number(row[index + headerOffset]) * distribution[header];
 
           return acc;
         }, {});
@@ -316,60 +313,61 @@ const getFirstUse = ({
 
   const firstUseWithProductAndForecast = firstUseWithProduct.flatMap(
     (product) => {
-      const forecastType = ["low", "base", "high"];
+      const forecastType = ['low', 'base', 'high'];
       const currentYearForecast = pricing.find(
-        (forecast: { year: string | number }) => forecast.year === product.Year
+        (forecast: { year: string | number }) => forecast.year === product.Year,
       );
       return forecastType.map((type: string) => {
-        const price =
-          currentYearForecast[type][`${product.Product}`.toLowerCase()];
+        const price
+          = currentYearForecast[type][`${product.Product}`.toLowerCase()];
 
         return Object.keys(product).reduce<Record<string, string | number>>(
           (acc, curr) => {
-            if (!["Product", "Year", "Country"].includes(curr)) {
+            if (!['Product', 'Year', 'Country'].includes(curr)) {
               acc[curr] = Number(product[curr]) * price;
-            } else {
+            }
+            else {
               acc[curr] = product[curr];
             }
             return acc;
           },
-          { forecastType: type }
+          { forecastType: type },
         );
       });
-    }
+    },
   );
 
   const averageOfTonnes = firstUseWithProductAndForecast
     .filter(
-      (current) =>
-        current.Country === selectedRegion.toLocaleUpperCase() &&
-        Number(current.Year) >= selectedAssetMsrStart &&
-        Number(current.Year) <= selectedAssetMsrEnd
+      current =>
+        current.Country === selectedRegion.toLocaleUpperCase()
+        && Number(current.Year) >= selectedAssetMsrStart
+        && Number(current.Year) <= selectedAssetMsrEnd,
     )
     .reduce(
       (acc, curr) => {
         commodityApplications.forEach((application) => {
           // @ts-ignore
-          acc[curr.forecastType][application] =
+          acc[curr.forecastType][application]
             // @ts-ignore
-            curr[application] /
-              (selectedAssetMsrEnd - selectedAssetMsrStart + 1) +
+            = curr[application]
+            / (selectedAssetMsrEnd - selectedAssetMsrStart + 1)
             // @ts-ignore
-            (acc[curr.forecastType][application] || 0);
+            + (acc[curr.forecastType][application] || 0);
         });
 
         return acc;
       },
-      { high: {}, base: {}, low: {} }
+      { high: {}, base: {}, low: {} },
     );
 
   return {
     averageOfTonnes,
     firstUseWithProductAndForecast,
   };
-};
+}
 
-const getEndUse = ({
+function getEndUse({
   selectedRegion,
   selectedAssetMsrStart,
   selectedAssetMsrEnd,
@@ -377,7 +375,7 @@ const getEndUse = ({
   selectedRegion: string;
   selectedAssetMsrStart: number;
   selectedAssetMsrEnd: number;
-}) => {
+}) {
   const headerOffset = 3;
   const consumerApplications = CoEndUse[0].slice(headerOffset) as string[];
   const rows = CoEndUse.slice(1) as (string[] | number[])[];
@@ -390,16 +388,16 @@ const getEndUse = ({
 
     return endUseDistribution
       .filter(
-        (distribution) =>
-          distribution.Year === year &&
-          commodityApplication === distribution.CommodityApplication
+        distribution =>
+          distribution.Year === year
+          && commodityApplication === distribution.CommodityApplication,
       )
       .map((distribution) => {
         const endUseCombined = consumerApplications.reduce<
           Record<string, number | string>
         >((acc, header, index) => {
-          acc[header] =
-            Number(row[index + headerOffset]) * distribution[header];
+          acc[header]
+            = Number(row[index + headerOffset]) * distribution[header];
 
           return acc;
         }, {});
@@ -416,71 +414,71 @@ const getEndUse = ({
   const pricing = getPricingAndForecast();
 
   const endUseWithProductAndForecast = endUseWithProduct.flatMap((product) => {
-    const forecastType = ["low", "base", "high"];
+    const forecastType = ['low', 'base', 'high'];
     const currentYearForecast = pricing.find(
-      (forecast: { year: string | number }) => forecast.year === product.Year
+      (forecast: { year: string | number }) => forecast.year === product.Year,
     );
     return forecastType.map((type: string) => {
-      const price =
-        currentYearForecast[type][`${product.Product}`.toLowerCase()];
+      const price
+        = currentYearForecast[type][`${product.Product}`.toLowerCase()];
 
       return Object.keys(product).reduce<Record<string, string | number>>(
         (acc, curr) => {
           if (
-            !["Product", "Year", "Country", "CommodityApplication"].includes(
-              curr
+            !['Product', 'Year', 'Country', 'CommodityApplication'].includes(
+              curr,
             )
           ) {
-            acc[curr] =
-              Number(product[curr]) *
-              price *
-              HARDCODED_ValueAdditionAtFirstUse[product.CommodityApplication];
-          } else {
+            acc[curr]
+              = Number(product[curr])
+              * price
+              * HARDCODED_ValueAdditionAtFirstUse[product.CommodityApplication];
+          }
+          else {
             acc[curr] = product[curr];
           }
           return acc;
         },
-        { forecastType: type }
+        { forecastType: type },
       );
     });
   });
 
   const averageOfTonnes = endUseWithProductAndForecast
     .filter(
-      (current) =>
-        current.Country === selectedRegion.toLocaleUpperCase() &&
-        Number(current.Year) >= selectedAssetMsrStart &&
-        Number(current.Year) <= selectedAssetMsrEnd
+      current =>
+        current.Country === selectedRegion.toLocaleUpperCase()
+        && Number(current.Year) >= selectedAssetMsrStart
+        && Number(current.Year) <= selectedAssetMsrEnd,
     )
     .reduce(
       (acc, curr) => {
         consumerApplications.forEach((application) => {
           // @ts-ignore
-          acc[curr.forecastType][application] =
+          acc[curr.forecastType][application]
             // @ts-ignore
-            curr[application] /
-              (selectedAssetMsrEnd - selectedAssetMsrStart + 1) +
+            = curr[application]
+            / (selectedAssetMsrEnd - selectedAssetMsrStart + 1)
             // @ts-ignore
-            (acc[curr.forecastType][application] || 0);
+            + (acc[curr.forecastType][application] || 0);
         });
 
         return acc;
       },
-      { high: {}, base: {}, low: {} }
+      { high: {}, base: {}, low: {} },
     );
 
   return {
     averageOfTonnes,
-    endUseWithProductAndForecast, // with an error of max 1% 
+    endUseWithProductAndForecast, // with an error of max 1%
   };
-};
+}
 
-
-export const msr = ({
+export function msr({
   selectedRegion = FORM_DATA.selectedRegion,
   selectedAssetMsrStart = FORM_DATA.selectedAssetMsrStart,
   selectedAssetMsrEnd = FORM_DATA.selectedAssetMsrEnd,
-} = {}) => {
+} = {}) {
   // REGION
 
   // CALC
@@ -507,4 +505,4 @@ export const msr = ({
     // CoFirstUseDistribution: getFirstUseDistribution(),
     //   MSRRawData: ,
   };
-};
+}

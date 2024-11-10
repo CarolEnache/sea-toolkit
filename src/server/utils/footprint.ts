@@ -1,16 +1,17 @@
-import { unidoService } from "@/server/services";
-import { COBALT_HARDCODED_MODEL, FORM_DATA } from "../constants";
-import { REGIONS } from "./auxiliary";
-import { msr } from "./msr";
-import { oecdCoeficients } from "./oecdCoeficients";
+import { unidoService } from '@/server/services';
+import { COBALT_HARDCODED_MODEL, FORM_DATA } from '../constants';
+import { REGIONS } from './auxiliary';
+import { msr } from './msr';
+import { oecdCoeficients } from './oecdCoeficients';
 
-export const getOECDData = () => {
+export function getOECDData() {
   const { footprint } = oecdCoeficients();
   return footprint;
-};
+}
 
-const gapFillingKey = (current: unidoService.Unido) =>
-  `${current["Table Description"]}-${current.Region}-${current.ISIC}`;
+function gapFillingKey(current: unidoService.Unido) {
+  return `${current['Table Description']}-${current.Region}-${current.ISIC}`;
+}
 
 /*
 TODO: This gap filling is quite dumb
@@ -19,8 +20,8 @@ original: [8866, 9116, 9526, 9598, 10102, 10506, 9832, 0, 0, 0, 0, 0, 0, 264, 26
 filled: [8866, 9116, 9526, 9598, 10102, 10506, 9832, 9832, 9832, 9832, 9832, 9832, 9832, 264, 267, 261]
 We can see that a trend between 9832 and 264 would be a better predictor than keeping the same value.
 */
-const gapFilling = (unidoArray: unidoService.Unido[]) => {
-  let lastKnownValue: Record<string, number> = {};
+function gapFilling(unidoArray: unidoService.Unido[]) {
+  const lastKnownValue: Record<string, number> = {};
 
   return unidoArray.map((current) => {
     const key = gapFillingKey(current);
@@ -35,10 +36,9 @@ const gapFilling = (unidoArray: unidoService.Unido[]) => {
 
     return current;
   });
-};
+}
 
-type getUnidoDataFn = (params?: { selectedRegion?: string, selectedEconomyUnidoStart?: number,
-  selectedEconomyUnidoEnd?: number }) => void;
+type getUnidoDataFn = (params?: { selectedRegion?: string; selectedEconomyUnidoStart?: number; selectedEconomyUnidoEnd?: number }) => void;
 
 export const getUnidoData: getUnidoDataFn = async ({
   selectedRegion = FORM_DATA.selectedRegion,
@@ -50,24 +50,25 @@ export const getUnidoData: getUnidoDataFn = async ({
 
   return COBALT_HARDCODED_MODEL.flatMap((curr) => {
     const isicData = unidoData.filter(
-      (data) =>
+      data =>
         (selectedRegion === REGIONS.GLOBAL
           ? true
-          : selectedRegion === data.Region) &&
-        data.ISIC === curr.ISIC &&
-        data.Year && (
-          data.Year >= selectedEconomyUnidoStart &&
-          data.Year <= selectedEconomyUnidoEnd
-        )
+          : selectedRegion === data.Region)
+        && data.ISIC === curr.ISIC
+        && data.Year && (
+          data.Year >= selectedEconomyUnidoStart
+          && data.Year <= selectedEconomyUnidoEnd
+        ),
     );
 
-    const x =
-      gapFilling(isicData).reduce((acc, data) => {
-        const key = `${data["Table Description"]}`;
+    const x
+      = gapFilling(isicData).reduce((acc, data) => {
+        const key = `${data['Table Description']}`;
 
         if (acc[key]) {
           acc[key].Value += (data.Value || 0) * curr.weight / numberOfYears;
-        } else {
+        }
+        else {
           acc[key] = structuredClone(data);
           // delete acc[key].Year;
           acc[key].Value = (acc[key].Value || 0) * curr.weight / numberOfYears;
@@ -85,7 +86,7 @@ export const getUnidoData: getUnidoDataFn = async ({
   });
 };
 
-export const getMSRData = () => {
+export function getMSRData() {
   const x = msr();
   return x;
-};
+}

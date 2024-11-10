@@ -1,7 +1,7 @@
 'use server';
-import { naceService } from '@/server/services'
+import { naceService } from '@/server/services';
 
-export const preload = () => {
+export async function preload() {
   void naceService.getIndustries('nace.europa-eu_2024');
 }
 

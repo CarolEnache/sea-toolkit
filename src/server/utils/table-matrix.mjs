@@ -34,9 +34,9 @@ class TableMatrix {
 
   get(col, row) {
     return Array.isArray(row)
-      ? selectFromArray(this.VALS, row).map((sRow) =>
-          selectFromArray(sRow, col)
-        )
+      ? selectFromArray(this.VALS, row).map(sRow =>
+        selectFromArray(sRow, col),
+      )
       : selectFromArray(selectFromArray(this.VALS, row), col);
   }
 

@@ -1,33 +1,33 @@
-//#region FROM DATABASE
+// #region FROM DATABASE
 
-import { MSRID } from "../services/ts/msr";
-import { OECDID } from "../services/ts/oecd";
-import { UNIDOID } from "../services/ts/unido";
+import type { MSRID } from '../services/ts/msr';
+import type { OECDID } from '../services/ts/oecd';
+import type { UNIDOID } from '../services/ts/unido';
 
 // The model ID allows to select different industry links across data sources and weights
-export type ModelID = "COBALT | Enache-Costas-2023" | "NICKEL" | "COPPER" | "HYDROGEN";
+export type ModelID = 'COBALT | Enache-Costas-2023' | 'NICKEL' | 'COPPER' | 'HYDROGEN';
 // The market ID allows to select the source for historical prices of the commodity
-export type MarketID = "COBALT | Wiebe-2019" | "NICKEL" | "COPPER" | "HYDROGEN";
-//#endregion
+export type MarketID = 'COBALT | Wiebe-2019' | 'NICKEL' | 'COPPER' | 'HYDROGEN';
+// #endregion
 /**
  * The forecast function allows to choose how to fill future data
  */
 enum ForecastFn {
-  TwentyPerCent = "TwentyPerCent", // The current default for market forecasting
-  Average = "Average", // The current default for other forecasting
-  Median = "Median",
-  Mode = "Mode",
-  LinearRegresion = "LinearRegresion",
-  LogaritmicRegresion = "LogaritmicRegresion",
-  PolynomialRegresion = "PolynomialRegresion",
+  TwentyPerCent = 'TwentyPerCent', // The current default for market forecasting
+  Average = 'Average', // The current default for other forecasting
+  Median = 'Median',
+  Mode = 'Mode',
+  LinearRegresion = 'LinearRegresion',
+  LogaritmicRegresion = 'LogaritmicRegresion',
+  PolynomialRegresion = 'PolynomialRegresion',
 }
 /**
  * First Use mode
  */
 export enum FirstUseMode {
-  "ISIC sectorial analysis" = "ISIC sectorial analysis",
-  "Representative Companies" = "Representative Companies",
-  "Average" = "Average",
+  'ISIC sectorial analysis' = 'ISIC sectorial analysis',
+  'Representative Companies' = 'Representative Companies',
+  'Average' = 'Average',
 }
 /**
  * Some silly more verbose types
@@ -37,13 +37,13 @@ type AuthorName = string;
 type OrgName = string;
 type FullYear = number;
 
-interface DataSource<ID extends string> {
+type DataSource<ID extends string> = {
   id: ID;
   startYear?: FullYear;
   endYear?: FullYear;
-}
+};
 
-export interface FormData {
+export type FormData = {
   // This section is about retrieving data from DB
   source: {
     market: DataSource<MarketID>[]; // Multiple sources for prices
@@ -73,8 +73,8 @@ export interface FormData {
   // This section is about non-customisable fields
   generated: {
     report: {
-      compiler: "Socio-Economic Analysis Toolkit";
+      compiler: 'Socio-Economic Analysis Toolkit';
       id: UUID;
     };
   };
-}
+};

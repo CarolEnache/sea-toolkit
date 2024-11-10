@@ -1,20 +1,19 @@
-
 /*
 as we may need to parse more files in the future it's good to have a parser
 this needs to:
 */
 // load the xls library
 // load the file from the arguments
-// 
+//
 
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import readline from 'node:readline';
 import XLSX from 'xlsx';
-import readline from 'readline';
-import fs from 'fs';
-import { execSync } from 'child_process';
 
 XLSX.set_fs(fs);
 
-const testFallback = () => {
+function testFallback() {
   // console.log('\033[33m⚠️ You need to pass a valid file as an argument, using ./data/benchmark.xlsx for demo purposes.\033[0m\n');
   return './data/benchmark.xlsx';
 }
@@ -22,7 +21,7 @@ const testFallback = () => {
 const userInput = (() => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-  return (query: string) => new Promise((resolve) => rl.question(query, resolve));
+  return (query: string) => new Promise(resolve => rl.question(query, resolve));
 })();
 
 (async () => {
@@ -31,8 +30,8 @@ const userInput = (() => {
 
   const taskSetup = {
     selectedFile: process.argv[2] || testFallback(),
-    outputFolder: './parsed-xls'
-  }
+    outputFolder: './parsed-xls',
+  };
   // console.log(JSON.stringify(taskSetup, null, 2).replace('{\n', '\033[4m\033[1mTask Setup\033[0m\n\n').replace('\n}', '\n').replace(',\n', '\n').replaceAll('  "', '\033[1m').replaceAll('": "', '\033[0m\t"'));
 
   console.log(`Reading ${taskSetup.selectedFile}...`);
@@ -43,8 +42,7 @@ const userInput = (() => {
   console.log('\r');
 
   // split by comma, iterate, check if valid sheetnames, and parse
-  await Promise.all(nameList.split(',').map(async sheetName => {
-
+  await Promise.all(nameList.split(',').map(async (sheetName) => {
     console.log(`Parsing ${sheetName}...`);
     const table = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
     // save to filesystem
@@ -58,7 +56,7 @@ const userInput = (() => {
       execSync(`mkdir -p ${taskSetup.outputFolder}`, { cwd: process.cwd() });
       fs.writeFileSync(outputFile, JSON.stringify(table.slice(
         (i) * numRowsPerFile,
-        (i + 1) * numRowsPerFile
+        (i + 1) * numRowsPerFile,
       )));
     }
   }));
@@ -66,4 +64,3 @@ const userInput = (() => {
   console.log('\nAll done ✨');
   process.exit(0);
 })();
-

@@ -1,14 +1,14 @@
 'use server';
-import { redirect } from 'next/navigation'
+import { footprintService } from '@/server/services';
 
-import { footprintService } from '@/server/services'
+import { redirect } from 'next/navigation';
 
 type AnalystIndustries = footprintService.AnalystIndustries;
 
-export const setAnalystIndustries = async (formData: FormData) => {
+export async function setAnalystIndustries(formData: FormData) {
   // Something is wrong here, why doesn't know the fields of formData?
   const analystIndustries = Object.fromEntries(formData.entries()) as AnalystIndustries;
-  
+
   await footprintService.addAnalystIndustries({
     NACE: analystIndustries.NACE,
     ISIC: analystIndustries.ISIC,
@@ -19,10 +19,10 @@ export const setAnalystIndustries = async (formData: FormData) => {
   // return await footprintService.getAnalystIndustries();
 }
 
-export const deleteAnalystIndustries = async (formData: FormData) => {
+export async function deleteAnalystIndustries(formData: FormData) {
   // Something is wrong here, why doesn't know the fields of formData?
   const analystIndustries = Object.fromEntries(formData.entries()) as Pick<AnalystIndustries, 'NACE'>;
-  
+
   await footprintService.delAnalystIndustries({
     NACE: analystIndustries.NACE,
   });

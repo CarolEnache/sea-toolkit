@@ -1,12 +1,12 @@
-import { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 type ListItem = {
-    description: string;
-    value: string;
-    child: string | ReactNode
-}
+  description: string;
+  value: string;
+  child: string | ReactNode;
+};
 
 export type RadioGroupType = {
-    label: string;
-    radioList: ListItem[]
-}
+  label: string;
+  radioList: ListItem[];
+};

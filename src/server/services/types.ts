@@ -9,6 +9,4 @@ export type Industry = {
   naceDescription?: string;
   // Meta
   url?: string;
-}
-
-export type ReportStatus = 'pending' | 'processing' | 'complete';
+};

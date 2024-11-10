@@ -9,10 +9,17 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   webpack: (config) => {
-    config.externals = [...config.externals, 'duckdb'];
-    config.resolve = { ...config.resolve, alias: { ...config.resolve.alias,
-      "@/*": ["src/*"]
-    }}
+    config.externals = [
+      ...config.externals,
+      'duckdb',
+    ];
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve.alias,
+        '@/*': ['src/*'],
+      },
+    };
     return config;
   },
 };

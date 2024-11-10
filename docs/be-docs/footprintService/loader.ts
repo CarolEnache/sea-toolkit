@@ -1,7 +1,7 @@
 'use server';
-import { footprintService } from '@/server/services'
+import { footprintService } from '@/server/services';
 
-export const preload = () => {
+export async function preload() {
   void footprintService.getIndustries();
   void footprintService.getAnalystIndustries();
 }

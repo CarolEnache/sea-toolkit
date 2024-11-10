@@ -21,4 +21,3 @@ Promise.all([
   }),
   rm(beDocsPath, { recursive: true, force: true }),
 ]);
-

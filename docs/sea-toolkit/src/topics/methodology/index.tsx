@@ -1,18 +1,20 @@
 import { Page } from '@/ui';
-import { Intro } from './intro';
-import { DataSources } from './data-sources';
 import { ConsistencyAnalysis } from './consistency-analysis';
-import { Unido } from './unido';
+import { DataSources } from './data-sources';
 import { Footprint } from './footprint';
+import { Intro } from './intro';
 import { MSR } from './msr';
+import { Unido } from './unido';
 
-export const Methodology = () => (
-  <Page>
-    <Intro />
-    <DataSources />
-    <ConsistencyAnalysis />
-    <Unido />
-    <MSR />
-    <Footprint />
-  </Page>
-);
+export function Methodology() {
+  return (
+    <Page>
+      <Intro />
+      <DataSources />
+      <ConsistencyAnalysis />
+      <Unido />
+      <MSR />
+      <Footprint />
+    </Page>
+  );
+}

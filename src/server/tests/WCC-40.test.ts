@@ -1,12 +1,14 @@
-import { it } from 'node:test';
 import assert from 'node:assert';
+import { it } from 'vitest';
 
 import { getOECDEmployment } from '../utils/oecdCoeficients';
 
-const matches = (a: unknown, b: number) => assert.strictEqual(
-  parseFloat(`${a || 0}`).toFixed(0),
-  `${b || 0}`
-);
+function matches(a: unknown, b: number) {
+  return assert.strictEqual(
+    Number.parseFloat(`${a || 0}`).toFixed(0),
+    `${b || 0}`,
+  );
+}
 
 it('getOECDEmployment returns the right data for Labour', () => {
   const labour = getOECDEmployment('Global');
